@@ -79,14 +79,10 @@ func (f *SpriteFile) parseHeader(buf io.Reader) error {
 	}
 
 	var indexedFrameCount, rgbaFrameCount uint16
-	if err = binary.Read(buf, binary.LittleEndian, &indexedFrameCount); err != nil {
-		return errors.Wrap(err, "could not read indexed frame count")
-	}
+	_ = binary.Read(buf, binary.LittleEndian, &indexedFrameCount)
 
 	if version > 1.1 {
-		if err = binary.Read(buf, binary.LittleEndian, &rgbaFrameCount); err != nil {
-			return errors.Wrap(err, "could not read rgba frame count")
-		}
+		_ = binary.Read(buf, binary.LittleEndian, &rgbaFrameCount)
 	}
 
 	f.Header.Signature = signatureStr
@@ -119,7 +115,7 @@ func (f *SpriteFile) readCompressedIndexedFrames(buf io.Reader) error {
 		f.Frames[i] = &SpriteFrame{
 			SpriteType: SpriteFileTypePAL,
 			Width:      uintptr(width),
-			Height:     uintptr(width),
+			Height:     uintptr(height),
 			Data:       data,
 		}
 	}
