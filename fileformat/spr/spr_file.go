@@ -5,15 +5,28 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"strconv"
 
 	"github.com/pkg/errors"
 )
 
+type FileType int
+
 const (
 	HeaderSignature = "SP"
 	PaletteSize     = 256 * 4
+
+	SpriteFileTypePAL FileType = iota
+	SpriteFileTypeRGBA
 )
+
+type SpriteFrame struct {
+	SpriteType FileType
+	Width      uintptr
+	Height     uintptr
+	Data       []byte
+}
 
 type SpriteFile struct {
 	Header struct {
@@ -25,6 +38,7 @@ type SpriteFile struct {
 		RGBAIndex         uint16
 	}
 
+	Frames  []*SpriteFrame
 	Palette *bytes.Buffer
 }
 
@@ -33,6 +47,14 @@ func Load(buf io.Reader) (file *SpriteFile, err error) {
 
 	if err := file.parseHeader(buf); err != nil {
 		return nil, err
+	}
+
+	if file.Header.Version >= 2.1 {
+		if err = file.readCompressedIndexedFrames(buf); err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, fmt.Errorf("unsupported version %f\n", file.Header.Version)
 	}
 
 	return file, nil
@@ -48,8 +70,8 @@ func (f *SpriteFile) parseHeader(buf io.Reader) error {
 	}
 
 	var major, minor byte
-	_ = binary.Read(buf, binary.LittleEndian, &major)
 	_ = binary.Read(buf, binary.LittleEndian, &minor)
+	_ = binary.Read(buf, binary.LittleEndian, &major)
 
 	version, err := strconv.ParseFloat(fmt.Sprintf("%d.%d", major, minor), 32)
 	if err != nil {
@@ -72,7 +94,35 @@ func (f *SpriteFile) parseHeader(buf io.Reader) error {
 	f.Header.IndexedFrameCount = indexedFrameCount
 	f.Header.RGBAFrameCount = rgbaFrameCount
 	f.Header.RGBAIndex = indexedFrameCount
+	f.Frames = make([]*SpriteFrame, indexedFrameCount+rgbaFrameCount)
 	f.Palette = bytes.NewBuffer(make([]byte, PaletteSize))
+
+	return nil
+}
+
+// Parse .spr indexed images encoded with run-length encoding (RLE)
+func (f *SpriteFile) readCompressedIndexedFrames(buf io.Reader) error {
+	for i := 0; i < int(f.Header.IndexedFrameCount); i++ {
+		var (
+			width, height uint16
+			data          []byte
+		)
+
+		_ = binary.Read(buf, binary.LittleEndian, &width)
+		_ = binary.Read(buf, binary.LittleEndian, &height)
+
+		data, err := ioutil.ReadAll(io.LimitReader(buf, int64(width*height)))
+		if err != nil {
+			return errors.Wrap(err, "could not read indexed frames data")
+		}
+
+		f.Frames[i] = &SpriteFrame{
+			SpriteType: SpriteFileTypePAL,
+			Width:      uintptr(width),
+			Height:     uintptr(width),
+			Data:       data,
+		}
+	}
 
 	return nil
 }
