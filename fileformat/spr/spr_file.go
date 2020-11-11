@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -55,6 +56,10 @@ func Load(buf io.Reader) (file *SpriteFile, err error) {
 		}
 	} else {
 		return nil, fmt.Errorf("unsupported version %f\n", file.Header.Version)
+	}
+
+	if err = file.readRGBAFrames(buf); err != nil {
+		return nil, err
 	}
 
 	return file, nil
@@ -116,6 +121,35 @@ func (f *SpriteFile) readCompressedIndexedFrames(buf io.Reader) error {
 			SpriteType: SpriteFileTypePAL,
 			Width:      uintptr(width),
 			Height:     uintptr(height),
+			Data:       data,
+		}
+	}
+
+	return nil
+}
+
+func (f *SpriteFile) readRGBAFrames(buf io.Reader) error {
+	for i := 0; i < int(f.Header.RGBAFrameCount); i++ {
+		var (
+			width, height, size uint16
+			data                []byte
+		)
+
+		_ = binary.Read(buf, binary.LittleEndian, &width)
+		_ = binary.Read(buf, binary.LittleEndian, &height)
+		size = width * height * 4
+
+		data, err := ioutil.ReadAll(io.LimitReader(buf, int64(size)))
+		if err != nil {
+			return errors.Wrap(err, "could not read indexed frames data")
+		}
+
+		log.Printf("RGBA Frame: %db, \n, data=%#v\n", size, data)
+
+		f.Frames[i+int(f.Header.RGBAIndex)] = &SpriteFrame{
+			SpriteType: SpriteFileTypeRGBA,
+			Width:      uintptr(width),
+			Height:     uintptr(width),
 			Data:       data,
 		}
 	}
