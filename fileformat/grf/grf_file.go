@@ -16,7 +16,6 @@ const (
 	fileHeaderSignature = "Master of Magic"
 )
 
-// File ...
 type File struct {
 	Header struct {
 		Signature       [15]byte
@@ -31,7 +30,6 @@ type File struct {
 	file    *os.File
 }
 
-// NewFile loads a GRF file.
 func NewFile(path string) (*File, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -58,12 +56,10 @@ func NewFile(path string) (*File, error) {
 	return grfFile, nil
 }
 
-// GetEntries ...
 func (f *File) GetEntries() map[string]*Entry {
 	return f.entries
 }
 
-// GetEntry ...
 func (f *File) GetEntry(name string) (entry *Entry, err error) {
 	var exists bool
 	if entry, exists = f.entries[name]; !exists {
@@ -83,7 +79,6 @@ func (f *File) GetEntry(name string) (entry *Entry, err error) {
 	return
 }
 
-// Close ...
 func (f *File) Close() error {
 	return f.file.Close()
 }
