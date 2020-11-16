@@ -1,12 +1,11 @@
 package main
 
 import (
-	"image"
-	"image/color"
-	"image/draw"
+	"image/png"
 	"log"
 	"os"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/project-midgard/midgarts/fileformat/grf"
 	"github.com/project-midgard/midgarts/fileformat/spr"
 )
@@ -28,7 +27,24 @@ func main() {
 			log.Fatal(err)
 		}
 
-		log.Printf("entry=%#v\n", sprFile)
+		sprFile.ToRGBA()
+		sprFile.Compile()
+		img := sprFile.Image(0, false)
+
+		// outputFile is a File type which satisfies Writer interface
+		outputFile, err := os.Create("test.png")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Encode takes a writer interface and an image interface
+		// We pass it the File and the RGBA
+		png.Encode(outputFile, img)
+
+		// Don't forget to close files
+		outputFile.Close()
+
+		spew.Dump(img)
 
 		//fileName := os.Args[2]
 		//parts := strings.Split(fileName, "\\")
@@ -44,15 +60,6 @@ func main() {
 		//	log.Fatal(err)
 		//}
 
-		//imgPath := "foo.png"
-		//out, err := os.Create(imgPath)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//w, h := int(sprFile.Frames[0].Width), int(sprFile.Frames[0].Height)
-		//img := createImage(w, h)
-		//data := sprFile.Frames[0].Data
-		//outputWidth := sprFile.Frames[0].Width
 		//
 		//for y := 0; y < h; y++ {
 		//	for x := 0; x < w; x++ {
@@ -67,39 +74,41 @@ func main() {
 		//
 		//err = png.Encode(out, img)
 	} else {
-		i := 0
-		for fileName, _ := range f.GetEntries() {
-			e, err := f.GetEntry(fileName)
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			sprFile, err := spr.Load(e.Data)
-
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-
-			log.Printf("[%s] %#v\n", fileName, sprFile)
-
-			if i > 5 {
-				break
-			}
-
-			i++
-
-			log.Print("\n\n")
-		}
+		//i := 0
+		//for fileName, _ := range f.GetEntries() {
+		//	e, err := f.GetEntry(fileName)
+		//	if err != nil {
+		//		continue
+		//	}
+		//
+		//	sprFile, err := spr.Load(e.Data)
+		//
+		//	if err != nil {
+		//		continue
+		//	}
+		//
+		//	//spew.Dump(sprFile)
+		//	//log.Printf("[%s] %#v\n", fileName, sprFile)
+		//
+		//	img := sprFile.Image(0, false, color.RGBA{
+		//		R: 155,
+		//		G: 10,
+		//		B: 15,
+		//		A: 0,
+		//	})
+		//
+		//	_ = img
+		//	//spew.Dump(img)
+		//
+		//	i++
+		//
+		//	if !strings.Contains(fileName, "ork_warrior") {
+		//		continue
+		//	}
+		//
+		//	log.Printf("%s\n", fileName)
+		//	log.Print("\n\n")
+		//}
 	}
 
-}
-
-func createImage(width int, height int) *image.RGBA {
-	rect := image.Rect(0, 0, width, height)
-	img := image.NewRGBA(rect)
-	background := color.RGBA{0, 0xFF, 0, 0xCC}
-	draw.Draw(img, img.Bounds(), &image.Uniform{background}, image.Point{}, draw.Src)
-	return img
 }
