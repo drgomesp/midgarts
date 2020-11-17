@@ -69,7 +69,7 @@ func Load(buf *bytes.Buffer) (f *SpriteFile, err error) {
 		return nil, err
 	}
 
-	f.parsePalette(buf)
+	f.parsePalette(int64(reader.Len())-1024, reader)
 
 	return f, nil
 }
@@ -200,10 +200,9 @@ func (f *SpriteFile) readRGBAFrames(buf io.ReadSeeker) error {
 	return nil
 }
 
-func (f *SpriteFile) parsePalette(buf *bytes.Buffer) {
-	reader := bytes.NewReader(buf.Bytes())
-	_ = bytesutil.SkipBytes(reader, int64(reader.Len()-1024))
-	_ = binary.Read(reader, binary.LittleEndian, &f.Palette)
+func (f *SpriteFile) parsePalette(skip int64, buf io.ReadSeeker) {
+	_ = bytesutil.SkipBytes(buf, skip)
+	_ = binary.Read(buf, binary.LittleEndian, &f.Palette)
 }
 
 func (f *SpriteFile) ToRGBA() {
@@ -225,10 +224,10 @@ func (f *SpriteFile) ToRGBA() {
 				idx1 = int(frame.Data[x+y*width]) * 4
 				idx2 = (x + (height-y-1)*width) * 4
 
-				a := byte(0)
+				a := byte(255)
 
 				if idx1 == 0 {
-					a = 255
+					a = 0
 				}
 
 				buf[idx2+3] = f.Palette[idx1+0]
@@ -267,8 +266,11 @@ func (f *SpriteFrame) Compile(palette []byte) {
 	)
 
 	width, height := int(f.Width), int(f.Height)
-	glWidth = int(math.Pow(2, math.Ceil(math.Log(float64(width))/math.Log(2))))
-	glHeight = int(math.Pow(2, math.Ceil(math.Log(float64(height))/math.Log(2))))
+	pow := math.Pow
+	ceil := math.Ceil
+	mlog := math.Log
+	glWidth = int(pow(2, ceil(mlog(float64(width))/mlog(2))))
+	glHeight = int(pow(2, ceil(mlog(float64(height))/mlog(2))))
 	startX = int(math.Floor(float64(glWidth-width) * 0.5))
 	startY = int(math.Floor(float64(glHeight-height) * 0.5))
 
@@ -309,7 +311,7 @@ func (f *SpriteFrame) Compile(palette []byte) {
 	f.Height = uint16(glHeight)
 }
 
-func (f *SpriteFile) Image(index int, mirrored bool) *image.RGBA {
+func (f *SpriteFile) Image(index int, mirrored bool, bgColor color.Color) *image.RGBA {
 	var (
 		frame  = f.Frames[index]
 		width  = int(frame.Width)
