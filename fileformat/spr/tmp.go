@@ -23,8 +23,8 @@ package spr
 //
 //	SpriteMagicHeader = "SP"
 //
-//	SpriteFileTypePAL FileType = iota
-//	SpriteFileTypeRGBA
+//	FileTypePAL FileType = iota
+//	FileTypeRGBA
 //)
 //
 //type SpriteFrame struct {
@@ -151,7 +151,7 @@ package spr
 //		}
 //
 //		f.Frames[i] = &SpriteFrame{
-//			SpriteType: SpriteFileTypePAL,
+//			SpriteType: FileTypePAL,
 //			Width:      uintptr(width),
 //			Height:     uintptr(height),
 //			Data:       data,
@@ -178,7 +178,7 @@ package spr
 //		}
 //
 //		f.Frames[i] = &SpriteFrame{
-//			SpriteType: SpriteFileTypePAL,
+//			SpriteType: FileTypePAL,
 //			Width:      uintptr(width),
 //			Height:     uintptr(width),
 //			Data:       data,
@@ -204,7 +204,7 @@ package spr
 //		}
 //
 //		f.Frames[i+int(f.RGBAIndex)] = &SpriteFrame{
-//			SpriteType: SpriteFileTypeRGBA,
+//			SpriteType: FileTypeRGBA,
 //			Width:      uintptr(width),
 //			Height:     uintptr(width),
 //			Data:       data,
@@ -218,7 +218,7 @@ package spr
 //	for i := 0; i < int(f.IndexedFrameCount); i++ {
 //		frame := f.Frames[i]
 //
-//		if frame.SpriteType != SpriteFileTypePAL {
+//		if frame.SpriteType != FileTypePAL {
 //			continue
 //		}
 //
@@ -240,7 +240,7 @@ package spr
 //			}
 //		}
 //
-//		frame.SpriteType = SpriteFileTypeRGBA
+//		frame.SpriteType = FileTypeRGBA
 //	}
 //
 //	log.Printf("Palette len = %d\n", len(f.Palette))
