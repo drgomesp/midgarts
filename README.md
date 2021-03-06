@@ -2,7 +2,7 @@
 
 Midgarts Client is an attempt to write a modern client implementation of the old classic Ragnarök Online game. 
 
-## Features
+## Table of Contents
 
-- [x] GRF file support
-
+- Introduction
+- [TODO](https://github.com/drgomesp/midgarts/blob/master/TODO.md#todo)
