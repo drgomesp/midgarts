@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image/png"
 	"log"
 	"os"
@@ -15,9 +16,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	e, err := f.GetEntry(`data\sprite\ork_warrior.spr`)
-	//e, err := f.GetEntry(`data\sprite\count.spr`)
-	//e, err := f.GetEntry(`data\sprite\npc\bigfoot.spr`)
+	entry := os.Args[2]
+	//entry = `data\sprite\npc\4_f_kafra1.spr`
+	e, err := f.GetEntry(entry)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -29,7 +31,7 @@ func main() {
 
 	img := sprFile.ImageAt(0)
 
-	outputFile, err := os.Create("./out/test.png")
+	outputFile, err := os.Create(fmt.Sprintf("./out/%s", entry))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,5 +40,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	outputFile.Close()
+	defer func() {
+		_ = outputFile.Close()
+	}()
 }
