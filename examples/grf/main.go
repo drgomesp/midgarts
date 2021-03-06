@@ -2,7 +2,6 @@ package main
 
 import (
 	"image/png"
-	_ "image/png"
 	"log"
 	"os"
 
@@ -28,9 +27,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	img := sprFile.Image(0, false, nil)
+	img := sprFile.ImageAt(0)
 
-	outputFile, err := os.Create("test.png")
+	outputFile, err := os.Create("./out/test.png")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -7,7 +7,6 @@ import (
 	"image"
 	"image/color"
 	"io"
-	"log"
 	"strconv"
 
 	"github.com/pkg/errors"
@@ -41,7 +40,7 @@ type SpriteFile struct {
 		RGBAIndex         uint16
 	}
 
-	Frames  []*SpriteFrame
+	Frames  []SpriteFrame
 	Palette [PaletteSize]byte
 }
 
@@ -57,7 +56,7 @@ func Load(buf *bytes.Buffer) (f *SpriteFile, err error) {
 		return nil, fmt.Errorf("unsupported version %f\n", f.Header.Version)
 	}
 
-	if err = f.readCompressedIndexedFrames(reader); err != nil {
+	if err = f.readPalettedFrames(reader); err != nil {
 		return nil, err
 	}
 
@@ -74,14 +73,11 @@ func Load(buf *bytes.Buffer) (f *SpriteFile, err error) {
 }
 
 func (f *SpriteFile) parsePalette(skip int64, buf io.ReadSeeker) error {
-	f.Palette = [PaletteSize]byte{}
 	_ = bytesutil.SkipBytes(buf, skip)
 	return binary.Read(buf, binary.LittleEndian, &f.Palette)
 }
 
 func (f *SpriteFile) parseHeader(buf io.ReadSeeker) error {
-	log.Println("parsing header...")
-
 	var signature [2]byte
 	_ = binary.Read(buf, binary.LittleEndian, &signature)
 
@@ -111,15 +107,13 @@ func (f *SpriteFile) parseHeader(buf io.ReadSeeker) error {
 	f.Header.IndexedFrameCount = indexedFrameCount
 	f.Header.RGBAFrameCount = rgbaFrameCount
 	f.Header.RGBAIndex = indexedFrameCount
-	f.Frames = make([]*SpriteFrame, indexedFrameCount+rgbaFrameCount)
+	f.Frames = make([]SpriteFrame, indexedFrameCount+rgbaFrameCount)
 
 	return nil
 }
 
 // Parse .spr indexed images encoded with run-length encoding (RLE)
-func (f *SpriteFile) readCompressedIndexedFrames(buf io.ReadSeeker) error {
-	log.Println("reading compressed indexed frames...")
-
+func (f *SpriteFile) readPalettedFrames(buf io.ReadSeeker) error {
 	var (
 		width, height    uint16
 		c, count         byte
@@ -162,7 +156,7 @@ func (f *SpriteFile) readCompressedIndexedFrames(buf io.ReadSeeker) error {
 			offset, _ = buf.Seek(0, io.SeekCurrent)
 		}
 
-		f.Frames[i] = &SpriteFrame{
+		f.Frames[i] = SpriteFrame{
 			SpriteType: FileTypePAL,
 			Width:      width,
 			Height:     height,
@@ -174,8 +168,6 @@ func (f *SpriteFile) readCompressedIndexedFrames(buf io.ReadSeeker) error {
 }
 
 func (f *SpriteFile) readRGBAFrames(buf io.ReadSeeker) error {
-	log.Println("reading rgba frames...")
-
 	for i := 0; i < int(f.Header.RGBAFrameCount); i++ {
 		var (
 			width, height uint16
@@ -190,7 +182,7 @@ func (f *SpriteFile) readRGBAFrames(buf io.ReadSeeker) error {
 		data = make([]byte, size)
 		_ = binary.Read(buf, binary.LittleEndian, &data)
 
-		f.Frames[i+int(f.Header.RGBAIndex)] = &SpriteFrame{
+		f.Frames[i+int(f.Header.RGBAIndex)] = SpriteFrame{
 			SpriteType: FileTypeRGBA,
 			Width:      width,
 			Height:     height,
@@ -203,23 +195,22 @@ func (f *SpriteFile) readRGBAFrames(buf io.ReadSeeker) error {
 	return nil
 }
 
-func (f *SpriteFile) Image(index int, mirrored bool, bgColor color.Color) *image.NRGBA {
+func (f *SpriteFile) ImageAt(index int) image.Image {
 	var (
 		frame  = f.Frames[index]
 		width  = int(frame.Width)
 		height = int(frame.Height)
-		pal    = f.Palette
 		data   = frame.Data
 	)
 
-	img := image.NewNRGBA(image.Rect(0, 0, width, height))
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	if frame.SpriteType == FileTypeRGBA {
 		for y := 0; y < height; y++ {
 			for x := 0; x < width; x++ {
 				i := (x + y*width) * 4
 
-				img.Set(x, y, color.NRGBA{
+				img.Set(x, y, color.RGBA{
 					R: data[i+3],
 					G: data[i+2],
 					B: data[i+1],
@@ -237,10 +228,10 @@ func (f *SpriteFile) Image(index int, mirrored bool, bgColor color.Color) *image
 					a = 255
 				}
 
-				img.Set(x, y, color.NRGBA{
-					R: pal[i+0],
-					G: pal[i+1],
-					B: pal[i+2],
+				img.Set(x, y, color.RGBA{
+					R: f.Palette[i+0],
+					G: f.Palette[i+1],
+					B: f.Palette[i+2],
 					A: a,
 				})
 			}
