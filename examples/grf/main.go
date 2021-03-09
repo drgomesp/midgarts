@@ -5,33 +5,34 @@ import (
 	"image/png"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/project-midgard/midgarts/fileformat/grf"
 	"github.com/project-midgard/midgarts/fileformat/spr"
 )
 
 func main() {
-	f, err := grf.NewFile(os.Args[1])
+	f, err := grf.Load(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	entry := os.Args[2]
-	//entry = `data\sprite\npc\4_f_kafra1.spr`
+	entry = `data\sprite\ork_warrior.spr`
 	e, err := f.GetEntry(entry)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sprFile, err := spr.Load(e.Data)
+	sprFile, err := spr.NewSpriteFileFromData(e.Data)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	img := sprFile.ImageAt(0)
 
-	outputFile, err := os.Create(fmt.Sprintf("./out/%s", entry))
+	outputFile, err := os.Create(strings.Trim(fmt.Sprintf("./out/%s.png", entry), `'`))
 	if err != nil {
 		log.Fatal(err)
 	}

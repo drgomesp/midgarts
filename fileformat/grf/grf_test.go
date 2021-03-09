@@ -89,7 +89,7 @@ func TestEntryHeaders(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(t *testing.T) {
-			grfFile, err := grf.NewFile(fmt.Sprintf("%s/%s", dataPath, "with-files.grf"))
+			grfFile, err := grf.Load(fmt.Sprintf("%s/%s", dataPath, "with-files.grf"))
 			assert.NoError(t, err)
 			assert.Equal(t, tt.ExpectedEntries, grfFile.GetEntries())
 		})
@@ -136,7 +136,7 @@ func TestEntryContents(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		grfFile, err := grf.NewFile(tt.FilePath)
+		grfFile, err := grf.Load(tt.FilePath)
 		assert.NoError(t, err)
 
 		t.Run(tt.Name, func(t *testing.T) {

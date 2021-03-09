@@ -7,6 +7,8 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -26,11 +28,13 @@ type File struct {
 		Version         uint32
 	}
 
-	entries map[string]*Entry
-	file    *os.File
+	// Maps to directory -> array of entries
+	entries map[string][]*Entry
+
+	file *os.File
 }
 
-func NewFile(path string) (*File, error) {
+func Load(path string) (*File, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		log.Fatal("error while opening file: ", err)
@@ -56,13 +60,22 @@ func NewFile(path string) (*File, error) {
 	return grfFile, nil
 }
 
-func (f *File) GetEntries() map[string]*Entry {
+func (f *File) GetEntryDirectories() map[string][]*Entry {
 	return f.entries
 }
 
-func (f *File) GetEntry(name string) (entry *Entry, err error) {
-	var exists bool
-	if entry, exists = f.entries[name]; !exists {
+func (f *File) GetEntries(dir string) []*Entry {
+	return f.entries[dir]
+}
+
+func (f *File) GetEntry(dir, name string) (entry *Entry, err error) {
+	for _, e := range f.entries[dir] {
+		if name == e.Name {
+			entry = e
+		}
+	}
+
+	if entry == nil {
 		return entry, fmt.Errorf("could not find entry '%s'", name)
 	}
 
@@ -104,7 +117,7 @@ func (f *File) parseHeader(file *os.File, fi os.FileInfo) error {
 	}
 
 	f.Header.EntryCount = f.Header.ReservedFiles - f.Header.EntryCount - 7
-	f.entries = make(map[string]*Entry, f.Header.EntryCount)
+	f.entries = make(map[string][]*Entry, f.Header.EntryCount)
 
 	return nil
 }
@@ -140,10 +153,10 @@ func (f *File) parseEntries(file *os.File) error {
 			buf.WriteByte(currentChar)
 		}
 
-		entry := &Entry{Data: new(bytes.Buffer)}
 		fileName = buf.String()
+		entry := &Entry{Name: fileName, Data: new(bytes.Buffer)}
 
-		if err := binary.Read(
+		if err = binary.Read(
 			bytes.NewReader(data[offset:offset+entryHeaderLength]),
 			binary.LittleEndian, &entry.Header,
 		); err != nil {
@@ -156,7 +169,13 @@ func (f *File) parseEntries(file *os.File) error {
 			continue
 		}
 
-		f.entries[fileName] = entry
+		properFileName := strings.ReplaceAll(fileName, `\`, "/")
+		dir := strings.ReplaceAll(filepath.Dir(properFileName), "/", `\`)
+		_ = dir
+
+		if strings.Contains(fileName, ".spr") {
+			f.entries[dir] = append(f.entries[dir], entry)
+		}
 	}
 
 	return nil
