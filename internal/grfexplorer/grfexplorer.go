@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/project-midgard/midgarts/fileformat/grf"
-	"github.com/project-midgard/midgarts/fileformat/spr"
+	"github.com/project-midgard/midgarts/internal/fileformat/grf"
+	"github.com/project-midgard/midgarts/internal/fileformat/spr"
 
 	"github.com/inkyblackness/imgui-go/v3"
 )
@@ -58,7 +58,7 @@ func Run(p Platform, r Renderer) {
 		log.Fatal(err)
 	}
 
-	sprFile, err := spr.NewSpriteFileFromData(e.Data)
+	sprFile, err := spr.Load(e.Data)
 	if err != nil {
 		log.Fatal(err)
 	}
