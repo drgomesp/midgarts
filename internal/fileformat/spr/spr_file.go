@@ -10,7 +10,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-	"github.com/project-midgard/midgarts/bytesutil"
+	"github.com/project-midgard/midgarts/internal/bytesutil"
 )
 
 type FileType int

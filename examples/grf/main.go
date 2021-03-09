@@ -7,8 +7,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/project-midgard/midgarts/fileformat/grf"
-	"github.com/project-midgard/midgarts/fileformat/spr"
+	"github.com/project-midgard/midgarts/internal/fileformat/grf"
+	"github.com/project-midgard/midgarts/internal/fileformat/spr"
 )
 
 func main() {
@@ -41,7 +41,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	defer func() {
-		_ = outputFile.Close()
-	}()
+	_ = outputFile.Close()
 }
