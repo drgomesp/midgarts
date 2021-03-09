@@ -28,6 +28,7 @@ type EntryHeader struct {
 
 // Entry ...
 type Entry struct {
+	Name   string
 	Header EntryHeader
 	Data   *bytes.Buffer
 }
