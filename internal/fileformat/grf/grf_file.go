@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -29,7 +30,8 @@ type File struct {
 	}
 
 	// Maps to directory -> array of entries
-	entries map[string][]*Entry
+	entries     map[string][]Entry
+	entriesTree *EntryTree
 
 	file *os.File
 }
@@ -45,7 +47,7 @@ func Load(path string) (*File, error) {
 		return nil, err
 	}
 
-	grfFile := &File{file: f}
+	grfFile := &File{file: f, entriesTree: &EntryTree{}}
 
 	err = grfFile.parseHeader(f, fi)
 	if err != nil {
@@ -60,33 +62,42 @@ func Load(path string) (*File, error) {
 	return grfFile, nil
 }
 
-func (f *File) GetEntryDirectories() map[string][]*Entry {
+func (f *File) GetEntryDirectories() map[string][]Entry {
 	return f.entries
 }
 
-func (f *File) GetEntries(dir string) []*Entry {
+func (f *File) GetEntries(dir string) []Entry {
 	return f.entries[dir]
 }
 
-func (f *File) GetEntry(dir, name string) (entry *Entry, err error) {
-	for _, e := range f.entries[dir] {
-		if name == e.Name {
+func (f *File) GetEntryTree() *EntryTree {
+	return f.entriesTree
+}
+
+func (f *File) GetEntry(name string) (entry Entry, err error) {
+	var entries []Entry
+	var exists bool
+	dir, _ := filepath.Split(name)
+	dir = strings.TrimSuffix(dir, `/`)
+
+	if entries, exists = f.entriesTree.Find(dir); !exists {
+		return entry, fmt.Errorf("could not find directory '%s'", dir)
+	}
+
+	for _, e := range entries {
+		if e.Name == name {
 			entry = e
 		}
 	}
 
-	if entry == nil {
-		return entry, fmt.Errorf("could not find entry '%s'", name)
-	}
-
 	_, err = f.file.Seek(int64(entry.Header.Offset)+fileHeaderLength, io.SeekStart)
 	if err != nil {
-		return nil, err
+		return entry, nil
 	}
 
 	data := readNextBytes(f.file, int(entry.Header.CompressedSizeAligned))
 	if err = entry.Decode(data); err != nil {
-		return nil, err
+		return entry, err
 	}
 
 	return
@@ -117,7 +128,7 @@ func (f *File) parseHeader(file *os.File, fi os.FileInfo) error {
 	}
 
 	f.Header.EntryCount = f.Header.ReservedFiles - f.Header.EntryCount - 7
-	f.entries = make(map[string][]*Entry, f.Header.EntryCount)
+	f.entries = make(map[string][]Entry, f.Header.EntryCount)
 
 	return nil
 }
@@ -135,6 +146,7 @@ func (f *File) parseEntries(file *os.File) error {
 		return err
 	}
 
+	var dirs []string
 	for i, offset := 0, 0; i < int(f.Header.EntryCount); i++ {
 		var (
 			fileName    string
@@ -154,7 +166,7 @@ func (f *File) parseEntries(file *os.File) error {
 		}
 
 		fileName = buf.String()
-		entry := &Entry{Name: fileName, Data: new(bytes.Buffer)}
+		entry := Entry{Data: new(bytes.Buffer)}
 
 		if err = binary.Read(
 			bytes.NewReader(data[offset:offset+entryHeaderLength]),
@@ -169,12 +181,58 @@ func (f *File) parseEntries(file *os.File) error {
 			continue
 		}
 
-		properFileName := strings.ReplaceAll(fileName, `\`, "/")
-		dir := strings.ReplaceAll(filepath.Dir(properFileName), "/", `\`)
-		_ = dir
+		properFileName := strings.ToLower(strings.ReplaceAll(fileName, `\`, "/"))
+		entry.Name = properFileName
+
+		dir, fileName := filepath.Split(properFileName)
+		dir = strings.TrimSuffix(dir, `/`)
+		dirs = append(dirs, dir)
 
 		if strings.Contains(fileName, ".spr") {
 			f.entries[dir] = append(f.entries[dir], entry)
+		}
+	}
+
+	uniqueDirs := map[string]byte{}
+
+	for _, dir := range dirs {
+		if _, exists := uniqueDirs[dir]; !exists {
+			uniqueDirs[dir] = 0
+		}
+	}
+
+	dirs = []string{}
+	for dir := range uniqueDirs {
+		dirs = append(dirs, dir)
+	}
+
+	sort.Slice(dirs, func(i, j int) bool {
+		return strings.ToLower(dirs[i]) < strings.ToLower(dirs[j])
+	})
+
+	for _, dir := range dirs {
+		//if strings.Compare(dir, `data`) != 0 &&
+		//	strings.Compare(dir, `data/sprite`) != 0 &&
+		//	strings.Compare(dir, `data/sprite/npc`) != 0 {
+		//	continue
+		//}
+		if _, exists := f.entriesTree.Find(dir); exists {
+			var toInsert []Entry
+
+			for _, e := range f.entries[dir] {
+				toInsert = append(toInsert, e)
+			}
+
+			if len(toInsert) > 0 {
+				if err = f.entriesTree.Insert(dir, toInsert); err != nil {
+					log.Fatalf("could not insert tree nodes: %v", err)
+				}
+			}
+		} else {
+
+			if err = f.entriesTree.Insert(dir, f.entries[dir]); err != nil {
+				log.Fatalf("could not insert tree nodes: %v", err)
+			}
 		}
 	}
 

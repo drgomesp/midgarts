@@ -91,7 +91,7 @@ func TestEntryHeaders(t *testing.T) {
 		t.Run(tt.Name, func(t *testing.T) {
 			grfFile, err := grf.Load(fmt.Sprintf("%s/%s", dataPath, "with-files.grf"))
 			assert.NoError(t, err)
-			assert.Equal(t, tt.ExpectedEntries, grfFile.GetEntries())
+			assert.Equal(t, tt.ExpectedEntries, grfFile.GetEntries("/"))
 		})
 	}
 }

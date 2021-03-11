@@ -19,13 +19,13 @@ func main() {
 
 	entry := os.Args[2]
 	entry = `data\sprite\ork_warrior.spr`
-	e, err := f.GetEntry(entry)
+	e, err := f.GetEntry(`data\sprite`, entry)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	sprFile, err := spr.NewSpriteFileFromData(e.Data)
+	sprFile, err := spr.Load(e.Data)
 	if err != nil {
 		log.Fatal(err)
 	}

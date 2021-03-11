@@ -44,7 +44,7 @@ type SpriteFile struct {
 	Palette [PaletteSize]byte
 }
 
-func NewSpriteFileFromData(buf *bytes.Buffer) (f *SpriteFile, err error) {
+func Load(buf *bytes.Buffer) (f *SpriteFile, err error) {
 	f = new(SpriteFile)
 	reader := bytes.NewReader(buf.Bytes())
 

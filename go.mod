@@ -2,15 +2,13 @@ module github.com/project-midgard/midgarts
 
 go 1.15
 
-replace github.com/faiface/pixel => /home/drgomesp/src/pixel
+replace github.com/AllenDang/giu => /home/drgomesp/src/giu
 
 require (
+	github.com/AllenDang/giu v0.5.2
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/faiface/pixel v0.10.0
 	github.com/go-gl/gl v0.0.0-20190320180904-bf2b1f2f34d7
-	github.com/go-gl/glfw v0.0.0-20201108214237-06ea97f0c265
-	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72
-	github.com/inkyblackness/imgui-go/v3 v3.1.0
+	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20201108214237-06ea97f0c265
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.7.0
