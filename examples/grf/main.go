@@ -19,7 +19,7 @@ func main() {
 
 	entry := os.Args[2]
 	entry = `data\sprite\ork_warrior.spr`
-	e, err := f.GetEntry(`data\sprite`, entry)
+	e, err := f.GetEntry(entry)
 
 	if err != nil {
 		log.Fatal(err)

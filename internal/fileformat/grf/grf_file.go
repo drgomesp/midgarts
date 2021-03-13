@@ -188,7 +188,7 @@ func (f *File) parseEntries(file *os.File) error {
 		dir = strings.TrimSuffix(dir, `/`)
 		dirs = append(dirs, dir)
 
-		if strings.Contains(fileName, ".spr") {
+		if strings.Contains(fileName, ".spr") || strings.Contains(fileName, ".act") {
 			f.entries[dir] = append(f.entries[dir], entry)
 		}
 	}
@@ -211,11 +211,6 @@ func (f *File) parseEntries(file *os.File) error {
 	})
 
 	for _, dir := range dirs {
-		//if strings.Compare(dir, `data`) != 0 &&
-		//	strings.Compare(dir, `data/sprite`) != 0 &&
-		//	strings.Compare(dir, `data/sprite/npc`) != 0 {
-		//	continue
-		//}
 		if _, exists := f.entriesTree.Find(dir); exists {
 			var toInsert []Entry
 

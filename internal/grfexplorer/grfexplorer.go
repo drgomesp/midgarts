@@ -1,19 +1,24 @@
 package grfexplorer
 
 import (
+	"fmt"
 	"image"
 	"log"
 	"os"
-
-	"github.com/project-midgard/midgarts/internal/fileformat/spr"
-
-	"github.com/project-midgard/midgarts/internal/fileformat/grf"
+	"strings"
 
 	g "github.com/AllenDang/giu"
+	"github.com/anthonynsimon/bild/transform"
+	"github.com/project-midgard/midgarts/internal/fileformat/grf"
+	"github.com/project-midgard/midgarts/internal/fileformat/spr"
 )
 
 var grfFile *grf.File
 var imageWidget = &g.ImageWidget{}
+var fileInfoWidget g.Widget
+var imageScaleMultiplier int32 = 1
+var loadedImageName string
+var currentEntry grf.Entry
 
 // Run implements the main program loop of the demo. It returns when the platform signals to stop.
 // This demo application shows some basic features of ImGui, as well as exposing the standard demo window.
@@ -31,10 +36,17 @@ func Run() {
 				),
 			),
 		),
-		g.SplitLayout("Split", g.DirectionHorizontal, true, 200,
+		g.SplitLayout("Split", g.DirectionHorizontal, true, 300,
 			buildEntryTreeNodes(),
 			g.Layout{
+				fileInfoWidget,
 				imageWidget,
+				g.SliderInt("SliderInt", &imageScaleMultiplier, 1, 4),
+				g.Custom(func() {
+					if g.IsItemActive() {
+						loadImage(loadedImageName)
+					}
+				}),
 			},
 		),
 	)
@@ -51,8 +63,36 @@ func onOpenFile() {
 }
 
 func onClickEntry(entryName string) {
-	log.Println(entryName)
-	loadImage(entryName)
+	if strings.Contains(entryName, ".spr") {
+		var err error
+		if currentEntry, err = grfFile.GetEntry(entryName); err != nil {
+			panic("kurwa!")
+		}
+
+		loadImage(entryName)
+		loadFileInfo()
+	}
+}
+
+func loadFileInfo() {
+	sprFile, _ := spr.Load(currentEntry.Data)
+
+	fileInfoWidget = g.Layout{
+		g.Line(
+			g.Group().Layout(
+				g.Label("File Info"),
+				g.Table("Table").
+					Columns(
+						g.Column(""),
+						g.Column(""),
+					).
+					Rows(
+						g.Row(g.Label("Width").Wrapped(true), g.Label(fmt.Sprintf("%d", sprFile.Frames[0].Width))),
+						g.Row(g.Label("Height").Wrapped(true), g.Label(fmt.Sprintf("%d", sprFile.Frames[0].Height))),
+					),
+			),
+		),
+	}
 }
 
 func buildEntryTreeNodes() g.Layout {
@@ -62,7 +102,6 @@ func buildEntryTreeNodes() g.Layout {
 
 	var nodes []interface{}
 	grfFile.GetEntryTree().Traverse(grfFile.GetEntryTree().Root, func(n *grf.EntryTreeNode) {
-		node := g.TreeNode(n.Value)
 		selectableNodes := make([]g.Widget, 0)
 		var nodeEntries []interface{}
 
@@ -70,6 +109,7 @@ func buildEntryTreeNodes() g.Layout {
 			nodeEntries = append(nodeEntries, e.Name)
 		}
 
+		node := g.TreeNode(fmt.Sprintf("%s (%d)", n.Value, len(nodeEntries)))
 		selectableNodes = g.RangeBuilder("selectableNodes", nodeEntries, func(i int, v interface{}) g.Widget {
 			return g.Selectable(v.(string)).OnClick(func() {
 				onClickEntry(v.(string))
@@ -94,12 +134,15 @@ func loadImage(name string) *g.Texture {
 		return nil
 	}
 
-	entry, _ := grfFile.GetEntry(name)
-	sprFile, _ := spr.Load(entry.Data)
+	sprFile, _ := spr.Load(currentEntry.Data)
 	img := sprFile.ImageAt(0).(*image.RGBA)
+	mul := int(imageScaleMultiplier)
+	img = transform.Resize(img, img.Bounds().Max.X*mul, img.Bounds().Max.Y*mul, transform.Linear)
+
 	go func() {
 		spriteTexture, _ = g.NewTextureFromRgba(img)
 		imageWidget = g.Image(spriteTexture).Size(float32(img.Bounds().Max.X), float32(img.Bounds().Max.Y))
+		loadedImageName = name
 	}()
 
 	return nil
