@@ -41,7 +41,7 @@ func Run() {
 			g.Layout{
 				fileInfoWidget,
 				imageWidget,
-				g.SliderInt("SliderInt", &imageScaleMultiplier, 1, 4),
+				//g.SliderInt("SliderInt", &imageScaleMultiplier, 1, 4),
 				g.Custom(func() {
 					if g.IsItemActive() {
 						loadImage(loadedImageName)
