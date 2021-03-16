@@ -12,9 +12,9 @@ type entryFlags byte
 const (
 	entryHeaderLength = 4 + 4 + 4 + 1 + 4
 
-	typeFile          entryFlags = 0x01
-	typeEncryptMixed             = 0x02
-	typeEncryptHeader            = 0x04
+	entryType              entryFlags = 0x01
+	entryTypeEncryptMixed             = 0x02
+	entryTypeEncryptHeader            = 0x04
 )
 
 // EntryHeader ...
@@ -35,9 +35,9 @@ type Entry struct {
 
 // Decode ...
 func (e *Entry) Decode(data []byte) error {
-	if e.Header.Flags&typeEncryptMixed != 0 {
+	if e.Header.Flags&entryTypeEncryptMixed != 0 {
 		des.DecodeFull(data, int(e.Header.CompressedSizeAligned), int(e.Header.CompressedSize))
-	} else if e.Header.Flags&typeEncryptHeader != 0 {
+	} else if e.Header.Flags&entryTypeEncryptHeader != 0 {
 		des.DecodeHeader(data)
 	}
 

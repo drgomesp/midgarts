@@ -9,6 +9,7 @@ import (
 
 	g "github.com/AllenDang/giu"
 	"github.com/anthonynsimon/bild/transform"
+	"github.com/project-midgard/midgarts/internal/fileformat/act"
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"github.com/project-midgard/midgarts/internal/fileformat/spr"
 )
@@ -63,6 +64,16 @@ func onOpenFile() {
 }
 
 func onClickEntry(entryName string) {
+	if strings.Contains(entryName, "act") {
+		var err error
+		if currentEntry, err = grfFile.GetEntry(entryName); err != nil {
+			panic("kurwa!")
+		}
+
+		actFile, err := act.Load(currentEntry.Data)
+		log.Printf("actFile = %+v\n", actFile)
+	}
+
 	if strings.Contains(entryName, ".spr") {
 		var err error
 		if currentEntry, err = grfFile.GetEntry(entryName); err != nil {

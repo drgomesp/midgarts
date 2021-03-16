@@ -177,7 +177,7 @@ func (f *File) parseEntries(file *os.File) error {
 
 		offset += entryHeaderLength
 
-		if entry.Header.Flags&typeFile == 0 {
+		if entry.Header.Flags&entryType == 0 {
 			continue
 		}
 

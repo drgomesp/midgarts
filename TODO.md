@@ -3,7 +3,7 @@
 - File formats
     - [x] GRF file parsing
     - [x] SPR (.spr) files
-    - [ ] ACT (.act) files
+    - [x] ACT (.act) files
 - GRF Explorer
     - [x] Tree VIew
       - [x] Plain view of directories and files
