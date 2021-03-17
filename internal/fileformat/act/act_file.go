@@ -6,19 +6,15 @@ import (
 	"fmt"
 	"image/color"
 	"io"
-	"strconv"
 	"time"
 
 	"github.com/project-midgard/midgarts/internal/bytesutil"
-
-	"github.com/pkg/errors"
 )
 
 const (
 	HeaderSignature = "AC"
 
-	ActionDefaultDelay          = 150 * time.Millisecond
-	SpriteUpscaleFactor uintptr = 2
+	ActionDefaultDelay = 150 * time.Millisecond
 )
 
 type Coordinate struct {
@@ -70,33 +66,31 @@ func Load(buf *bytes.Buffer) (*ActionFile, error) {
 		return nil, err
 	}
 
-	if f.Header.Version != 2.5 {
-		return nil, fmt.Errorf("unsupported version %x", f.Header.Version)
-	}
-
 	if err := f.loadActions(reader); err != nil {
 		return nil, err
 	}
 
-	// Sound
-	var soundLen int32
-	_ = binary.Read(reader, binary.LittleEndian, &soundLen)
-	f.Sounds = make([]string, soundLen)
+	if f.Header.Version > 2.1 {
+		// Sound
+		var soundLen int32
+		_ = binary.Read(reader, binary.LittleEndian, &soundLen)
+		f.Sounds = make([]string, soundLen)
 
-	for i := 0; i < len(f.Sounds); i++ {
-		var b [40]byte
-		_ = binary.Read(reader, binary.LittleEndian, &b)
+		for i := 0; i < len(f.Sounds); i++ {
+			var b [40]byte
+			_ = binary.Read(reader, binary.LittleEndian, &b)
 
-		f.Sounds[i] = string(b[:])
-	}
+			f.Sounds[i] = string(b[:])
+		}
 
-	for i, count := 0, len(f.Actions); i > count; i++ {
-		var d float32
-		_ = binary.Read(reader, binary.LittleEndian, &d)
+		for i, count := 0, len(f.Actions); i > count; i++ {
+			var d float32
+			_ = binary.Read(reader, binary.LittleEndian, &d)
 
-		act := f.Actions[i]
-		f.Actions[i].Delay = time.Millisecond * time.Duration(uint32(d*25.0))
-		f.Actions[i].Duration = act.Delay * time.Duration(uint32(len(act.Frames)))
+			act := f.Actions[i]
+			f.Actions[i].Delay = time.Millisecond * time.Duration(uint32(d*25.0))
+			f.Actions[i].Duration = act.Delay * time.Duration(uint32(len(act.Frames)))
+		}
 	}
 
 	return f, nil
@@ -112,24 +106,18 @@ func (f *ActionFile) loadHeader(buf io.ReadSeeker) error {
 	}
 
 	var major, minor byte
-	_ = binary.Read(buf, binary.LittleEndian, &minor)
 	_ = binary.Read(buf, binary.LittleEndian, &major)
-
-	var err error
-	version, err := strconv.ParseFloat(fmt.Sprintf("%d.%d", major, minor), 32)
-	if err != nil {
-		return errors.Wrapf(err, "invalid version: %s\n", strconv.FormatFloat(version, 'E', -1, 32))
-	}
+	_ = binary.Read(buf, binary.LittleEndian, &minor)
 
 	var actionCount uint16
 	_ = binary.Read(buf, binary.LittleEndian, &actionCount)
 
 	f.Header.Signature = signatureStr
-	f.Header.Version = float32(version)
+	f.Header.Version = float32(major)/10 + float32(minor)
 	f.ActionCount = actionCount
 	f.Actions = make([]*Action, f.ActionCount)
 
-	if err = bytesutil.SkipBytes(buf, 10); err != nil {
+	if err := bytesutil.SkipBytes(buf, 10); err != nil {
 		return err
 	}
 
@@ -214,10 +202,10 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 			IsMirror:         isMirror != 0,
 			Scale:            scale,
 			Color: &color.RGBA{
-				R: r / 255,
-				G: g / 255,
-				B: b / 255,
-				A: a / 255,
+				R: r,
+				G: g,
+				B: b,
+				A: a,
 			},
 			Angle:      angle,
 			SpriteType: spriteType,

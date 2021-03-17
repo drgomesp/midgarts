@@ -13,7 +13,7 @@ import (
 	"github.com/project-midgard/midgarts/internal/bytesutil"
 )
 
-type FileType int
+type FileType uint32
 
 const (
 	HeaderSignature = "SP"
