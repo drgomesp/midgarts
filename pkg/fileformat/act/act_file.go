@@ -8,7 +8,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/project-midgard/midgarts/internal/bytesutil"
+	"github.com/project-midgard/midgarts/pkg/bytesutil"
 )
 
 const (
@@ -218,16 +218,18 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 	_ = binary.Read(buf, binary.LittleEndian, &sound)
 	_ = binary.Read(buf, binary.LittleEndian, &posCount)
 
-	positions = make([]Coordinate, posCount)
-	for i := 0; i < int(posCount); i++ {
-		_ = bytesutil.SkipBytes(buf, 4)
+	if posCount > 0 {
+		positions = make([]Coordinate, posCount)
+		for i := 0; i < int(posCount); i++ {
+			_ = bytesutil.SkipBytes(buf, 4)
 
-		var p Coordinate
-		_ = binary.Read(buf, binary.LittleEndian, &p.X)
-		_ = binary.Read(buf, binary.LittleEndian, &p.Y)
-		positions = append(positions, p)
+			var p Coordinate
+			_ = binary.Read(buf, binary.LittleEndian, &p.X)
+			_ = binary.Read(buf, binary.LittleEndian, &p.Y)
+			positions = append(positions, p)
 
-		_ = bytesutil.SkipBytes(buf, 4)
+			_ = bytesutil.SkipBytes(buf, 4)
+		}
 	}
 
 	return layers

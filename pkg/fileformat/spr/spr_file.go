@@ -10,7 +10,7 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-	"github.com/project-midgard/midgarts/internal/bytesutil"
+	"github.com/project-midgard/midgarts/pkg/bytesutil"
 )
 
 type FileType uint32
@@ -27,17 +27,18 @@ type SpriteFrame struct {
 	SpriteType FileType
 	Width      uint16
 	Height     uint16
+	DataIndex  int
 	Data       []byte
 	Compiled   bool
 }
 
 type SpriteFile struct {
 	Header struct {
-		Signature         string
-		Version           float32
-		IndexedFrameCount uint16
-		RGBAFrameCount    uint16
-		RGBAIndex         uint16
+		Signature          string
+		Version            float32
+		PalettedFrameCount uint16
+		RGBAFrameCount     uint16
+		RGBAIndex          uint16
 	}
 
 	Frames  []SpriteFrame
@@ -104,7 +105,7 @@ func (f *SpriteFile) parseHeader(buf io.ReadSeeker) error {
 
 	f.Header.Signature = signatureStr
 	f.Header.Version = float32(version)
-	f.Header.IndexedFrameCount = indexedFrameCount
+	f.Header.PalettedFrameCount = indexedFrameCount
 	f.Header.RGBAFrameCount = rgbaFrameCount
 	f.Header.RGBAIndex = indexedFrameCount
 	f.Frames = make([]SpriteFrame, indexedFrameCount+rgbaFrameCount)
@@ -121,7 +122,7 @@ func (f *SpriteFile) readPalettedFrames(buf io.ReadSeeker) error {
 		data             []byte
 	)
 
-	for i := 0; i < int(f.Header.IndexedFrameCount); i++ {
+	for i := 0; i < int(f.Header.PalettedFrameCount); i++ {
 		_ = binary.Read(buf, binary.LittleEndian, &width)
 		_ = binary.Read(buf, binary.LittleEndian, &height)
 
@@ -161,6 +162,7 @@ func (f *SpriteFile) readPalettedFrames(buf io.ReadSeeker) error {
 			Width:      width,
 			Height:     height,
 			Data:       data,
+			DataIndex:  int(offset),
 		}
 	}
 
@@ -180,6 +182,7 @@ func (f *SpriteFile) readRGBAFrames(buf io.ReadSeeker) error {
 
 		size = int(width*height) * 4
 		data = make([]byte, size)
+		offset, _ := buf.Seek(0, io.SeekCurrent)
 		_ = binary.Read(buf, binary.LittleEndian, &data)
 
 		f.Frames[i+int(f.Header.RGBAIndex)] = SpriteFrame{
@@ -187,6 +190,7 @@ func (f *SpriteFile) readRGBAFrames(buf io.ReadSeeker) error {
 			Width:      width,
 			Height:     height,
 			Data:       data,
+			DataIndex:  int(offset),
 		}
 
 		_, _ = buf.Seek(int64(width*height)*4, io.SeekCurrent)

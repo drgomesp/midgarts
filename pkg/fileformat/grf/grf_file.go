@@ -30,7 +30,7 @@ type File struct {
 	}
 
 	// Maps to directory -> array of entries
-	entries     map[string][]Entry
+	entries     map[string][]*Entry
 	entriesTree *EntryTree
 
 	file *os.File
@@ -62,11 +62,11 @@ func Load(path string) (*File, error) {
 	return grfFile, nil
 }
 
-func (f *File) GetEntryDirectories() map[string][]Entry {
+func (f *File) GetEntryDirectories() map[string][]*Entry {
 	return f.entries
 }
 
-func (f *File) GetEntries(dir string) []Entry {
+func (f *File) GetEntries(dir string) []*Entry {
 	return f.entries[dir]
 }
 
@@ -74,8 +74,8 @@ func (f *File) GetEntryTree() *EntryTree {
 	return f.entriesTree
 }
 
-func (f *File) GetEntry(name string) (entry Entry, err error) {
-	var entries []Entry
+func (f *File) GetEntry(name string) (entry *Entry, err error) {
+	var entries []*Entry
 	var exists bool
 	dir, _ := filepath.Split(name)
 	dir = strings.TrimSuffix(dir, `/`)
@@ -113,8 +113,9 @@ func (f *File) parseHeader(file *os.File, fi os.FileInfo) error {
 		return errors.Wrap(err, "could not read file")
 	}
 
-	if string(f.Header.Signature[:]) != fileHeaderSignature {
-		return errors.New("invalid file signature")
+	sig := string(f.Header.Signature[:])
+	if sig != fileHeaderSignature {
+		return fmt.Errorf("invalid file signature '%s'", sig)
 	}
 
 	if f.Header.Version != 0x200 {
@@ -128,7 +129,7 @@ func (f *File) parseHeader(file *os.File, fi os.FileInfo) error {
 	}
 
 	f.Header.EntryCount = f.Header.ReservedFiles - f.Header.EntryCount - 7
-	f.entries = make(map[string][]Entry, f.Header.EntryCount)
+	f.entries = make(map[string][]*Entry, f.Header.EntryCount)
 
 	return nil
 }
@@ -166,7 +167,7 @@ func (f *File) parseEntries(file *os.File) error {
 		}
 
 		fileName = buf.String()
-		entry := Entry{Data: new(bytes.Buffer)}
+		entry := &Entry{Data: new(bytes.Buffer)}
 
 		if err = binary.Read(
 			bytes.NewReader(data[offset:offset+entryHeaderLength]),
@@ -212,7 +213,7 @@ func (f *File) parseEntries(file *os.File) error {
 
 	for _, dir := range dirs {
 		if _, exists := f.entriesTree.Find(dir); exists {
-			var toInsert []Entry
+			var toInsert []*Entry
 
 			for _, e := range f.entries[dir] {
 				toInsert = append(toInsert, e)
@@ -224,7 +225,6 @@ func (f *File) parseEntries(file *os.File) error {
 				}
 			}
 		} else {
-
 			if err = f.entriesTree.Insert(dir, f.entries[dir]); err != nil {
 				log.Fatalf("could not insert tree nodes: %v", err)
 			}

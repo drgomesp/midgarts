@@ -16,7 +16,7 @@ func (t *EntryTree) Traverse(n *EntryTreeNode, f func(*EntryTreeNode)) {
 	t.Traverse(n.Right, f)
 }
 
-func (t *EntryTree) Insert(value string, data []Entry) error {
+func (t *EntryTree) Insert(value string, data []*Entry) error {
 	if t.Root == nil {
 		t.Root = &EntryTreeNode{Value: value, Data: data}
 		return nil
@@ -25,7 +25,7 @@ func (t *EntryTree) Insert(value string, data []Entry) error {
 	return t.Root.Insert(value, data)
 }
 
-func (t *EntryTree) Find(s string) ([]Entry, bool) {
+func (t *EntryTree) Find(s string) ([]*Entry, bool) {
 	if t.Root == nil {
 		return nil, false
 	}
@@ -35,12 +35,12 @@ func (t *EntryTree) Find(s string) ([]Entry, bool) {
 
 type EntryTreeNode struct {
 	Value string
-	Data  []Entry
+	Data  []*Entry
 	Left  *EntryTreeNode
 	Right *EntryTreeNode
 }
 
-func (n *EntryTreeNode) Insert(value string, data []Entry) error {
+func (n *EntryTreeNode) Insert(value string, data []*Entry) error {
 	if n == nil {
 		return errors.New("could not insert value: nil tree")
 	}
@@ -79,7 +79,7 @@ func (n *EntryTreeNode) Insert(value string, data []Entry) error {
 	return nil
 }
 
-func (n *EntryTreeNode) Find(s string) ([]Entry, bool) {
+func (n *EntryTreeNode) Find(s string) ([]*Entry, bool) {
 	if n == nil {
 		return nil, false
 	}

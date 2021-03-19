@@ -1,11 +1,13 @@
 package main
 
 import (
+	"image/png"
 	"log"
 	"os"
 
-	"github.com/project-midgard/midgarts/internal/fileformat/act"
-	"github.com/project-midgard/midgarts/internal/fileformat/grf"
+	"github.com/project-midgard/midgarts/pkg/fileformat/spr"
+
+	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
 )
 
 func main() {
@@ -21,10 +23,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	actFile, err := act.Load(e.Data)
+	sprFile, err := spr.Load(e.Data)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Printf("%#v\n", actFile)
+	log.Printf("%#v\n", sprFile)
+
+	img := sprFile.ImageAt(0)
+
+	// outputFile is a File type which satisfies Writer interface
+	outputFile, err := os.Create("out/test.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Encode takes a writer interface and an image interface
+	// We pass it the File and the RGBA
+	if err = png.Encode(outputFile, img); err != nil {
+		log.Fatal(err)
+	}
 }

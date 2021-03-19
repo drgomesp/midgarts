@@ -8,10 +8,9 @@ import (
 	"strings"
 
 	g "github.com/AllenDang/giu"
-	"github.com/anthonynsimon/bild/transform"
-	"github.com/project-midgard/midgarts/internal/fileformat/act"
-	"github.com/project-midgard/midgarts/internal/fileformat/grf"
-	"github.com/project-midgard/midgarts/internal/fileformat/spr"
+	"github.com/project-midgard/midgarts/pkg/fileformat/act"
+	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
+	"github.com/project-midgard/midgarts/pkg/fileformat/spr"
 )
 
 var grfFile *grf.File
@@ -19,7 +18,7 @@ var imageWidget = &g.ImageWidget{}
 var fileInfoWidget g.Widget
 var imageScaleMultiplier int32 = 1
 var loadedImageName string
-var currentEntry grf.Entry
+var currentEntry *grf.Entry
 
 // Run implements the main program loop of the demo. It returns when the platform signals to stop.
 // This demo application shows some basic features of ImGui, as well as exposing the standard demo window.
@@ -64,7 +63,7 @@ func onOpenFile() {
 }
 
 func onClickEntry(entryName string) {
-	if strings.Contains(entryName, "act") {
+	if strings.Contains(entryName, ".act") {
 		var err error
 		if currentEntry, err = grfFile.GetEntry(entryName); err != nil {
 			panic("kurwa!")
@@ -147,8 +146,8 @@ func loadImage(name string) *g.Texture {
 
 	sprFile, _ := spr.Load(currentEntry.Data)
 	img := sprFile.ImageAt(0).(*image.RGBA)
-	mul := int(imageScaleMultiplier)
-	img = transform.Resize(img, img.Bounds().Max.X*mul, img.Bounds().Max.Y*mul, transform.Linear)
+	//mul := int(imageScaleMultiplier)
+	//img = transform.Resize(img, img.Bounds().Max.X*mul, img.Bounds().Max.Y*mul, transform.Linear)
 
 	go func() {
 		spriteTexture, _ = g.NewTextureFromRgba(img)
