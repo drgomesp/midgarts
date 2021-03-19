@@ -1,4 +1,4 @@
-package grfexplorer
+package main
 
 import (
 	"fmt"
