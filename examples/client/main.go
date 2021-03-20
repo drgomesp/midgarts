@@ -2,8 +2,8 @@ package main
 
 import (
 	"image/color"
-	"log"
 
+	"github.com/project-midgard/midgarts/pkg/character"
 	"github.com/project-midgard/midgarts/pkg/character/jobspriteid"
 
 	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
@@ -28,10 +28,17 @@ func (*myScene) Preload() {
 	err = engo.Files.Load("textures/test.png")
 
 	f, err := grf.Load("/home/drgomesp/grf/data.grf")
-	spriteResource, err = graphics.LoadSprite(f, "data/sprite/ork_warrior")
+	//spriteResource, err = graphics.LoadSprite(f, `data/sprite/ork_warrior`)
+	//if err != nil {
+	//	panic(err)
+	//}
+
+	charSprite, err := character.LoadCharacterSprite(f, jobspriteid.Swordsman)
 	if err != nil {
 		panic(err)
 	}
+
+	spriteResource = charSprite
 }
 
 // Setup is called before the main loop starts. It allows you
@@ -50,7 +57,7 @@ func (*myScene) Setup(u engo.Updater) {
 	}
 
 	char.RenderComponent = common.RenderComponent{
-		Drawable: spriteResource.Textures[38],
+		Drawable: spriteResource.Textures[0],
 		Scale:    engo.Point{X: 2, Y: 2},
 	}
 
@@ -69,8 +76,6 @@ type Character struct {
 }
 
 func main() {
-	log.Println(jobspriteid.JobSpriteNameTable)
-
 	opts := engo.RunOptions{
 		Title:  "Hello World",
 		Width:  400,

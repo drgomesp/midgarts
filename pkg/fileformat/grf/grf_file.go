@@ -11,6 +11,8 @@ import (
 	"sort"
 	"strings"
 
+	"golang.org/x/text/encoding/charmap"
+
 	"github.com/pkg/errors"
 )
 
@@ -75,6 +77,7 @@ func (f *File) GetEntryTree() *EntryTree {
 }
 
 func (f *File) GetEntry(name string) (entry *Entry, err error) {
+	name = strings.ToLower(name)
 	var entries []*Entry
 	var exists bool
 	dir, _ := filepath.Split(name)
@@ -167,6 +170,11 @@ func (f *File) parseEntries(file *os.File) error {
 		}
 
 		fileName = buf.String()
+		var d []byte
+		if d, err = charmap.Windows1252.NewDecoder().Bytes([]byte(fileName)); err != nil {
+			panic(err)
+		}
+
 		entry := &Entry{Data: new(bytes.Buffer)}
 
 		if err = binary.Read(
@@ -182,14 +190,13 @@ func (f *File) parseEntries(file *os.File) error {
 			continue
 		}
 
-		properFileName := strings.ToLower(strings.ReplaceAll(fileName, `\`, "/"))
+		properFileName := strings.ToLower(strings.ReplaceAll(string(d), `\`, `/`))
 		entry.Name = properFileName
-
-		dir, fileName := filepath.Split(properFileName)
+		dir, file := filepath.Split(properFileName)
 		dir = strings.TrimSuffix(dir, `/`)
 		dirs = append(dirs, dir)
 
-		if strings.Contains(fileName, ".spr") || strings.Contains(fileName, ".act") {
+		if strings.HasSuffix(file, ".spr") || strings.HasSuffix(file, ".act") {
 			f.entries[dir] = append(f.entries[dir], entry)
 		}
 	}

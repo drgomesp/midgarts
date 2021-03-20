@@ -7,6 +7,8 @@ import (
 	"os"
 	"strings"
 
+	"golang.org/x/text/encoding/charmap"
+
 	g "github.com/AllenDang/giu"
 	"github.com/project-midgard/midgarts/pkg/fileformat/act"
 	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
@@ -119,9 +121,21 @@ func buildEntryTreeNodes() g.Layout {
 			nodeEntries = append(nodeEntries, e.Name)
 		}
 
-		node := g.TreeNode(fmt.Sprintf("%s (%d)", n.Value, len(nodeEntries)))
+		var decodedDirName []byte
+		var err error
+		if decodedDirName, err = charmap.Windows1252.NewDecoder().Bytes([]byte(n.Value)); err != nil {
+			panic(err)
+		}
+
+		node := g.TreeNode(fmt.Sprintf("%s (%d)", decodedDirName, len(nodeEntries)))
 		selectableNodes = g.RangeBuilder("selectableNodes", nodeEntries, func(i int, v interface{}) g.Widget {
-			return g.Selectable(v.(string)).OnClick(func() {
+			var decodedStr string
+			var err error
+			if decodedStr, err = charmap.Windows1252.NewDecoder().String(v.(string)); err != nil {
+				panic(err)
+			}
+
+			return g.Selectable(decodedStr).OnClick(func() {
 				onClickEntry(v.(string))
 			})
 		})

@@ -184,18 +184,26 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 		_ = binary.Read(buf, binary.LittleEndian, &pos[1])
 		_ = binary.Read(buf, binary.LittleEndian, &spriteFrameIndex)
 		_ = binary.Read(buf, binary.LittleEndian, &isMirror)
-		_ = binary.Read(buf, binary.LittleEndian, &r)
-		_ = binary.Read(buf, binary.LittleEndian, &g)
-		_ = binary.Read(buf, binary.LittleEndian, &b)
-		_ = binary.Read(buf, binary.LittleEndian, &a)
+
+		if f.Header.Version > 2.0 {
+			_ = binary.Read(buf, binary.LittleEndian, &r)
+			_ = binary.Read(buf, binary.LittleEndian, &g)
+			_ = binary.Read(buf, binary.LittleEndian, &b)
+			_ = binary.Read(buf, binary.LittleEndian, &a)
+		}
 
 		_ = binary.Read(buf, binary.LittleEndian, &scale[0])
-		_ = binary.Read(buf, binary.LittleEndian, &scale[1])
+		if f.Header.Version > 2.0 {
+			_ = binary.Read(buf, binary.LittleEndian, &scale[1])
+		}
 
 		_ = binary.Read(buf, binary.LittleEndian, &angle)
 		_ = binary.Read(buf, binary.LittleEndian, &spriteType)
-		_ = binary.Read(buf, binary.LittleEndian, &width)
-		_ = binary.Read(buf, binary.LittleEndian, &height)
+
+		if f.Header.Version > 2.5 {
+			_ = binary.Read(buf, binary.LittleEndian, &width)
+			_ = binary.Read(buf, binary.LittleEndian, &height)
+		}
 
 		layers[i] = &ActionFrameLayer{
 			SpriteFrameIndex: spriteFrameIndex,
