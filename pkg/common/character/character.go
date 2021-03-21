@@ -6,9 +6,8 @@ import (
 )
 
 var JobSpriteNameTable = map[jobspriteid.Type]string{
-	jobspriteid.Novice:    "",
-	jobspriteid.Swordsman: "",
-	jobspriteid.Magician:  "",
+	jobspriteid.Novice: "",
+	jobspriteid.MonkH:  "",
 }
 
 func init() {
@@ -35,4 +34,7 @@ func init() {
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB5, 0xB5, 0xB5, 0xCF})
 	JobSpriteNameTable[jobspriteid.Thief] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC3, 0xA8, 0xC7, 0xC7, 0xBF, 0xC2})
+	JobSpriteNameTable[jobspriteid.MonkH] = string(dst)
 }

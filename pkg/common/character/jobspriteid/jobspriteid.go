@@ -4,10 +4,12 @@ type Type int
 
 const (
 	Novice    Type = 0
-	Swordsman      = 1
-	Magician       = 2
-	Archer         = 3
-	Alcolyte       = 4
-	Merchant       = 5
-	Thief          = 6
+	Swordsman Type = 1
+	Magician  Type = 2
+	Archer    Type = 3
+	Alcolyte  Type = 4
+	Merchant  Type = 5
+	Thief     Type = 6
+
+	MonkH Type = 4016
 )

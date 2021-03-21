@@ -14,6 +14,7 @@ import (
 var monsterSprite *graphics.Sprite
 var charSprite1 *graphics.CharacterSprite
 var charSprite2 *graphics.CharacterSprite
+var charSprite3 *graphics.CharacterSprite
 
 type myScene struct{}
 
@@ -41,6 +42,11 @@ func (*myScene) Preload() {
 	if err != nil {
 		panic(err)
 	}
+
+	charSprite3, err = graphics.LoadCharacterSprite(f, jobspriteid.MonkH)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Setup is called before the main loop starts. It allows you
@@ -51,38 +57,10 @@ func (*myScene) Setup(u engo.Updater) {
 	w, _ := u.(*ecs.World)
 	w.AddSystem(&common.RenderSystem{})
 
-	charA := Character{BasicEntity: ecs.NewBasic()}
-	charA.SpaceComponent = common.SpaceComponent{
-		Position: engo.Point{X: 0, Y: 0},
-		Width:    303,
-		Height:   641,
-	}
-	charA.RenderComponent = common.RenderComponent{
-		Drawable: monsterSprite.GetTextureAtIndex(0),
-		Scale:    engo.Point{X: 1, Y: 1},
-	}
-
-	charB := Character{BasicEntity: ecs.NewBasic()}
-	charB.SpaceComponent = common.SpaceComponent{
-		Position: engo.Point{X: 50, Y: 100},
-		Width:    303,
-		Height:   641,
-	}
-	charB.RenderComponent = common.RenderComponent{
-		Drawable: charSprite1.GetActionLayerTexture(0, 0),
-		Scale:    engo.Point{X: 1, Y: 1},
-	}
-
-	charC := Character{BasicEntity: ecs.NewBasic()}
-	charC.SpaceComponent = common.SpaceComponent{
-		Position: engo.Point{X: 100, Y: 100},
-		Width:    303,
-		Height:   641,
-	}
-	charC.RenderComponent = common.RenderComponent{
-		Drawable: charSprite2.GetActionLayerTexture(1, 0),
-		Scale:    engo.Point{X: 1, Y: 1},
-	}
+	charA := NewCharacterEntity(charSprite1, engo.Point{X: 0, Y: 0})
+	charB := NewCharacterEntity(charSprite2, engo.Point{X: 50, Y: 100})
+	charC := NewCharacterEntity(charSprite2, engo.Point{X: 0, Y: 150})
+	charD := NewCharacterEntity(charSprite3, engo.Point{X: 200, Y: 100})
 
 	for _, system := range w.Systems() {
 		switch sys := system.(type) {
@@ -90,7 +68,25 @@ func (*myScene) Setup(u engo.Updater) {
 			sys.Add(&charA.BasicEntity, &charA.RenderComponent, &charA.SpaceComponent)
 			sys.Add(&charB.BasicEntity, &charB.RenderComponent, &charB.SpaceComponent)
 			sys.Add(&charC.BasicEntity, &charC.RenderComponent, &charC.SpaceComponent)
+			sys.Add(&charD.BasicEntity, &charD.RenderComponent, &charD.SpaceComponent)
 		}
+	}
+}
+
+func NewCharacterEntity(sprite *graphics.CharacterSprite, initialPos engo.Point) *Character {
+	texture := sprite.GetActionLayerTexture(0, 0)
+
+	return &Character{
+		BasicEntity: ecs.NewBasic(),
+		RenderComponent: common.RenderComponent{
+			Drawable: texture,
+			Scale:    engo.Point{X: 1, Y: 1},
+		},
+		SpaceComponent: common.SpaceComponent{
+			Position: initialPos,
+			Width:    texture.Width(),
+			Height:   texture.Height(),
+		},
 	}
 }
 

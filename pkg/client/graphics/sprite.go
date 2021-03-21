@@ -70,6 +70,10 @@ func LoadCharacterSprite(f *grf.File, jobSpriteID jobspriteid.Type) (sprite *Cha
 		jobFileName = character.JobSpriteNameTable[jobSpriteID]
 	)
 
+	if "" == jobFileName {
+		return nil, fmt.Errorf("unsupported jobSpriteID %v", jobSpriteID)
+	}
+
 	var decodedFolderA []byte
 	if decodedFolderA, err = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC0, 0xCE, 0xB0, 0xA3, 0xC1, 0xB7}); err != nil {
 		return nil, err
