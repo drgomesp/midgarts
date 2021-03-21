@@ -50,22 +50,18 @@ func LoadSprite(grfFile *grf.File, path string) (sprite *Sprite, err error) {
 		textures: make([]*common.Texture, 0),
 	}
 
-	for i, frame := range sprite.spr.Frames {
-		if frame.SpriteType == spr.FileTypePAL {
-			img := sprFile.ImageAt(i)
-			if img != nil {
-				tex := common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(img, img.Bounds().Max.X, img.Bounds().Max.Y)))
-				sprite.textures = append(sprite.textures, &tex)
-			}
-		} else {
-			//panic("not supported yet")
+	for i := range sprite.spr.Frames {
+		img := sprFile.ImageAt(i)
+		if img != nil {
+			tex := common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(img, img.Bounds().Max.X, img.Bounds().Max.Y)))
+			sprite.textures = append(sprite.textures, &tex)
 		}
 	}
 
 	return
 }
 
-func LoadCharacterSprite(f *grf.File, jobSpriteID jobspriteid.Type) (sprite *CharacterSprite, err error) {
+func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID jobspriteid.Type) (sprite *CharacterSprite, err error) {
 	var (
 		jobFileName = character.JobSpriteNameTable[jobSpriteID]
 	)
@@ -84,12 +80,23 @@ func LoadCharacterSprite(f *grf.File, jobSpriteID jobspriteid.Type) (sprite *Cha
 		return nil, err
 	}
 
-	bodySprite, err := LoadSprite(f, fmt.Sprintf(`data/sprite/%s/%s/³²/%s_³²`, decodedFolderA, decodedFolderB, jobFileName))
+	var filePath string
+	if character.Male == gender {
+		filePath = maleFilePathf
+	} else {
+		filePath = femaleFilePathf
+	}
+
+	bodySprite, err := LoadSprite(f, fmt.Sprintf(filePath, decodedFolderA, decodedFolderB, jobFileName))
 	if err != nil {
 		return nil, err
 	}
 
-	return &CharacterSprite{Body: bodySprite}, nil
+	return NewCharacterSprite(gender, bodySprite), nil
+}
+
+func LoadMonsterSprite(bodySprite *Sprite) (*CharacterSprite, error) {
+	return NewMonsterSprite(bodySprite), nil
 }
 
 func (s *Sprite) GetTextureAtIndex(i int32) *common.Texture {

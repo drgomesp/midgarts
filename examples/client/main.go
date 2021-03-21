@@ -3,6 +3,8 @@ package main
 import (
 	"image/color"
 
+	"github.com/project-midgard/midgarts/pkg/common/character"
+
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
@@ -11,10 +13,11 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 )
 
-var monsterSprite *graphics.Sprite
+var monsterSprite *graphics.CharacterSprite
 var charSprite1 *graphics.CharacterSprite
 var charSprite2 *graphics.CharacterSprite
 var charSprite3 *graphics.CharacterSprite
+var charSprite4 *graphics.CharacterSprite
 
 type myScene struct{}
 
@@ -28,22 +31,31 @@ func (*myScene) Preload() {
 	err = engo.Files.Load("textures/test.png")
 
 	f, err := grf.Load("/home/drgomesp/grf/data.grf")
-	monsterSprite, err = graphics.LoadSprite(f, `data/sprite/ork_warrior`)
+	tmp, err := graphics.LoadSprite(f, `data/sprite/ork_warrior`)
+	if err != nil {
+		panic(err)
+	}
+	monsterSprite, err = graphics.LoadMonsterSprite(tmp)
 	if err != nil {
 		panic(err)
 	}
 
-	charSprite1, err = graphics.LoadCharacterSprite(f, jobspriteid.Thief)
+	charSprite1, err = graphics.LoadCharacterSprite(f, character.Female, jobspriteid.Merchant)
 	if err != nil {
 		panic(err)
 	}
 
-	charSprite2, err = graphics.LoadCharacterSprite(f, jobspriteid.Merchant)
+	charSprite2, err = graphics.LoadCharacterSprite(f, character.Male, jobspriteid.Merchant)
 	if err != nil {
 		panic(err)
 	}
 
-	charSprite3, err = graphics.LoadCharacterSprite(f, jobspriteid.MonkH)
+	charSprite3, err = graphics.LoadCharacterSprite(f, character.Male, jobspriteid.Monk)
+	if err != nil {
+		panic(err)
+	}
+
+	charSprite4, err = graphics.LoadCharacterSprite(f, character.Female, jobspriteid.Monk)
 	if err != nil {
 		panic(err)
 	}
@@ -57,24 +69,28 @@ func (*myScene) Setup(u engo.Updater) {
 	w, _ := u.(*ecs.World)
 	w.AddSystem(&common.RenderSystem{})
 
-	charA := NewCharacterEntity(charSprite1, engo.Point{X: 0, Y: 0})
-	charB := NewCharacterEntity(charSprite2, engo.Point{X: 50, Y: 100})
-	charC := NewCharacterEntity(charSprite2, engo.Point{X: 0, Y: 150})
-	charD := NewCharacterEntity(charSprite3, engo.Point{X: 200, Y: 100})
+	monster := NewCharacterEntity(monsterSprite, engo.Point{X: 300, Y: 300}, 27)
+	charA := NewCharacterEntity(charSprite1, engo.Point{X: 0, Y: 0}, 96)
+	charB := NewCharacterEntity(charSprite2, engo.Point{X: 50, Y: 100}, 0)
+	charC := NewCharacterEntity(charSprite2, engo.Point{X: 0, Y: 150}, 0)
+	charD := NewCharacterEntity(charSprite3, engo.Point{X: 200, Y: 100}, 0)
+	charE := NewCharacterEntity(charSprite4, engo.Point{X: 250, Y: 100}, 95)
 
 	for _, system := range w.Systems() {
 		switch sys := system.(type) {
 		case *common.RenderSystem:
+			sys.Add(&monster.BasicEntity, &monster.RenderComponent, &monster.SpaceComponent)
 			sys.Add(&charA.BasicEntity, &charA.RenderComponent, &charA.SpaceComponent)
 			sys.Add(&charB.BasicEntity, &charB.RenderComponent, &charB.SpaceComponent)
 			sys.Add(&charC.BasicEntity, &charC.RenderComponent, &charC.SpaceComponent)
 			sys.Add(&charD.BasicEntity, &charD.RenderComponent, &charD.SpaceComponent)
+			sys.Add(&charE.BasicEntity, &charE.RenderComponent, &charE.SpaceComponent)
 		}
 	}
 }
 
-func NewCharacterEntity(sprite *graphics.CharacterSprite, initialPos engo.Point) *Character {
-	texture := sprite.GetActionLayerTexture(0, 0)
+func NewCharacterEntity(sprite *graphics.CharacterSprite, initialPos engo.Point, initialActIndex int) *Character {
+	texture := sprite.GetActionLayerTexture(initialActIndex, 0)
 
 	return &Character{
 		BasicEntity: ecs.NewBasic(),

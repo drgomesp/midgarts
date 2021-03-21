@@ -11,5 +11,7 @@ const (
 	Merchant  Type = 5
 	Thief     Type = 6
 
+	Monk Type = 15
+
 	MonkH Type = 4016
 )
