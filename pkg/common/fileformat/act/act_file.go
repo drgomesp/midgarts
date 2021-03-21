@@ -8,7 +8,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/project-midgard/midgarts/pkg/bytesutil"
+	"github.com/project-midgard/midgarts/pkg/common/bytesutil"
 )
 
 const (
@@ -192,17 +192,24 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 			_ = binary.Read(buf, binary.LittleEndian, &a)
 		}
 
-		_ = binary.Read(buf, binary.LittleEndian, &scale[0])
-		if f.Header.Version > 2.0 {
-			_ = binary.Read(buf, binary.LittleEndian, &scale[1])
+		if f.Header.Version >= 2.0 {
+			_ = binary.Read(buf, binary.LittleEndian, &scale[0])
+
+			if f.Header.Version <= 2.3 {
+				scale[1] = scale[0]
+			} else {
+				_ = binary.Read(buf, binary.LittleEndian, &scale[1])
+			}
 		}
 
-		_ = binary.Read(buf, binary.LittleEndian, &angle)
-		_ = binary.Read(buf, binary.LittleEndian, &spriteType)
+		if f.Header.Version >= 2.0 {
+			_ = binary.Read(buf, binary.LittleEndian, &angle)
+			_ = binary.Read(buf, binary.LittleEndian, &spriteType)
 
-		if f.Header.Version > 2.5 {
-			_ = binary.Read(buf, binary.LittleEndian, &width)
-			_ = binary.Read(buf, binary.LittleEndian, &height)
+			if f.Header.Version >= 2.5 {
+				_ = binary.Read(buf, binary.LittleEndian, &width)
+				_ = binary.Read(buf, binary.LittleEndian, &height)
+			}
 		}
 
 		layers[i] = &ActionFrameLayer{

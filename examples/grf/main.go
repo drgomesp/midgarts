@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/project-midgard/midgarts/pkg/fileformat/spr"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
 
-	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 )
 
 func main() {

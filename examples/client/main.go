@@ -3,18 +3,17 @@ package main
 import (
 	"image/color"
 
-	"github.com/project-midgard/midgarts/pkg/character"
-	"github.com/project-midgard/midgarts/pkg/character/jobspriteid"
-
-	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
-	"github.com/project-midgard/midgarts/pkg/graphics"
-
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
+	"github.com/project-midgard/midgarts/pkg/client/graphics"
+	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 )
 
-var spriteResource *graphics.Sprite
+var monsterSprite *graphics.Sprite
+var charSprite1 *graphics.CharacterSprite
+var charSprite2 *graphics.CharacterSprite
 
 type myScene struct{}
 
@@ -28,17 +27,20 @@ func (*myScene) Preload() {
 	err = engo.Files.Load("textures/test.png")
 
 	f, err := grf.Load("/home/drgomesp/grf/data.grf")
-	//spriteResource, err = graphics.LoadSprite(f, `data/sprite/ork_warrior`)
-	//if err != nil {
-	//	panic(err)
-	//}
-
-	charSprite, err := character.LoadCharacterSprite(f, jobspriteid.Swordsman)
+	monsterSprite, err = graphics.LoadSprite(f, `data/sprite/ork_warrior`)
 	if err != nil {
 		panic(err)
 	}
 
-	spriteResource = charSprite
+	charSprite1, err = graphics.LoadCharacterSprite(f, jobspriteid.Thief)
+	if err != nil {
+		panic(err)
+	}
+
+	charSprite2, err = graphics.LoadCharacterSprite(f, jobspriteid.Merchant)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Setup is called before the main loop starts. It allows you
@@ -49,22 +51,45 @@ func (*myScene) Setup(u engo.Updater) {
 	w, _ := u.(*ecs.World)
 	w.AddSystem(&common.RenderSystem{})
 
-	char := Character{BasicEntity: ecs.NewBasic()}
-	char.SpaceComponent = common.SpaceComponent{
-		Position: engo.Point{X: 10, Y: 10},
+	charA := Character{BasicEntity: ecs.NewBasic()}
+	charA.SpaceComponent = common.SpaceComponent{
+		Position: engo.Point{X: 0, Y: 0},
 		Width:    303,
 		Height:   641,
 	}
+	charA.RenderComponent = common.RenderComponent{
+		Drawable: monsterSprite.GetTextureAtIndex(0),
+		Scale:    engo.Point{X: 1, Y: 1},
+	}
 
-	char.RenderComponent = common.RenderComponent{
-		Drawable: spriteResource.Textures[0],
-		Scale:    engo.Point{X: 2, Y: 2},
+	charB := Character{BasicEntity: ecs.NewBasic()}
+	charB.SpaceComponent = common.SpaceComponent{
+		Position: engo.Point{X: 50, Y: 100},
+		Width:    303,
+		Height:   641,
+	}
+	charB.RenderComponent = common.RenderComponent{
+		Drawable: charSprite1.GetActionLayerTexture(0, 0),
+		Scale:    engo.Point{X: 1, Y: 1},
+	}
+
+	charC := Character{BasicEntity: ecs.NewBasic()}
+	charC.SpaceComponent = common.SpaceComponent{
+		Position: engo.Point{X: 100, Y: 100},
+		Width:    303,
+		Height:   641,
+	}
+	charC.RenderComponent = common.RenderComponent{
+		Drawable: charSprite2.GetActionLayerTexture(1, 0),
+		Scale:    engo.Point{X: 1, Y: 1},
 	}
 
 	for _, system := range w.Systems() {
 		switch sys := system.(type) {
 		case *common.RenderSystem:
-			sys.Add(&char.BasicEntity, &char.RenderComponent, &char.SpaceComponent)
+			sys.Add(&charA.BasicEntity, &charA.RenderComponent, &charA.SpaceComponent)
+			sys.Add(&charB.BasicEntity, &charB.RenderComponent, &charB.SpaceComponent)
+			sys.Add(&charC.BasicEntity, &charC.RenderComponent, &charC.SpaceComponent)
 		}
 	}
 }

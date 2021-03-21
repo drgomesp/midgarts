@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/stretchr/testify/assert"
 )
 

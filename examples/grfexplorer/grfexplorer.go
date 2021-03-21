@@ -10,9 +10,9 @@ import (
 	"golang.org/x/text/encoding/charmap"
 
 	g "github.com/AllenDang/giu"
-	"github.com/project-midgard/midgarts/pkg/fileformat/act"
-	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
-	"github.com/project-midgard/midgarts/pkg/fileformat/spr"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
 )
 
 var grfFile *grf.File

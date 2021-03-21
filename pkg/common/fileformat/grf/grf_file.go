@@ -90,7 +90,12 @@ func (f *File) GetEntry(name string) (entry *Entry, err error) {
 	for _, e := range entries {
 		if e.Name == name {
 			entry = e
+			break
 		}
+	}
+
+	if entry == nil {
+		return nil, fmt.Errorf("could not find entry '%s'", name)
 	}
 
 	_, err = f.file.Seek(int64(entry.Header.Offset)+fileHeaderLength, io.SeekStart)

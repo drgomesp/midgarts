@@ -7,10 +7,8 @@ import (
 	"image"
 	"image/color"
 	"io"
-	"strconv"
 
-	"github.com/pkg/errors"
-	"github.com/project-midgard/midgarts/pkg/bytesutil"
+	"github.com/project-midgard/midgarts/pkg/common/bytesutil"
 )
 
 type FileType uint32
@@ -19,15 +17,14 @@ const (
 	HeaderSignature = "SP"
 	PaletteSize     = 1024
 
-	FileTypePAL  FileType = iota
-	FileTypeRGBA          = 1
+	FileTypePAL  FileType = 0
+	FileTypeRGBA FileType = 1
 )
 
 type SpriteFrame struct {
 	SpriteType FileType
 	Width      uint16
 	Height     uint16
-	DataIndex  int
 	Data       []byte
 	Compiled   bool
 }
@@ -41,7 +38,7 @@ type SpriteFile struct {
 		RGBAIndex          uint16
 	}
 
-	Frames  []SpriteFrame
+	Frames  []*SpriteFrame
 	Palette [PaletteSize]byte
 }
 
@@ -54,20 +51,25 @@ func Load(buf *bytes.Buffer) (f *SpriteFile, err error) {
 	}
 
 	if f.Header.Version < 2.1 {
-		return nil, fmt.Errorf("unsupported version %f\n", f.Header.Version)
-	}
-
-	if err = f.readPalettedFrames(reader); err != nil {
-		return nil, err
+		if err = f.readPalettedFrames(reader); err != nil {
+			return nil, err
+		}
+	} else {
+		if err = f.readPalettedFramesRLE(reader); err != nil {
+			return nil, err
+		}
 	}
 
 	if err = f.readRGBAFrames(reader); err != nil {
 		return nil, err
 	}
 
-	reader = bytes.NewReader(buf.Bytes())
-	if err = f.parsePalette(int64(buf.Len()-PaletteSize), reader); err != nil {
-		return nil, err
+	if f.Header.Version > 1.0 {
+		reader = bytes.NewReader(buf.Bytes())
+
+		if err = f.parsePalette(int64(buf.Len()-PaletteSize), reader); err != nil {
+			return nil, err
+		}
 	}
 
 	return f, nil
@@ -88,33 +90,56 @@ func (f *SpriteFile) parseHeader(buf io.ReadSeeker) error {
 	}
 
 	var major, minor byte
-	_ = binary.Read(buf, binary.LittleEndian, &minor)
 	_ = binary.Read(buf, binary.LittleEndian, &major)
+	_ = binary.Read(buf, binary.LittleEndian, &minor)
+	version := float32(major)/10 + float32(minor)
 
-	version, err := strconv.ParseFloat(fmt.Sprintf("%d.%d", major, minor), 32)
-	if err != nil {
-		return errors.Wrapf(err, "invalid version: %s\n", strconv.FormatFloat(version, 'E', -1, 32))
-	}
-
-	var indexedFrameCount, rgbaFrameCount uint16
-	_ = binary.Read(buf, binary.LittleEndian, &indexedFrameCount)
+	var palettedFrameCount, rgbaFrameCount uint16
+	_ = binary.Read(buf, binary.LittleEndian, &palettedFrameCount)
 
 	if version > 1.1 {
 		_ = binary.Read(buf, binary.LittleEndian, &rgbaFrameCount)
 	}
 
 	f.Header.Signature = signatureStr
-	f.Header.Version = float32(version)
-	f.Header.PalettedFrameCount = indexedFrameCount
+	f.Header.Version = version
+	f.Header.PalettedFrameCount = palettedFrameCount
 	f.Header.RGBAFrameCount = rgbaFrameCount
-	f.Header.RGBAIndex = indexedFrameCount
-	f.Frames = make([]SpriteFrame, indexedFrameCount+rgbaFrameCount)
+	f.Header.RGBAIndex = palettedFrameCount
+	f.Frames = make([]*SpriteFrame, palettedFrameCount+rgbaFrameCount)
+
+	return nil
+}
+
+func (f *SpriteFile) readPalettedFrames(buf io.ReadSeeker) error {
+	var (
+		width, height uint16
+		size          int
+		data          []byte
+		palCount      = int(f.Header.PalettedFrameCount)
+	)
+
+	for i := 0; i < palCount; i++ {
+		_ = binary.Read(buf, binary.LittleEndian, &width)
+		_ = binary.Read(buf, binary.LittleEndian, &height)
+
+		size = int(width * height)
+		data = make([]byte, size)
+		_ = binary.Read(buf, binary.LittleEndian, &data)
+
+		f.Frames[i] = &SpriteFrame{
+			SpriteType: FileTypePAL,
+			Width:      width,
+			Height:     height,
+			Data:       data,
+		}
+	}
 
 	return nil
 }
 
 // Parse .spr indexed images encoded with run-length encoding (RLE)
-func (f *SpriteFile) readPalettedFrames(buf io.ReadSeeker) error {
+func (f *SpriteFile) readPalettedFramesRLE(buf io.ReadSeeker) error {
 	var (
 		width, height    uint16
 		c, count         byte
@@ -131,12 +156,18 @@ func (f *SpriteFile) readPalettedFrames(buf io.ReadSeeker) error {
 		index = 0
 
 		var tmp uint16
-		_ = binary.Read(buf, binary.LittleEndian, &tmp)
+		if err := binary.Read(buf, binary.LittleEndian, &tmp); err != nil {
+			return err
+		}
+
 		offset, _ := buf.Seek(0, io.SeekCurrent)
 		end = int(tmp) + int(offset)
 
 		for int(offset) < end {
-			_ = binary.Read(buf, binary.LittleEndian, &c)
+			if err := binary.Read(buf, binary.LittleEndian, &c); err != nil {
+				return err
+			}
+
 			data[index] = c
 			index++
 
@@ -157,12 +188,11 @@ func (f *SpriteFile) readPalettedFrames(buf io.ReadSeeker) error {
 			offset, _ = buf.Seek(0, io.SeekCurrent)
 		}
 
-		f.Frames[i] = SpriteFrame{
+		f.Frames[i] = &SpriteFrame{
 			SpriteType: FileTypePAL,
 			Width:      width,
 			Height:     height,
 			Data:       data,
-			DataIndex:  int(offset),
 		}
 	}
 
@@ -182,18 +212,16 @@ func (f *SpriteFile) readRGBAFrames(buf io.ReadSeeker) error {
 
 		size = int(width*height) * 4
 		data = make([]byte, size)
-		offset, _ := buf.Seek(0, io.SeekCurrent)
-		_ = binary.Read(buf, binary.LittleEndian, &data)
+		if err := binary.Read(buf, binary.LittleEndian, &data); err != nil {
+			return err
+		}
 
-		f.Frames[i+int(f.Header.RGBAIndex)] = SpriteFrame{
+		f.Frames[i+int(f.Header.RGBAIndex)] = &SpriteFrame{
 			SpriteType: FileTypeRGBA,
 			Width:      width,
 			Height:     height,
 			Data:       data,
-			DataIndex:  int(offset),
 		}
-
-		_, _ = buf.Seek(int64(width*height)*4, io.SeekCurrent)
 	}
 
 	return nil
@@ -206,6 +234,10 @@ func (f *SpriteFile) ImageAt(index int) image.Image {
 		height = int(frame.Height)
 		data   = frame.Data
 	)
+
+	if width <= 0 || height <= 0 {
+		return nil
+	}
 
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
@@ -225,7 +257,7 @@ func (f *SpriteFile) ImageAt(index int) image.Image {
 	} else {
 		for y := 0; y < height; y++ {
 			for x := 0; x < width; x++ {
-				i := int(data[x+y*width]) * 4
+				i := int(frame.Data[x+y*width]) * 4
 				var a byte
 
 				if i != 0 {

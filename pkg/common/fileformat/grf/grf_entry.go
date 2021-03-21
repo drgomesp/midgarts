@@ -4,7 +4,7 @@ import (
 	"bytes"
 
 	"github.com/pkg/errors"
-	"github.com/project-midgard/midgarts/pkg/fileformat/grf/des"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf/des"
 )
 
 type entryFlags byte
