@@ -2,6 +2,10 @@
 
 Midgarts Client is an attempt to write a modern client implementation of the old classic [Ragnarök Online](https://ragnarok.fandom.com/wiki/Ragnarok_Online) game. 
 
+Current Screenshots:
+
+![wip](https://user-images.githubusercontent.com/696982/111909241-4a594500-8a3b-11eb-911a-0127da565c2b.png)
+
 ## Table of Contents
 
 - Introduction (coming soon)
