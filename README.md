@@ -1,17 +1,17 @@
 # Midgarts
 
-Midgarts Client is an attempt to write a modern client implementation of the old classic [Ragnarök Online](https://ragnarok.fandom.com/wiki/Ragnarok_Online) game. 
+Midgarts Client is an attempt to write a modern client implementation of the old classic [Ragnarök Online](https://ragnarok.fandom.com/wiki/Ragnarok_Online) game.
 
 Current Screenshots:
 
-![wip](https://user-images.githubusercontent.com/696982/111909241-4a594500-8a3b-11eb-911a-0127da565c2b.png)
+![Peek 2021-03-22 17-31](https://user-images.githubusercontent.com/696982/112054796-c84d4700-8b34-11eb-823b-2dd9ecd93684.gif)
 
 ## Table of Contents
 
 - Introduction (coming soon)
 - [TODO](https://github.com/drgomesp/midgarts/blob/master/TODO.md#todo)
 - [Tools](https://github.com/drgomesp/midgarts/blob/master/README.md#tools)
-    - [GRF Explorer](https://github.com/drgomesp/midgarts/blob/master/README.md#grf-explorer)
+  - [GRF Explorer](https://github.com/drgomesp/midgarts/blob/master/README.md#grf-explorer)
 - [Examples](https://github.com/drgomesp/midgarts/blob/master/README.md#examples)
 
 ## Introduction
@@ -34,6 +34,7 @@ Latest screenshots:
 grfFilef, err := grf.Load("data.grf")
 ```
 
+
 ### Getting an entry
 
 ```go
@@ -51,13 +52,13 @@ sprFile, err := spr.Load(e.Data)
 ```go
 outputFile, err := os.Create("out/test.png")
 if err != nil {
-    log.Fatal(err)
+log.Fatal(err)
 }
 
 defer outputFile.Close()
 
 if err = png.Encode(outputFile, img); err != nil {
-    log.Fatal(err)
+log.Fatal(err)
 }
 ```
 
