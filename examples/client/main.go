@@ -23,6 +23,21 @@ var charSprite2 *graphics.CharacterSprite
 var charSprite3 *graphics.CharacterSprite
 var charSprite4 *graphics.CharacterSprite
 
+var characterSpriteSheets = []map[string]*common.Spritesheet{
+	jobid.Archer: {
+		"f": nil,
+		"m": nil,
+	},
+	jobid.Thief: {
+		"f": nil,
+		"m": nil,
+	},
+	jobid.Monk: {
+		"f": nil,
+		"m": nil,
+	},
+}
+
 type myScene struct {
 }
 
@@ -35,7 +50,16 @@ func (*myScene) Preload() {
 	var err error
 	//err = engo.Files.Load("build/15-1.png")
 	//err = engo.Files.Load("build/4016-1.png")
-	if err = engo.Files.Load("build/f/6-1.xml"); err != nil {
+
+	if err = engo.Files.Load("build/m/3-1.xml"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err = engo.Files.Load("build/m/6-1.xml"); err != nil {
+		log.Fatal(err)
+	}
+
+	if err = engo.Files.Load("build/f/15-1.xml"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -43,13 +67,22 @@ func (*myScene) Preload() {
 		log.Fatal(err)
 	}
 
-	if err = engo.Files.Load("build/m/3-1.xml"); err != nil {
-		log.Fatal(err)
-	}
-
-	if err = engo.Files.Load("build/f/3-1.xml"); err != nil {
-		log.Fatal(err)
-	}
+	characterSpriteSheets[jobid.Archer]["m"] = common.NewAsymmetricSpritesheetFromFile(
+		"build/m/3-1.png",
+		BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Archer),
+	)
+	characterSpriteSheets[jobid.Thief]["f"] = common.NewAsymmetricSpritesheetFromFile(
+		"build/m/6-1.png",
+		BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Thief),
+	)
+	characterSpriteSheets[jobid.Monk]["f"] = common.NewAsymmetricSpritesheetFromFile(
+		"build/f/15-1.png",
+		BuildSpriteRegionsFromTextureAtlas(character.Female, jobid.Monk),
+	)
+	characterSpriteSheets[jobid.Monk]["m"] = common.NewAsymmetricSpritesheetFromFile(
+		"build/m/15-1.png",
+		BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Monk),
+	)
 
 	//f, err := grf.Load("/home/drgomesp/grf/data.grf")
 	//tmp, err := graphics.LoadSprite(f, `data/sprite/ork_warrior`)
@@ -91,27 +124,10 @@ func (s *myScene) Setup(u engo.Updater) {
 	w.AddSystem(&common.RenderSystem{})
 	w.AddSystem(&common.AnimationSystem{})
 
-	heroASpriteSheet := common.NewAsymmetricSpritesheetFromFile(
-		"build/m/15-1.png",
-		BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Monk),
-	)
-	heroBSpriteSheet := common.NewAsymmetricSpritesheetFromFile(
-		"build/f/6-1.png",
-		BuildSpriteRegionsFromTextureAtlas(character.Female, jobid.Thief),
-	)
-	archerMaleSpriteSheet := common.NewAsymmetricSpritesheetFromFile(
-		"build/m/3-1.png",
-		BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Archer),
-	)
-	archerFemaleSpriteSheet := common.NewAsymmetricSpritesheetFromFile(
-		"build/f/3-1.png",
-		BuildSpriteRegionsFromTextureAtlas(character.Female, jobid.Archer),
-	)
-
-	heroA := s.CreateEntity(engo.Point{X: 100, Y: 200}, heroASpriteSheet)
-	heroB := s.CreateEntity(engo.Point{X: 150, Y: 200}, heroBSpriteSheet)
-	heroC := s.CreateEntity(engo.Point{X: 200, Y: 200}, archerMaleSpriteSheet)
-	heroD := s.CreateEntity(engo.Point{X: 250, Y: 200}, archerFemaleSpriteSheet)
+	heroA := s.CreateEntity(engo.Point{X: 100, Y: 200}, jobid.Archer, character.Male)
+	heroB := s.CreateEntity(engo.Point{X: 150, Y: 200}, jobid.Thief, character.Female)
+	heroC := s.CreateEntity(engo.Point{X: 200, Y: 200}, jobid.Monk, character.Female)
+	heroD := s.CreateEntity(engo.Point{X: 250, Y: 200}, jobid.Monk, character.Male)
 
 	//monster := NewCharacterEntity(monsterSprite, engo.Point{X: 300, Y: 300}, 27)
 	//charA := NewCharacterEntity(charSprite1, engo.Point{X: 0, Y: 0}, 96)
@@ -168,7 +184,16 @@ func BuildSpriteRegionsFromTextureAtlas(gender character.GenderType, jid jobid.T
 	return regions
 }
 
-func (*myScene) CreateEntity(point engo.Point, spriteSheet *common.Spritesheet) *AnimatedEntity {
+func (*myScene) CreateEntity(
+	point engo.Point,
+	jid jobid.Type,
+	gender character.GenderType,
+) *AnimatedEntity {
+	spriteSheet := characterSpriteSheets[jid][gender.String()]
+	if spriteSheet == nil {
+		log.Fatalf("character spritesheet not found for jobid '%d' and gender '%d'", jid, gender)
+	}
+
 	entity := &AnimatedEntity{BasicEntity: ecs.NewBasic()}
 
 	entity.SpaceComponent = common.SpaceComponent{
