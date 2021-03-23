@@ -13,10 +13,11 @@ import (
 )
 
 type Sprite struct {
-	act *act.ActionFile
-	spr *spr.SpriteFile
+	Path string
 
-	path     string
+	ActionFile *act.ActionFile
+	SpriteFile *spr.SpriteFile
+
 	textures []*common.Texture
 }
 
@@ -44,16 +45,16 @@ func LoadSprite(grfFile *grf.File, path string) (sprite *Sprite, err error) {
 	}
 
 	sprite = &Sprite{
-		act:      actFile,
-		spr:      sprFile,
-		path:     path,
-		textures: make([]*common.Texture, 0),
+		ActionFile: actFile,
+		SpriteFile: sprFile,
+		Path:       path,
+		textures:   make([]*common.Texture, 0),
 	}
 
-	for i := range sprite.spr.Frames {
-		img := sprFile.ImageAt(i)
-		if img != nil {
-			tex := common.NewTextureSingle(common.NewImageObject(common.ImageToNRGBA(img, img.Bounds().Max.X, img.Bounds().Max.Y)))
+	for i := range sprite.SpriteFile.Frames {
+		if img := sprFile.ImageAt(i); img != nil {
+			commonImage := common.ImageToNRGBA(img, img.Bounds().Max.X, img.Bounds().Max.Y)
+			tex := common.NewTextureSingle(common.NewImageObject(commonImage))
 			sprite.textures = append(sprite.textures, &tex)
 		}
 	}
@@ -82,9 +83,9 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 
 	var filePath string
 	if character.Male == gender {
-		filePath = maleFilePathf
+		filePath = MaleFilePathf
 	} else {
-		filePath = femaleFilePathf
+		filePath = FemaleFilePathf
 	}
 
 	bodySprite, err := LoadSprite(f, fmt.Sprintf(filePath, decodedFolderA, decodedFolderB, jobFileName))

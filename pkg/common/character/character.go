@@ -12,10 +12,15 @@ const (
 	Female
 )
 
-var JobSpriteNameTable = map[jobspriteid.Type]string{
-	jobspriteid.Novice: "",
-	jobspriteid.MonkH:  "",
+func (t GenderType) String() string {
+	if t == Male {
+		return "m"
+	} else {
+		return "f"
+	}
 }
+
+var JobSpriteNameTable = map[jobspriteid.Type]string{}
 
 func init() {
 	var dst []byte

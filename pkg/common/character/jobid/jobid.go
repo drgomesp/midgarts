@@ -10,4 +10,5 @@ const (
 	Alcolyte       = 4
 	Merchant       = 5
 	Thief          = 6
+	Monk           = 15
 )

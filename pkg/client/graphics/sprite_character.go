@@ -12,33 +12,33 @@ import (
 const (
 	fpsMultiplier = 1.0
 
-	maleFilePathf   = "data/sprite/%s/%s/³²/%s_³²"
-	femaleFilePathf = "data/sprite/%s/%s/¿©/%s_¿©"
+	MaleFilePathf   = "data/sprite/%s/%s/³²/%s_³²"
+	FemaleFilePathf = "data/sprite/%s/%s/¿©/%s_¿©"
 )
 
 type CharacterSprite struct {
 	Gender character.GenderType
 
-	body *Sprite
+	Body *Sprite
 }
 
 func NewCharacterSprite(gender character.GenderType, bodySprite *Sprite) *CharacterSprite {
 	return &CharacterSprite{
 		Gender: gender,
-		body:   bodySprite,
+		Body:   bodySprite,
 	}
 }
 
 func NewMonsterSprite(bodySprite *Sprite) *CharacterSprite {
 	return &CharacterSprite{
-		body: bodySprite,
+		Body: bodySprite,
 	}
 }
 
 func (s *CharacterSprite) GetActionLayerTexture(actIndex int, layerIndex int) *common.Texture {
 	var (
-		// TODO should act be taken from BodySprite or somewhere else?
-		action                = s.body.act.Actions[actIndex]
+		// TODO should ActionFile be taken from BodySprite or somewhere else?
+		action                = s.Body.ActionFile.Actions[actIndex]
 		frameIndex            int64
 		frameCount            = len(action.Frames)
 		timeNeededForOneFrame = float32(action.Delay.Milliseconds()) * 1.0 / fpsMultiplier
@@ -55,5 +55,5 @@ func (s *CharacterSprite) GetActionLayerTexture(actIndex int, layerIndex int) *c
 	// TODO draw all layers?
 	layer := frame.Layers[layerIndex]
 
-	return s.body.GetTextureAtIndex(layer.SpriteFrameIndex)
+	return s.Body.GetTextureAtIndex(layer.SpriteFrameIndex)
 }
