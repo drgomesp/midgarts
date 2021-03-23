@@ -7,6 +7,10 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
+
+	"github.com/project-midgard/midgarts/pkg/client"
+
 	"github.com/project-midgard/midgarts/pkg/common/character"
 
 	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
@@ -17,24 +21,23 @@ import (
 	"github.com/project-midgard/midgarts/pkg/client/graphics"
 )
 
+var F = character.Female.String()
+var M = character.Male.String()
+
 var monsterSprite *graphics.CharacterSprite
 var charSprite1 *graphics.CharacterSprite
 var charSprite2 *graphics.CharacterSprite
 var charSprite3 *graphics.CharacterSprite
 var charSprite4 *graphics.CharacterSprite
 
-var characterSpriteSheets = []map[string]*common.Spritesheet{
-	jobid.Archer: {
-		"f": nil,
-		"m": nil,
+var spritesheets = map[string][]*common.Spritesheet{
+	F: {
+		jobid.Archer: {},
+		jobid.Thief:  {},
+		jobid.Monk:   {},
 	},
-	jobid.Thief: {
-		"f": nil,
-		"m": nil,
-	},
-	jobid.Monk: {
-		"f": nil,
-		"m": nil,
+	M: {
+		jobid.Monk: {},
 	},
 }
 
@@ -67,25 +70,25 @@ func (*myScene) Preload() {
 		log.Fatal(err)
 	}
 
-	characterSpriteSheets[jobid.Archer]["m"] = common.NewAsymmetricSpritesheetFromFile(
+	spritesheets[M][jobid.Archer] = common.NewAsymmetricSpritesheetFromFile(
 		"build/m/3-1.png",
 		BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Archer),
 	)
-	characterSpriteSheets[jobid.Thief]["f"] = common.NewAsymmetricSpritesheetFromFile(
+	spritesheets[F][jobid.Thief] = common.NewAsymmetricSpritesheetFromFile(
 		"build/m/6-1.png",
 		BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Thief),
 	)
-	characterSpriteSheets[jobid.Monk]["f"] = common.NewAsymmetricSpritesheetFromFile(
+	spritesheets[F][jobid.Monk] = common.NewAsymmetricSpritesheetFromFile(
 		"build/f/15-1.png",
 		BuildSpriteRegionsFromTextureAtlas(character.Female, jobid.Monk),
 	)
-	characterSpriteSheets[jobid.Monk]["m"] = common.NewAsymmetricSpritesheetFromFile(
+	spritesheets[M][jobid.Monk] = common.NewAsymmetricSpritesheetFromFile(
 		"build/m/15-1.png",
 		BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Monk),
 	)
 
-	//f, err := grf.Load("/home/drgomesp/grf/data.grf")
-	//tmp, err := graphics.LoadSprite(f, `data/sprite/ork_warrior`)
+	//F, err := grf.Load("/home/drgomesp/grf/data.grf")
+	//tmp, err := graphics.LoadSprite(F, `data/sprite/ork_warrior`)
 	//if err != nil {
 	//	panic(err)
 	//}
@@ -94,22 +97,22 @@ func (*myScene) Preload() {
 	//	panic(err)
 	//}
 	//
-	//charSprite1, err = graphics.LoadCharacterSprite(f, character.Female, jobspriteid.Merchant)
+	//charSprite1, err = graphics.LoadCharacterSprite(F, character.Female, jobspriteid.Merchant)
 	//if err != nil {
 	//	panic(err)
 	//}
 	//
-	//charSprite2, err = graphics.LoadCharacterSprite(f, character.Male, jobspriteid.Merchant)
+	//charSprite2, err = graphics.LoadCharacterSprite(F, character.Male, jobspriteid.Merchant)
 	//if err != nil {
 	//	panic(err)
 	//}
 	//
-	//charSprite3, err = graphics.LoadCharacterSprite(f, character.Male, jobspriteid.Thief)
+	//charSprite3, err = graphics.LoadCharacterSprite(F, character.Male, jobspriteid.Thief)
 	//if err != nil {
 	//	panic(err)
 	//}
 	//
-	//charSprite4, err = graphics.LoadCharacterSprite(f, character.Male, jobspriteid.Monk)
+	//charSprite4, err = graphics.LoadCharacterSprite(F, character.Male, jobspriteid.Monk)
 	//if err != nil {
 	//	panic(err)
 	//}
@@ -124,10 +127,10 @@ func (s *myScene) Setup(u engo.Updater) {
 	w.AddSystem(&common.RenderSystem{})
 	w.AddSystem(&common.AnimationSystem{})
 
-	heroA := s.CreateEntity(engo.Point{X: 100, Y: 200}, jobid.Archer, character.Male)
-	heroB := s.CreateEntity(engo.Point{X: 150, Y: 200}, jobid.Thief, character.Female)
-	heroC := s.CreateEntity(engo.Point{X: 200, Y: 200}, jobid.Monk, character.Female)
-	heroD := s.CreateEntity(engo.Point{X: 250, Y: 200}, jobid.Monk, character.Male)
+	heroA := s.CreateCharacter(engo.Point{X: 100, Y: 200}, character.Male, jobid.Archer)
+	heroB := s.CreateCharacter(engo.Point{X: 150, Y: 200}, character.Female, jobid.Thief)
+	heroC := s.CreateCharacter(engo.Point{X: 200, Y: 200}, character.Female, jobid.Monk)
+	heroD := s.CreateCharacter(engo.Point{X: 250, Y: 200}, character.Male, jobid.Monk)
 
 	//monster := NewCharacterEntity(monsterSprite, engo.Point{X: 300, Y: 300}, 27)
 	//charA := NewCharacterEntity(charSprite1, engo.Point{X: 0, Y: 0}, 96)
@@ -184,65 +187,31 @@ func BuildSpriteRegionsFromTextureAtlas(gender character.GenderType, jid jobid.T
 	return regions
 }
 
-func (*myScene) CreateEntity(
+func (*myScene) CreateCharacter(
 	point engo.Point,
-	jid jobid.Type,
 	gender character.GenderType,
-) *AnimatedEntity {
-	spriteSheet := characterSpriteSheets[jid][gender.String()]
-	if spriteSheet == nil {
+	jid jobid.Type,
+) *client.Character {
+	spritesheet := spritesheets[gender.String()][jid]
+	if spritesheet == nil {
 		log.Fatalf("character spritesheet not found for jobid '%d' and gender '%d'", jid, gender)
 	}
 
-	entity := &AnimatedEntity{BasicEntity: ecs.NewBasic()}
+	char := client.NewCharacter(spritesheet, gender, jid)
 
-	entity.SpaceComponent = common.SpaceComponent{
+	char.SpaceComponent = common.SpaceComponent{
 		Position: point,
 		Width:    100,
 		Height:   100,
 	}
-	entity.RenderComponent = common.RenderComponent{
-		Drawable: spriteSheet.Cell(0),
+	char.RenderComponent = common.RenderComponent{
+		Drawable: spritesheet.Cell(0),
 		Scale:    engo.Point{X: 1, Y: 1},
 	}
-	entity.AnimationComponent = common.NewAnimationComponent(spriteSheet.Drawables(), .09)
 
-	animationAction0 := &common.Animation{Name: "run", Frames: []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}}
+	char.SetCurrentAction(client.CharacterActions[actionindex.Idle])
 
-	entity.AnimationComponent.AddAnimations([]*common.Animation{animationAction0})
-	entity.AnimationComponent.AddDefaultAnimation(animationAction0)
-
-	return entity
-}
-
-func NewCharacterEntity(sprite *graphics.CharacterSprite, initialPos engo.Point, initialActIndex int) *Character {
-	texture := sprite.GetActionLayerTexture(initialActIndex, 0)
-
-	return &Character{
-		BasicEntity: ecs.NewBasic(),
-		RenderComponent: common.RenderComponent{
-			Drawable: texture,
-			Scale:    engo.Point{X: 1, Y: 1},
-		},
-		SpaceComponent: common.SpaceComponent{
-			Position: initialPos,
-			Width:    texture.Width(),
-			Height:   texture.Height(),
-		},
-	}
-}
-
-type AnimatedEntity struct {
-	ecs.BasicEntity
-	common.RenderComponent
-	common.SpaceComponent
-	common.AnimationComponent
-}
-
-type Character struct {
-	ecs.BasicEntity
-	common.RenderComponent
-	common.SpaceComponent
+	return char
 }
 
 func main() {
