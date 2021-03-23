@@ -4,8 +4,10 @@ Midgarts Client is an attempt to write a modern client implementation of the old
 
 Current Screenshots:
 
-![Peek 2021-03-22 17-31](https://user-images.githubusercontent.com/696982/112054796-c84d4700-8b34-11eb-823b-2dd9ecd93684.gif)
-![Peek 2021-03-22 21-42](https://user-images.githubusercontent.com/696982/112075592-8f729980-8b57-11eb-9253-87c5d3301131.gif)
+<p align="center"">
+<img src="https://user-images.githubusercontent.com/696982/112054796-c84d4700-8b34-11eb-823b-2dd9ecd93684.gif" width="45%" />
+<img src="https://user-images.githubusercontent.com/696982/112075592-8f729980-8b57-11eb-9253-87c5d3301131.gif" width="45%" />
+</p>
 
 ## Table of Contents
 
