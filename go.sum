@@ -5,10 +5,6 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/EngoEngine/ecs v1.0.4/go.mod h1:B/+b8S8xOPXaI05sFRBQ94nWHFxerBuSUPa4EXDNodg=
 github.com/EngoEngine/ecs v1.0.5 h1:S21KTClrAqC862BFR5wTkd6uEYQ0Aw/ob9RjKPt0e30=
 github.com/EngoEngine/ecs v1.0.5/go.mod h1:A8AYbzKIsl+t4qafmLL3t4H6cXdfGo4CIHl7EN100iM=
-github.com/EngoEngine/engo v1.0.5 h1:uUS+ePuY0jfrdgsiu9DksgIXutajbRxJotguHjyhblE=
-github.com/EngoEngine/engo v1.0.5/go.mod h1:jYnT3CutNgI034WhhzsSo0oXjcFoJW4o22CCfTd92wE=
-github.com/EngoEngine/gl v1.0.10 h1:Np2JJRsGSxI2R8lPKqk+fPV5eBb/mJA5Iq2gGSbKEng=
-github.com/EngoEngine/gl v1.0.10/go.mod h1:8f1reqqWMIXn6FSdcjwo6ayoZfrEqiv/0ulVHb4LGf4=
 github.com/EngoEngine/gl v1.0.11 h1:e0WdnP19ElyMjFVm2eXQ9rVIdxEl9v1u99T7by/xTPM=
 github.com/EngoEngine/gl v1.0.11/go.mod h1:8f1reqqWMIXn6FSdcjwo6ayoZfrEqiv/0ulVHb4LGf4=
 github.com/EngoEngine/math v1.0.4 h1:ejDfSg48ynB9T6btiu9EHjZmpQgW/zHf3IeC7SqXXv8=

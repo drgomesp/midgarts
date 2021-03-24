@@ -92,6 +92,10 @@ func (*myScene) Preload() {
 // Setup is called before the main loop starts. It allows you
 // to add entities and systems to your Scene.
 func (s *myScene) Setup(u engo.Updater) {
+	engo.Input.RegisterButton("Top", engo.KeyArrowUp)
+	engo.Input.RegisterButton("Right", engo.KeyArrowRight)
+	engo.Input.RegisterButton("Bot", engo.KeyArrowDown)
+	engo.Input.RegisterButton("Left", engo.KeyArrowLeft)
 	common.SetBackground(color.White)
 
 	w, _ := u.(*ecs.World)

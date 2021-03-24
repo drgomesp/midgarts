@@ -15,8 +15,9 @@ type CharacterAction struct {
 
 func NewCharacterAction(actionIndex actionindex.Type) *CharacterAction {
 	characterAction := &CharacterAction{
-		Name:        string(actionindex.GetStateType(actionIndex)),
-		ActionIndex: actionIndex,
+		Name:               string(actionindex.GetStateType(actionIndex)),
+		ActionIndex:        actionIndex,
+		AnimationStartedAt: time.Now(),
 	}
 
 	return characterAction

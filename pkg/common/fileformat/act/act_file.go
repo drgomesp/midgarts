@@ -14,7 +14,7 @@ import (
 const (
 	HeaderSignature = "AC"
 
-	ActionDefaultDelay = 150 * time.Millisecond
+	ActionDefaultDelay = 100 * time.Millisecond
 )
 
 type Coordinate struct {

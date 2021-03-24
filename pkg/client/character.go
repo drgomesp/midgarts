@@ -8,6 +8,7 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
+	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
 	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
@@ -29,9 +30,10 @@ type CharacterEntity struct {
 	CurrentAction       *CharacterAction
 	PlayMode            actionplaymode.Type
 
-	Gender character.GenderType
-	Job    jobid.Type
-	State  statetype.Type
+	Gender    character.GenderType
+	Job       jobid.Type
+	State     statetype.Type
+	Direction directiontype.Type
 }
 
 func NewCharacterEntity(spritesheetResource *graphics.SpritesheetResource, actFile *act.ActionFile, gender character.GenderType, job jobid.Type) *CharacterEntity {
@@ -43,6 +45,7 @@ func NewCharacterEntity(spritesheetResource *graphics.SpritesheetResource, actFi
 		Gender:              gender,
 		Job:                 job,
 		State:               statetype.Idle,
+		Direction:           directiontype.South,
 		PlayMode:            actionplaymode.Repeat,
 	}
 }

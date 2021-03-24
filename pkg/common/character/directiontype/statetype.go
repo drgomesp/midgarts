@@ -1,6 +1,6 @@
 package directiontype
 
-type Type int
+type Type uint8
 
 const (
 	South Type = iota

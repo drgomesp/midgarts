@@ -1,7 +1,12 @@
 package system
 
 import (
+	"time"
+
+	"github.com/EngoEngine/engo/math"
+
 	"github.com/EngoEngine/ecs"
+	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/pkg/client"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
@@ -33,6 +38,16 @@ func (s *CharacterAnimationSystem) AddByInterface(i ecs.Identifier) {
 
 func (s *CharacterAnimationSystem) Update(dt float32) {
 	for _, char := range s.characters {
+		if engo.Input.Button("Top").JustPressed() {
+			char.Direction = directiontype.North
+		} else if engo.Input.Button("Right").JustPressed() {
+			char.Direction = directiontype.East
+		} else if engo.Input.Button("Bot").JustPressed() {
+			char.Direction = directiontype.South
+		} else if engo.Input.Button("Left").JustPressed() {
+			char.Direction = directiontype.West
+		}
+
 		if char.CharacterAnimationComponent.CurrentAnimation == nil {
 			if char.CharacterAnimationComponent.DefaultAnimation == nil {
 				continue
@@ -44,12 +59,14 @@ func (s *CharacterAnimationSystem) Update(dt float32) {
 		}
 
 		actionIndex := actionindex.GetActionIndex(char.State)
-		idx := int(actionIndex) + (int(directiontype.South)+DirectionTable[FixedCameraDirection])%8
+		idx := int(actionIndex) + (int(char.Direction)+DirectionTable[FixedCameraDirection])%8
 		action := char.ActionFile.Actions[idx]
 
 		frameCount := len(action.Frames)
-		timeNeededForOneFrame := int64(action.Delay.Milliseconds() * (1.0 / FPSMultiplier))
-		elapsedTime := int64(dt) - char.CurrentAction.AnimationStartedAt.Unix()
+		timeNeededForOneFrame := int64(action.Delay.Seconds() * (1.0 / FPSMultiplier))
+		timeNeededForOneFrame = int64(math.Max(float32(timeNeededForOneFrame), 100))
+
+		elapsedTime := int64(time.Since(char.CurrentAction.AnimationStartedAt).Milliseconds()) - int64(dt)
 		realIndex := elapsedTime / timeNeededForOneFrame
 
 		var frameIndex int64
