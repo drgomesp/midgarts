@@ -1,5 +1,7 @@
 package actionindex
 
+import "github.com/project-midgard/midgarts/pkg/common/character/statetype"
+
 type Type int
 
 const (
@@ -17,3 +19,27 @@ const (
 	Attacking3      Type = 88
 	CastingSpell    Type = 96
 )
+
+func GetActionIndex(s statetype.Type) (t Type) {
+	switch s {
+	case statetype.Walking:
+		return Walking
+	case statetype.Idle:
+	default:
+		return Idle
+	}
+
+	return
+}
+
+func GetStateType(a Type) (t statetype.Type) {
+	switch a {
+	default:
+	case Idle:
+		return statetype.Idle
+	case Walking:
+		return statetype.Walking
+	}
+
+	return
+}

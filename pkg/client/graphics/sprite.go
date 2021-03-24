@@ -2,6 +2,7 @@ package graphics
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/pkg/common/character"
@@ -96,8 +97,45 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 	return NewCharacterSprite(gender, bodySprite), nil
 }
 
-func LoadMonsterSprite(bodySprite *Sprite) (*CharacterSprite, error) {
-	return NewMonsterSprite(bodySprite), nil
+func LoadCharacterActionFile(f *grf.File, gender character.GenderType, jobSpriteID jobspriteid.Type) *act.ActionFile {
+	var (
+		err         error
+		jobFileName = character.JobSpriteNameTable[jobSpriteID]
+	)
+
+	if "" == jobFileName {
+		log.Fatalf("unsupported jobSpriteID %v", jobSpriteID)
+	}
+
+	var decodedFolderA []byte
+	if decodedFolderA, err = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC0, 0xCE, 0xB0, 0xA3, 0xC1, 0xB7}); err != nil {
+		log.Fatal(err)
+	}
+
+	var decodedFolderB []byte
+	if decodedFolderB, err = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB8, 0xF6, 0xC5, 0xEB}); err != nil {
+		log.Fatal(err)
+	}
+
+	var filePath string
+	if character.Male == gender {
+		filePath = MaleFilePathf
+	} else {
+		filePath = FemaleFilePathf
+	}
+
+	path := fmt.Sprintf(filePath, decodedFolderA, decodedFolderB, jobFileName)
+	var entry *grf.Entry
+	if entry, err = f.GetEntry(fmt.Sprintf("%s.act", path)); err != nil {
+		log.Fatal(err)
+	}
+
+	actFile, err := act.Load(entry.Data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return actFile
 }
 
 func (s *Sprite) GetTextureAtIndex(i int32) *common.Texture {

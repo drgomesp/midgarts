@@ -1,28 +1,27 @@
 package client
 
 import (
-	"github.com/EngoEngine/engo/common"
+	"time"
+
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 )
 
-var CharacterActions = map[actionindex.Type]*CharacterAction{
-	actionindex.Idle: NewCharacterAction("idle", actionindex.Idle, []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10}, nil),
-}
-
 type CharacterAction struct {
-	Name        string
-	ActionIndex actionindex.Type
-	Frames      []int
-
-	animationComponent common.AnimationComponent
+	Name               string
+	ActionIndex        actionindex.Type
+	Frames             []int
+	AnimationStartedAt time.Time
 }
 
-func NewCharacterAction(name string, actionIndex actionindex.Type, frames []int, spritesheet *common.Spritesheet) *CharacterAction {
+func NewCharacterAction(actionIndex actionindex.Type) *CharacterAction {
 	characterAction := &CharacterAction{
-		Name:        name,
+		Name:        string(actionindex.GetStateType(actionIndex)),
 		ActionIndex: actionIndex,
-		Frames:      frames,
 	}
 
 	return characterAction
+}
+
+func (a *CharacterAction) SetFrames(frames []int) {
+	a.Frames = frames
 }

@@ -29,12 +29,6 @@ func NewCharacterSprite(gender character.GenderType, bodySprite *Sprite) *Charac
 	}
 }
 
-func NewMonsterSprite(bodySprite *Sprite) *CharacterSprite {
-	return &CharacterSprite{
-		Body: bodySprite,
-	}
-}
-
 func (s *CharacterSprite) GetActionLayerTexture(actIndex int, layerIndex int) *common.Texture {
 	var (
 		// TODO should ActionFile be taken from BodySprite or somewhere else?

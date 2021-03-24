@@ -3,50 +3,60 @@ package client
 import (
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo/common"
+	"github.com/project-midgard/midgarts/pkg/client/component"
+	"github.com/project-midgard/midgarts/pkg/client/graphics"
 	"github.com/project-midgard/midgarts/pkg/common/character"
+	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
+	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
+	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
 	uuid "github.com/satori/go.uuid"
 )
 
-type Character struct {
+type CharacterEntity struct {
 	ecs.BasicEntity
 	common.RenderComponent
 	common.SpaceComponent
-	common.AnimationComponent
+	component.CharacterAnimationComponent
 
 	id string
 
-	// spritesheet should come from a shared system later, but for now its ok
-	// for every character to hold its own spritesheet.
-	spritesheet *common.Spritesheet
+	// spritesheetResource should come from a shared system later, but for now its ok
+	// for every character to hold its own spritesheetResource.
+	SpritesheetResource *graphics.SpritesheetResource
+	ActionFile          *act.ActionFile
+	CurrentAction       *CharacterAction
+	PlayMode            actionplaymode.Type
 
-	gender character.GenderType
-	job    jobid.Type
-
-	currentAction *CharacterAction
+	Gender character.GenderType
+	Job    jobid.Type
+	State  statetype.Type
 }
 
-func NewCharacter(spritesheet *common.Spritesheet, gender character.GenderType, job jobid.Type) *Character {
-	return &Character{
-		BasicEntity: ecs.NewBasic(),
-		id:          uuid.NewV4().String(),
-		spritesheet: spritesheet,
-		gender:      gender,
-		job:         job,
+func NewCharacterEntity(spritesheetResource *graphics.SpritesheetResource, actFile *act.ActionFile, gender character.GenderType, job jobid.Type) *CharacterEntity {
+	return &CharacterEntity{
+		BasicEntity:         ecs.NewBasic(),
+		id:                  uuid.NewV4().String(),
+		SpritesheetResource: spritesheetResource,
+		ActionFile:          actFile,
+		Gender:              gender,
+		Job:                 job,
+		State:               statetype.Idle,
+		PlayMode:            actionplaymode.Repeat,
 	}
 }
 
-func (c *Character) SetCurrentAction(act *CharacterAction) {
-	c.currentAction = act
-
-	c.AnimationComponent = common.NewAnimationComponent(c.spritesheet.Drawables(), .09)
-
-	animationAction0 := &common.Animation{Name: act.Name, Frames: act.Frames}
-
-	c.AnimationComponent.AddAnimations([]*common.Animation{animationAction0})
-	c.AnimationComponent.AddDefaultAnimation(animationAction0)
+func (c *CharacterEntity) SetAction(state statetype.Type) {
+	c.State = state
+	c.CharacterAnimationComponent = component.NewCharacterAnimationComponent(c.SpritesheetResource.Spritesheet.Drawables(), .1)
+	c.CurrentAction = NewCharacterAction(actionindex.GetActionIndex(state))
+	anim := &common.Animation{Name: c.CurrentAction.Name, Frames: c.CurrentAction.Frames}
+	c.CharacterAnimationComponent.AddAnimations([]*common.Animation{anim})
+	c.CharacterAnimationComponent.AddDefaultAnimation(anim)
+	c.CharacterAnimationComponent.CurrentAnimation = anim
 }
 
-func (c *Character) Spritesheet() *common.Spritesheet {
-	return c.spritesheet
+func (c *CharacterEntity) UUID() string {
+	return c.id
 }
