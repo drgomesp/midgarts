@@ -13,6 +13,11 @@ import (
 	"golang.org/x/text/encoding/charmap"
 )
 
+const (
+	MaleFilePathf   = "data/sprite/%s/%s/³²/%s_³²"
+	FemaleFilePathf = "data/sprite/%s/%s/¿©/%s_¿©"
+)
+
 type Sprite struct {
 	Path string
 

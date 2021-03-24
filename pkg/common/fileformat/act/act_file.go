@@ -88,7 +88,7 @@ func Load(buf *bytes.Buffer) (*ActionFile, error) {
 			_ = binary.Read(reader, binary.LittleEndian, &d)
 
 			act := f.Actions[i]
-			f.Actions[i].Delay = time.Millisecond * time.Duration(uint32(d*25.0))
+			f.Actions[i].Delay = time.Duration(uint32(d * 25.0))
 			f.Actions[i].Duration = act.Delay * time.Duration(uint32(len(act.Frames)))
 		}
 	}
@@ -185,11 +185,13 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 		_ = binary.Read(buf, binary.LittleEndian, &spriteFrameIndex)
 		_ = binary.Read(buf, binary.LittleEndian, &isMirror)
 
-		if f.Header.Version > 2.0 {
+		if f.Header.Version >= 2.0 {
 			_ = binary.Read(buf, binary.LittleEndian, &r)
 			_ = binary.Read(buf, binary.LittleEndian, &g)
 			_ = binary.Read(buf, binary.LittleEndian, &b)
 			_ = binary.Read(buf, binary.LittleEndian, &a)
+		} else {
+			r, g, b, a = 255, 255, 255, 255
 		}
 
 		if f.Header.Version >= 2.0 {

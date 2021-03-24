@@ -52,7 +52,7 @@ func NewCharacterEntity(spritesheetResource *graphics.SpritesheetResource, actFi
 
 func (c *CharacterEntity) SetAction(state statetype.Type) {
 	c.State = state
-	c.CharacterAnimationComponent = component.NewCharacterAnimationComponent(c.SpritesheetResource.Spritesheet.Drawables(), .1)
+	c.CharacterAnimationComponent = component.NewCharacterAnimationComponent(c.SpritesheetResource.Spritesheet.Drawables(), .09)
 	c.CurrentAction = NewCharacterAction(actionindex.GetActionIndex(state))
 	anim := &common.Animation{Name: c.CurrentAction.Name, Frames: c.CurrentAction.Frames}
 	c.CharacterAnimationComponent.AddAnimations([]*common.Animation{anim})

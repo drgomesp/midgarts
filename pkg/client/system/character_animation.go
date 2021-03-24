@@ -1,6 +1,7 @@
 package system
 
 import (
+	"log"
 	"time"
 
 	"github.com/EngoEngine/engo/math"
@@ -37,15 +38,25 @@ func (s *CharacterAnimationSystem) AddByInterface(i ecs.Identifier) {
 }
 
 func (s *CharacterAnimationSystem) Update(dt float32) {
-	for _, char := range s.characters {
-		if engo.Input.Button("Top").JustPressed() {
+	for i, char := range s.characters {
+		if engo.Input.Button("Top").Down() && engo.Input.Button("Right").Down() {
+			char.Direction = directiontype.NorthEast
+		} else if engo.Input.Button("Top").Down() && engo.Input.Button("Left").Down() {
+			char.Direction = directiontype.NorthWest
+		} else if engo.Input.Button("Bot").Down() && engo.Input.Button("Right").Down() {
+			char.Direction = directiontype.SouthEast
+		} else if engo.Input.Button("Bot").Down() && engo.Input.Button("Left").Down() {
+			char.Direction = directiontype.SouthWest
+		} else if engo.Input.Button("Top").Down() {
 			char.Direction = directiontype.North
-		} else if engo.Input.Button("Right").JustPressed() {
+		} else if engo.Input.Button("Right").Down() {
 			char.Direction = directiontype.East
-		} else if engo.Input.Button("Bot").JustPressed() {
+		} else if engo.Input.Button("Bot").Down() {
 			char.Direction = directiontype.South
-		} else if engo.Input.Button("Left").JustPressed() {
+		} else if engo.Input.Button("Left").Down() {
 			char.Direction = directiontype.West
+		} else {
+			char.Direction = directiontype.South
 		}
 
 		if char.CharacterAnimationComponent.CurrentAnimation == nil {
@@ -66,7 +77,7 @@ func (s *CharacterAnimationSystem) Update(dt float32) {
 		timeNeededForOneFrame := int64(action.Delay.Seconds() * (1.0 / FPSMultiplier))
 		timeNeededForOneFrame = int64(math.Max(float32(timeNeededForOneFrame), 100))
 
-		elapsedTime := int64(time.Since(char.CurrentAction.AnimationStartedAt).Milliseconds()) - int64(dt)
+		elapsedTime := time.Since(char.CurrentAction.AnimationStartedAt).Milliseconds() - int64(dt)
 		realIndex := elapsedTime / timeNeededForOneFrame
 
 		var frameIndex int64
@@ -90,8 +101,17 @@ func (s *CharacterAnimationSystem) Update(dt float32) {
 		char.CharacterAnimationComponent.Change += dt
 
 		if char.CharacterAnimationComponent.Change >= char.CharacterAnimationComponent.Rate {
-			char.CharacterAnimationComponent.CurrentFrame = char.CurrentAnimation.Frames[frameIndex]
+			char.CharacterAnimationComponent.CurrentFrame = int(frameIndex)
+			if action.Frames[frameIndex].Layers[0].IsMirror {
+				char.RenderComponent.Scale = engo.Point{X: -1, Y: 1}
+			} else {
+				char.RenderComponent.Scale = engo.Point{X: 1, Y: 1}
+			}
+
+			log.Printf("char(%v) pos=%v\n", i, char.SpaceComponent.Position)
+
 			char.RenderComponent.Drawable = char.CharacterAnimationComponent.Cell()
+
 			char.CharacterAnimationComponent.NextFrame()
 		}
 	}

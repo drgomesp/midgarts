@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
+
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
@@ -25,15 +27,21 @@ var M = character.Male.String()
 
 var grfFile *grf.File
 
-var spritesheets = map[string][]*graphics.SpritesheetResource{
+var charSpritesheets = map[string][]*graphics.SpritesheetResource{
 	F: {
 		jobid.Archer: {},
 		jobid.Thief:  {},
 		jobid.Monk:   {},
+		jobid.MonkH:  {},
 	},
 	M: {
-		jobid.Monk: {},
+		jobid.Monk:  {},
+		jobid.MonkH: {},
 	},
+}
+
+var monsterSpritesheets = map[string]*graphics.SpritesheetResource{
+	"ork_warrior": nil,
 }
 
 type myScene struct {
@@ -59,6 +67,10 @@ func (*myScene) Preload() {
 		log.Fatal(err)
 	}
 
+	if err = engo.Files.Load("build/m/5-1.xml"); err != nil {
+		log.Fatal(err)
+	}
+
 	if err = engo.Files.Load("build/f/15-1.xml"); err != nil {
 		log.Fatal(err)
 	}
@@ -67,26 +79,50 @@ func (*myScene) Preload() {
 		log.Fatal(err)
 	}
 
-	spritesheets[M][jobid.Archer] = graphics.NewSpritesheetResource(
+	if err = engo.Files.Load("build/m/4016-1.xml"); err != nil {
+		log.Fatal(err)
+	}
+	//
+	//if err = engo.Files.Load("build/ork_warrior/2-1.xml"); err != nil {
+	//	log.Fatal(err)
+	//}
+
+	charSpritesheets[M][jobid.Archer] = graphics.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/3-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Archer),
 		))
-	spritesheets[F][jobid.Thief] = graphics.NewSpritesheetResource(
+	charSpritesheets[F][jobid.Thief] = graphics.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/6-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Thief),
 		))
-	spritesheets[F][jobid.Monk] = graphics.NewSpritesheetResource(
+	charSpritesheets[F][jobid.Merchant] = graphics.NewSpritesheetResource(
+		common.NewAsymmetricSpritesheetFromFile(
+			"build/m/5-1.png",
+			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Merchant),
+		))
+	charSpritesheets[F][jobid.Monk] = graphics.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/f/15-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Female, jobid.Monk),
 		))
-	spritesheets[M][jobid.Monk] = graphics.NewSpritesheetResource(
+	charSpritesheets[M][jobid.Monk] = graphics.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/15-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Monk),
 		))
+	charSpritesheets[M][jobid.MonkH] = graphics.NewSpritesheetResource(
+		common.NewAsymmetricSpritesheetFromFile(
+			"build/m/4016-1.png",
+			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.MonkH),
+		))
+
+	//monsterSpritesheets["ork_warrior"] = graphics.NewSpritesheetResource(
+	//	common.NewAsymmetricSpritesheetFromFile(
+	//		"build/ork_warrior/2-1.png",
+	//		BuildMonsterSpriteRegionsFromTextureAtlas("ork_warrior"),
+	//	))
 }
 
 // Setup is called before the main loop starts. It allows you
@@ -109,12 +145,16 @@ func (s *myScene) Setup(u engo.Updater) {
 	w.AddSystemInterface(system.NewCharacterAnimationSystem(), anim, notAnim)
 
 	heroA := s.CreateCharacter(engo.Point{X: 100, Y: 200}, character.Male, jobid.Archer)
-	heroB := s.CreateCharacter(engo.Point{X: 150, Y: 200}, character.Female, jobid.Thief)
+	heroB := s.CreateCharacter(engo.Point{X: 150, Y: 200}, character.Female, jobid.Merchant)
 	heroC := s.CreateCharacter(engo.Point{X: 200, Y: 200}, character.Female, jobid.Monk)
+	heroD := s.CreateCharacter(engo.Point{X: 300, Y: 150}, character.Male, jobid.MonkH)
+	//monsterA := s.CreateMonsterCharacter(engo.Point{X: 250, Y: 300}, "ork_warrior")
 
 	w.AddEntity(heroA)
 	w.AddEntity(heroB)
 	w.AddEntity(heroC)
+	w.AddEntity(heroD)
+	//w.AddEntity(monsterA)
 
 	for _, sys := range w.Systems() {
 		switch sys := sys.(type) {
@@ -123,6 +163,8 @@ func (s *myScene) Setup(u engo.Updater) {
 				sys.Add(heroA)
 				sys.Add(heroB)
 				sys.Add(heroC)
+				sys.Add(heroD)
+				//sys.Add(monsterA)
 			}
 			break
 		}
@@ -161,13 +203,48 @@ func (*myScene) CreateCharacter(
 	gender character.GenderType,
 	jid jobid.Type,
 ) *client.CharacterEntity {
-	spritesheetResource := spritesheets[gender.String()][jid]
+	spritesheetResource := charSpritesheets[gender.String()][jid]
 	if spritesheetResource == nil {
 		log.Fatalf("character spritesheetResource not found for jobid '%d' and gender '%d'", jid, gender)
 	}
 
 	actFile := graphics.LoadCharacterActionFile(grfFile, gender, jobspriteid.GetJobSpriteID(jid))
 	char := client.NewCharacterEntity(spritesheetResource, actFile, gender, jid)
+
+	char.SpaceComponent = common.SpaceComponent{
+		Position: point,
+		Width:    100,
+		Height:   100,
+	}
+	char.RenderComponent = common.RenderComponent{
+		Drawable: spritesheetResource.Spritesheet.Cell(0),
+		Scale:    engo.Point{X: 1, Y: 1},
+	}
+
+	char.SetAction(statetype.Walking)
+
+	return char
+}
+
+func (*myScene) CreateMonsterCharacter(point engo.Point, name string) *client.CharacterEntity {
+	spritesheetResource := monsterSpritesheets[name]
+	if spritesheetResource == nil {
+		log.Fatalf("character spritesheetResource not found for jobid '%d' and gender '%d'", 0, 0)
+	}
+
+	var err error
+	path := fmt.Sprintf("data/sprite/%s", name)
+	var entry *grf.Entry
+	if entry, err = grfFile.GetEntry(fmt.Sprintf("%s.act", path)); err != nil {
+		log.Fatal(err)
+	}
+
+	actFile, err := act.Load(entry.Data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	char := client.NewCharacterEntity(spritesheetResource, actFile, 0, 0)
 
 	char.SpaceComponent = common.SpaceComponent{
 		Position: point,

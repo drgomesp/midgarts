@@ -30,6 +30,8 @@ func GetJobSpriteID(jid jobid.Type) (t Type) {
 		return Monk
 	case jobid.Thief:
 		return Thief
+	case jobid.MonkH:
+		return MonkH
 	default:
 		log.Fatalf("jobid '%v' not supported", jid)
 	}
