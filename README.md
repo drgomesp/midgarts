@@ -6,7 +6,7 @@ Current Screenshots:
 
 <p align="center"">
 <img src="https://user-images.githubusercontent.com/696982/112054796-c84d4700-8b34-11eb-823b-2dd9ecd93684.gif" width="45%" />
-<img src="https://user-images.githubusercontent.com/696982/112075592-8f729980-8b57-11eb-9253-87c5d3301131.gif" width="45%" />
+<img src="https://user-images.githubusercontent.com/696982/112312058-21c48b80-8c85-11eb-9bac-16cb8f2b1a18.gif" width="45%" />
 </p>
 
 ## Table of Contents
