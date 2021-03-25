@@ -161,9 +161,9 @@ func (s *myScene) Setup(u engo.Updater) {
 		case *system.CharacterAnimationSystem:
 			{
 				sys.Add(heroA)
-				sys.Add(heroB)
-				sys.Add(heroC)
-				sys.Add(heroD)
+				//sys.Add(heroB)
+				//sys.Add(heroC)
+				//sys.Add(heroD)
 				//sys.Add(monsterA)
 			}
 			break
@@ -211,10 +211,11 @@ func (*myScene) CreateCharacter(
 	actFile := graphics.LoadCharacterActionFile(grfFile, gender, jobspriteid.GetJobSpriteID(jid))
 	char := client.NewCharacterEntity(spritesheetResource, actFile, gender, jid)
 
+	idleActionSprite := spritesheetResource.Spritesheet.Cell(0)
 	char.SpaceComponent = common.SpaceComponent{
 		Position: point,
-		Width:    100,
-		Height:   100,
+		Width:    idleActionSprite.Width(),
+		Height:   idleActionSprite.Height(),
 	}
 	char.RenderComponent = common.RenderComponent{
 		Drawable: spritesheetResource.Spritesheet.Cell(0),

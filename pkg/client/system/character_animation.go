@@ -4,6 +4,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
+
 	"github.com/EngoEngine/engo/math"
 
 	"github.com/EngoEngine/ecs"
@@ -40,23 +42,31 @@ func (s *CharacterAnimationSystem) AddByInterface(i ecs.Identifier) {
 func (s *CharacterAnimationSystem) Update(dt float32) {
 	for i, char := range s.characters {
 		if engo.Input.Button("Top").Down() && engo.Input.Button("Right").Down() {
+			char.State = statetype.Walking
 			char.Direction = directiontype.NorthEast
 		} else if engo.Input.Button("Top").Down() && engo.Input.Button("Left").Down() {
+			char.State = statetype.Walking
 			char.Direction = directiontype.NorthWest
 		} else if engo.Input.Button("Bot").Down() && engo.Input.Button("Right").Down() {
+			char.State = statetype.Walking
 			char.Direction = directiontype.SouthEast
 		} else if engo.Input.Button("Bot").Down() && engo.Input.Button("Left").Down() {
+			char.State = statetype.Walking
 			char.Direction = directiontype.SouthWest
 		} else if engo.Input.Button("Top").Down() {
+			char.State = statetype.Walking
 			char.Direction = directiontype.North
 		} else if engo.Input.Button("Right").Down() {
+			char.State = statetype.Walking
 			char.Direction = directiontype.East
 		} else if engo.Input.Button("Bot").Down() {
+			char.State = statetype.Walking
 			char.Direction = directiontype.South
 		} else if engo.Input.Button("Left").Down() {
+			char.State = statetype.Walking
 			char.Direction = directiontype.West
 		} else {
-			char.Direction = directiontype.South
+			char.State = statetype.Idle
 		}
 
 		if char.CharacterAnimationComponent.CurrentAnimation == nil {
@@ -101,17 +111,19 @@ func (s *CharacterAnimationSystem) Update(dt float32) {
 		char.CharacterAnimationComponent.Change += dt
 
 		if char.CharacterAnimationComponent.Change >= char.CharacterAnimationComponent.Rate {
-			char.CharacterAnimationComponent.CurrentFrame = int(frameIndex)
+			//char.CharacterAnimationComponent.CurrentFrame = int(frameIndex)
+			char.CharacterAnimationComponent.CurrentFrame = idx * int(frameIndex)
 			if action.Frames[frameIndex].Layers[0].IsMirror {
-				char.RenderComponent.Scale = engo.Point{X: -1, Y: 1}
-			} else {
-				char.RenderComponent.Scale = engo.Point{X: 1, Y: 1}
+				char.Scale.Multiply(engo.Point{X: -1, Y: 1})
 			}
 
-			log.Printf("char(%v) pos=%v\n", i, char.SpaceComponent.Position)
+			log.Printf("char(%v) w=%v h=%v pos=%v\n", i, char.Width, char.Height, char.Position)
+
+			if char.CharacterAnimationComponent.Index >= len(char.CurrentAnimation.Frames) {
+				char.CharacterAnimationComponent.Index = 0
+			}
 
 			char.RenderComponent.Drawable = char.CharacterAnimationComponent.Cell()
-
 			char.CharacterAnimationComponent.NextFrame()
 		}
 	}
