@@ -3,17 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
-	"image/png"
-	"log"
-	"os"
-
 	"github.com/EngoEngine/engo"
 	"github.com/RaniSputnik/lovepac/packer"
 	"github.com/RaniSputnik/lovepac/target"
-	"github.com/project-midgard/midgarts/pkg/client/graphics"
+	"github.com/project-midgard/midgarts/internal/graphics"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
+	"image/png"
+	"log"
+	"os"
 )
 
 var grfFile *grf.File

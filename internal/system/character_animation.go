@@ -1,6 +1,7 @@
 package system
 
 import (
+	"github.com/project-midgard/midgarts/internal/entity"
 	"log"
 	"time"
 
@@ -8,7 +9,6 @@ import (
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
 	"github.com/EngoEngine/engo/math"
-	"github.com/project-midgard/midgarts/pkg/client"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
 	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
@@ -18,25 +18,22 @@ import (
 const FPSMultiplier = 1.0
 const FixedCameraDirection = 6
 
-var OneSpritePixelSizeIn3D float32 = 1.0 / 35.0
-var OneSpritePixelSizeIn2D float32 = 1.0 * 35.0
-
 var DirectionTable = [8]int{6, 5, 4, 3, 2, 1, 0, 7}
 
 type CharacterAnimationSystem struct {
-	characters map[string]*client.CharacterEntity
+	characters map[string]*entity.Character
 }
 
 func NewCharacterAnimationSystem() *CharacterAnimationSystem {
-	return &CharacterAnimationSystem{map[string]*client.CharacterEntity{}}
+	return &CharacterAnimationSystem{map[string]*entity.Character{}}
 }
 
-func (s *CharacterAnimationSystem) Add(char *client.CharacterEntity) {
+func (s *CharacterAnimationSystem) Add(char *entity.Character) {
 	s.characters[char.UUID()] = char
 }
 
 func (s *CharacterAnimationSystem) AddByInterface(i ecs.Identifier) {
-	o, _ := i.(*client.CharacterEntity)
+	o, _ := i.(*entity.Character)
 	s.Add(o)
 }
 
@@ -66,6 +63,8 @@ func (s *CharacterAnimationSystem) Update(dt float32) {
 		} else if engo.Input.Button("Left").Down() {
 			char.State = statetype.Walking
 			char.Direction = directiontype.West
+		} else if engo.Input.Button("A").Down() {
+			char.State = statetype.Attacking
 		} else {
 			//char.Direction = directiontype.South
 			char.State = statetype.Idle
@@ -131,7 +130,7 @@ func (s *CharacterAnimationSystem) Update(dt float32) {
 			frames = append(frames, int(f.Layers[0].SpriteFrameIndex))
 		}
 
-		char.CurrentAction = client.NewCharacterAction(actionindex.GetActionIndex(char.State))
+		char.CurrentAction = entity.NewCharacterAction(actionindex.GetActionIndex(char.State))
 		char.CurrentAction.SetFrames(frames)
 		anim := &common.Animation{Name: char.CurrentAction.Name, Frames: char.CurrentAction.Frames}
 		char.CharacterAnimationComponent.AddAnimations([]*common.Animation{anim})

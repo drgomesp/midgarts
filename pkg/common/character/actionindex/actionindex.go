@@ -1,6 +1,10 @@
 package actionindex
 
-import "github.com/project-midgard/midgarts/pkg/common/character/statetype"
+import (
+	"fmt"
+
+	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
+)
 
 type Type int
 
@@ -25,20 +29,28 @@ func GetActionIndex(s statetype.Type) (t Type) {
 	case statetype.Walking:
 		return Walking
 	case statetype.Idle:
-	default:
 		return Idle
+	case statetype.Attacking:
+		return Attacking1
+	default:
+		panic(fmt.Sprintf("state type '%v' not supported\n", s))
 	}
 
 	return
 }
 
-func GetStateType(a Type) (t statetype.Type) {
-	switch a {
-	default:
+func GetStateType(s Type) (t statetype.Type) {
+	switch s {
 	case Idle:
 		return statetype.Idle
 	case Walking:
 		return statetype.Walking
+	case Attacking1:
+	case Attacking2:
+	case Attacking3:
+		return statetype.Attacking
+	default:
+		panic(fmt.Sprintf("state type '%v' not supported\n", s))
 	}
 
 	return

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	graphics2 "github.com/project-midgard/midgarts/internal/graphics"
 	"image/png"
 	"log"
 	"os"
@@ -12,7 +13,6 @@ import (
 	"github.com/EngoEngine/engo"
 	"github.com/RaniSputnik/lovepac/packer"
 	"github.com/RaniSputnik/lovepac/target"
-	"github.com/project-midgard/midgarts/pkg/client/graphics"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 )
 
@@ -40,11 +40,11 @@ func (s *myScene) Preload() {
 	}
 
 	jid := jobspriteid.Magician
-	var sprite *graphics.Sprite
+	var sprite *graphics2.Sprite
 	//if sprite, err = graphics.LoadCharacterSprite(grfFile, character.Male, jid); err != nil {
 	//	log.Fatal(err)
 	//}
-	if sprite, err = graphics.LoadSprite(grfFile, "data/sprite/ork_warrior"); err != nil {
+	if sprite, err = graphics2.LoadSprite(grfFile, "data/sprite/ork_warrior"); err != nil {
 		log.Fatal(err)
 	}
 

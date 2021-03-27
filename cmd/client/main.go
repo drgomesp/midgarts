@@ -2,24 +2,22 @@ package main
 
 import (
 	"fmt"
-	"image/color"
-	"log"
-	"strconv"
-	"strings"
-
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
-
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
-	"github.com/project-midgard/midgarts/pkg/client"
-	"github.com/project-midgard/midgarts/pkg/client/graphics"
-	"github.com/project-midgard/midgarts/pkg/client/system"
+	"github.com/project-midgard/midgarts/internal/entity"
+	graphics2 "github.com/project-midgard/midgarts/internal/graphics"
+	system2 "github.com/project-midgard/midgarts/internal/system"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
+	"image/color"
+	"log"
+	"strconv"
+	"strings"
 )
 
 var F = character.Female.String()
@@ -27,7 +25,7 @@ var M = character.Male.String()
 
 var grfFile *grf.File
 
-var charSpritesheets = map[string][]*graphics.SpritesheetResource{
+var charSpritesheets = map[string][]*graphics2.SpritesheetResource{
 	F: {
 		jobid.Archer: {},
 		jobid.Thief:  {},
@@ -40,7 +38,7 @@ var charSpritesheets = map[string][]*graphics.SpritesheetResource{
 	},
 }
 
-var monsterSpritesheets = map[string]*graphics.SpritesheetResource{
+var monsterSpritesheets = map[string]*graphics2.SpritesheetResource{
 	"ork_warrior": nil,
 }
 
@@ -89,32 +87,32 @@ func (s *myScene) Preload() {
 	//	log.Fatal(err)
 	//}
 
-	charSpritesheets[M][jobid.Archer] = graphics.NewSpritesheetResource(
+	charSpritesheets[M][jobid.Archer] = graphics2.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/3-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Archer),
 		))
-	charSpritesheets[F][jobid.Thief] = graphics.NewSpritesheetResource(
+	charSpritesheets[F][jobid.Thief] = graphics2.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/6-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Thief),
 		))
-	charSpritesheets[F][jobid.Merchant] = graphics.NewSpritesheetResource(
+	charSpritesheets[F][jobid.Merchant] = graphics2.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/5-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Merchant),
 		))
-	charSpritesheets[F][jobid.Monk] = graphics.NewSpritesheetResource(
+	charSpritesheets[F][jobid.Monk] = graphics2.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/f/15-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Female, jobid.Monk),
 		))
-	charSpritesheets[M][jobid.Monk] = graphics.NewSpritesheetResource(
+	charSpritesheets[M][jobid.Monk] = graphics2.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/15-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Monk),
 		))
-	charSpritesheets[M][jobid.MonkH] = graphics.NewSpritesheetResource(
+	charSpritesheets[M][jobid.MonkH] = graphics2.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/4016-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.MonkH),
@@ -134,6 +132,8 @@ func (s *myScene) Setup(u engo.Updater) {
 	engo.Input.RegisterButton("Right", engo.KeyArrowRight)
 	engo.Input.RegisterButton("Bot", engo.KeyArrowDown)
 	engo.Input.RegisterButton("Left", engo.KeyArrowLeft)
+
+	engo.Input.RegisterButton("A", engo.KeyA)
 	common.SetBackground(color.White)
 
 	w, _ := u.(*ecs.World)
@@ -144,7 +144,7 @@ func (s *myScene) Setup(u engo.Updater) {
 
 	var anim *common.Animationable
 	var notAnim *common.NotAnimationable
-	w.AddSystemInterface(system.NewCharacterAnimationSystem(), anim, notAnim)
+	w.AddSystemInterface(system2.NewCharacterAnimationSystem(), anim, notAnim)
 
 	heroA := s.CreateCharacter(engo.Point{X: 100, Y: 100}, character.Male, jobid.Archer)
 	heroB := s.CreateCharacter(engo.Point{X: 100, Y: 200}, character.Female, jobid.Merchant)
@@ -160,7 +160,7 @@ func (s *myScene) Setup(u engo.Updater) {
 
 	for _, sys := range w.Systems() {
 		switch sys := sys.(type) {
-		case *system.CharacterAnimationSystem:
+		case *system2.CharacterAnimationSystem:
 			{
 				sys.Add(heroA)
 				sys.Add(heroB)
@@ -204,14 +204,14 @@ func (*myScene) CreateCharacter(
 	point engo.Point,
 	gender character.GenderType,
 	jid jobid.Type,
-) *client.CharacterEntity {
+) *entity.Character {
 	spritesheetResource := charSpritesheets[gender.String()][jid]
 	if spritesheetResource == nil {
 		log.Fatalf("character spritesheetResource not found for jobid '%d' and gender '%d'", jid, gender)
 	}
 
 	actFile := character.LoadCharacterActionFile(grfFile, gender, jobspriteid.GetJobSpriteID(jid))
-	char := client.NewCharacterEntity(spritesheetResource, actFile, gender, jid)
+	char := entity.NewCharacterEntity(spritesheetResource, actFile, gender, jid)
 
 	idleActionSprite := spritesheetResource.Spritesheet.Cell(0)
 	char.SpaceComponent = common.SpaceComponent{
@@ -230,7 +230,7 @@ func (*myScene) CreateCharacter(
 	return char
 }
 
-func (*myScene) CreateMonsterCharacter(point engo.Point, name string) *client.CharacterEntity {
+func (*myScene) CreateMonsterCharacter(point engo.Point, name string) *entity.Character {
 	spritesheetResource := monsterSpritesheets[name]
 	if spritesheetResource == nil {
 		log.Fatalf("character spritesheetResource not found for jobid '%d' and gender '%d'", 0, 0)
@@ -248,7 +248,7 @@ func (*myScene) CreateMonsterCharacter(point engo.Point, name string) *client.Ch
 		log.Fatal(err)
 	}
 
-	char := client.NewCharacterEntity(spritesheetResource, actFile, 0, 0)
+	char := entity.NewCharacterEntity(spritesheetResource, actFile, 0, 0)
 
 	char.SpaceComponent = common.SpaceComponent{
 		Position: point,

@@ -1,11 +1,11 @@
-package client
+package entity
 
 import (
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
-	"github.com/project-midgard/midgarts/pkg/client/component"
-	"github.com/project-midgard/midgarts/pkg/client/graphics"
+	clientcomponent "github.com/project-midgard/midgarts/internal/component"
+	"github.com/project-midgard/midgarts/internal/graphics"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
@@ -16,11 +16,11 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type CharacterEntity struct {
+type Character struct {
 	ecs.BasicEntity
 	common.RenderComponent
 	common.SpaceComponent
-	component.CharacterAnimationComponent
+	clientcomponent.CharacterAnimationComponent
 
 	id string
 
@@ -38,9 +38,9 @@ type CharacterEntity struct {
 	TargetPosition engo.Point
 }
 
-func NewCharacterEntity(spritesheetResource *graphics.SpritesheetResource, actFile *act.ActionFile, gender character.GenderType, job jobid.Type) *CharacterEntity {
+func NewCharacterEntity(spritesheetResource *graphics.SpritesheetResource, actFile *act.ActionFile, gender character.GenderType, job jobid.Type) *Character {
 	b := ecs.NewBasic()
-	return &CharacterEntity{
+	return &Character{
 		BasicEntity:         b,
 		id:                  uuid.NewV4().String(),
 		SpritesheetResource: spritesheetResource,
@@ -53,9 +53,9 @@ func NewCharacterEntity(spritesheetResource *graphics.SpritesheetResource, actFi
 	}
 }
 
-func (c *CharacterEntity) SetAction(state statetype.Type) {
+func (c *Character) SetAction(state statetype.Type) {
 	c.State = state
-	c.CharacterAnimationComponent = component.NewCharacterAnimationComponent(c.SpritesheetResource.Spritesheet.Drawables(), .09)
+	c.CharacterAnimationComponent = clientcomponent.NewCharacterAnimationComponent(c.SpritesheetResource.Spritesheet.Drawables(), 0.08)
 	c.CurrentAction = NewCharacterAction(actionindex.GetActionIndex(state))
 	anim := &common.Animation{Name: c.CurrentAction.Name, Frames: c.CurrentAction.Frames}
 	c.CharacterAnimationComponent.AddAnimations([]*common.Animation{anim})
@@ -63,6 +63,6 @@ func (c *CharacterEntity) SetAction(state statetype.Type) {
 	c.CharacterAnimationComponent.CurrentAnimation = anim
 }
 
-func (c *CharacterEntity) UUID() string {
+func (c *Character) UUID() string {
 	return c.id
 }
