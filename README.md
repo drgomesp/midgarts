@@ -6,8 +6,7 @@ Current Screenshots:
 
 <p align="center"">
 <img src="https://user-images.githubusercontent.com/696982/112054796-c84d4700-8b34-11eb-823b-2dd9ecd93684.gif" width="45%" />
-<img src="https://user-images.githubusercontent.com/696982/112312058-21c48b80-8c85-11eb-9bac-16cb8f2b1a18.gif" width="45%" />
-</p>
+<img src="https://user-images.githubusercontent.com/696982/112724419-027e6600-8ef2-11eb-903e-c7d4479555e9.gif" width="45%" />
 
 ## Table of Contents
 
@@ -64,4 +63,3 @@ if err = png.Encode(outputFile, img); err != nil {
 log.Fatal(err)
 }
 ```
-
