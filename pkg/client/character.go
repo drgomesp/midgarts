@@ -34,19 +34,23 @@ type CharacterEntity struct {
 	Job       jobid.Type
 	State     statetype.Type
 	Direction directiontype.Type
+
+	ShouldCompensateOffset bool
 }
 
 func NewCharacterEntity(spritesheetResource *graphics.SpritesheetResource, actFile *act.ActionFile, gender character.GenderType, job jobid.Type) *CharacterEntity {
+	b := ecs.NewBasic()
 	return &CharacterEntity{
-		BasicEntity:         ecs.NewBasic(),
-		id:                  uuid.NewV4().String(),
-		SpritesheetResource: spritesheetResource,
-		ActionFile:          actFile,
-		Gender:              gender,
-		Job:                 job,
-		State:               statetype.Idle,
-		Direction:           directiontype.South,
-		PlayMode:            actionplaymode.Repeat,
+		BasicEntity:            b,
+		id:                     uuid.NewV4().String(),
+		SpritesheetResource:    spritesheetResource,
+		ActionFile:             actFile,
+		Gender:                 gender,
+		Job:                    job,
+		State:                  statetype.Idle,
+		Direction:              directiontype.South,
+		PlayMode:               actionplaymode.Repeat,
+		ShouldCompensateOffset: true,
 	}
 }
 

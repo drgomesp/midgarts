@@ -52,7 +52,9 @@ func (*myScene) Type() string { return "myGame" }
 
 // Preload is called before loading any assets from the disk,
 // to allow you to register / queue them
-func (*myScene) Preload() {
+func (s *myScene) Preload() {
+	//common.AddShader(&common.SpriteShader{})
+
 	var err error
 
 	if grfFile, err = grf.Load("/home/drgomesp/grf/data.grf"); err != nil {
@@ -208,7 +210,7 @@ func (*myScene) CreateCharacter(
 		log.Fatalf("character spritesheetResource not found for jobid '%d' and gender '%d'", jid, gender)
 	}
 
-	actFile := graphics.LoadCharacterActionFile(grfFile, gender, jobspriteid.GetJobSpriteID(jid))
+	actFile := character.LoadCharacterActionFile(grfFile, gender, jobspriteid.GetJobSpriteID(jid))
 	char := client.NewCharacterEntity(spritesheetResource, actFile, gender, jid)
 
 	idleActionSprite := spritesheetResource.Spritesheet.Cell(0)

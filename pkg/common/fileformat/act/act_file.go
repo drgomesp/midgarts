@@ -17,13 +17,8 @@ const (
 	ActionDefaultDelay = 100 * time.Millisecond
 )
 
-type Coordinate struct {
-	X int32
-	Y int32
-}
-
 type ActionFrameLayer struct {
-	Position         Coordinate
+	Position         [2]int32
 	SpriteFrameIndex int32
 	IsMirror         bool
 	Scale            [2]float32
@@ -144,16 +139,44 @@ func (f *ActionFile) loadActionFrames(buf io.ReadSeeker) []*ActionFrame {
 	var (
 		frames     []*ActionFrame
 		frameCount uint32
+		sound      int32
+		posCount   int32
 	)
 
 	_ = binary.Read(buf, binary.LittleEndian, &frameCount)
 	frames = make([]*ActionFrame, int(frameCount))
+	positions := make([][2]int32, frameCount)
 
 	for i := 0; i < int(frameCount); i++ {
 		_ = bytesutil.SkipBytes(buf, 32)
 
+		layers := f.loadActionFrameLayers(buf)
+
+		if f.Header.Version >= 2.0 {
+			_ = binary.Read(buf, binary.LittleEndian, &sound)
+
+			if f.Header.Version >= 2.3 {
+				_ = binary.Read(buf, binary.LittleEndian, &posCount)
+
+				for i := 0; i < int(posCount); i++ {
+					_ = bytesutil.SkipBytes(buf, 4)
+
+					var a, b int32
+					_ = binary.Read(buf, binary.LittleEndian, &a)
+					_ = binary.Read(buf, binary.LittleEndian, &b)
+					positions[i] = [2]int32{a, b}
+
+					_ = bytesutil.SkipBytes(buf, 4)
+				}
+			}
+		} else {
+			sound = -1
+		}
+
 		frames[i] = &ActionFrame{
-			Layers: f.loadActionFrameLayers(buf),
+			Layers:    layers,
+			Sound:     sound,
+			Positions: positions,
 		}
 	}
 
@@ -171,9 +194,6 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 		r, g, b, a                       byte
 		scale                            [2]float32
 		angle, spriteType, width, height int32
-
-		sound    int32
-		posCount int32
 	)
 
 	_ = binary.Read(buf, binary.LittleEndian, &layerCount)
@@ -215,6 +235,7 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 		}
 
 		layers[i] = &ActionFrameLayer{
+			Position:         pos,
 			SpriteFrameIndex: spriteFrameIndex,
 			IsMirror:         isMirror != 0,
 			Scale:            scale,
@@ -228,24 +249,6 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 			SpriteType: spriteType,
 			Width:      width,
 			Height:     height,
-		}
-	}
-
-	var positions []Coordinate
-	_ = binary.Read(buf, binary.LittleEndian, &sound)
-	_ = binary.Read(buf, binary.LittleEndian, &posCount)
-
-	if posCount > 0 {
-		positions = make([]Coordinate, posCount)
-		for i := 0; i < int(posCount); i++ {
-			_ = bytesutil.SkipBytes(buf, 4)
-
-			var p Coordinate
-			_ = binary.Read(buf, binary.LittleEndian, &p.X)
-			_ = binary.Read(buf, binary.LittleEndian, &p.Y)
-			positions = append(positions, p)
-
-			_ = bytesutil.SkipBytes(buf, 4)
 		}
 	}
 
