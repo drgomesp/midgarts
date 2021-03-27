@@ -146,10 +146,10 @@ func (s *myScene) Setup(u engo.Updater) {
 	var notAnim *common.NotAnimationable
 	w.AddSystemInterface(system.NewCharacterAnimationSystem(), anim, notAnim)
 
-	heroA := s.CreateCharacter(engo.Point{X: 100, Y: 200}, character.Male, jobid.Archer)
-	heroB := s.CreateCharacter(engo.Point{X: 150, Y: 200}, character.Female, jobid.Merchant)
-	heroC := s.CreateCharacter(engo.Point{X: 200, Y: 200}, character.Female, jobid.Monk)
-	heroD := s.CreateCharacter(engo.Point{X: 300, Y: 150}, character.Male, jobid.MonkH)
+	heroA := s.CreateCharacter(engo.Point{X: 100, Y: 100}, character.Male, jobid.Archer)
+	heroB := s.CreateCharacter(engo.Point{X: 100, Y: 200}, character.Female, jobid.Merchant)
+	heroC := s.CreateCharacter(engo.Point{X: 100, Y: 300}, character.Female, jobid.Monk)
+	heroD := s.CreateCharacter(engo.Point{X: 100, Y: 400}, character.Male, jobid.MonkH)
 	//monsterA := s.CreateMonsterCharacter(engo.Point{X: 250, Y: 300}, "ork_warrior")
 
 	w.AddEntity(heroA)
@@ -163,9 +163,9 @@ func (s *myScene) Setup(u engo.Updater) {
 		case *system.CharacterAnimationSystem:
 			{
 				sys.Add(heroA)
-				//sys.Add(heroB)
-				//sys.Add(heroC)
-				//sys.Add(heroD)
+				sys.Add(heroB)
+				sys.Add(heroC)
+				sys.Add(heroD)
 				//sys.Add(monsterA)
 			}
 			break
@@ -223,8 +223,9 @@ func (*myScene) CreateCharacter(
 		Drawable: spritesheetResource.Spritesheet.Cell(0),
 		Scale:    engo.Point{X: 1, Y: 1},
 	}
+	char.TargetPosition = point
 
-	char.SetAction(statetype.Walking)
+	char.SetAction(statetype.Idle)
 
 	return char
 }

@@ -2,6 +2,7 @@ package client
 
 import (
 	"github.com/EngoEngine/ecs"
+	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/pkg/client/component"
 	"github.com/project-midgard/midgarts/pkg/client/graphics"
@@ -30,27 +31,25 @@ type CharacterEntity struct {
 	CurrentAction       *CharacterAction
 	PlayMode            actionplaymode.Type
 
-	Gender    character.GenderType
-	Job       jobid.Type
-	State     statetype.Type
-	Direction directiontype.Type
-
-	ShouldCompensateOffset bool
+	Gender         character.GenderType
+	Job            jobid.Type
+	State          statetype.Type
+	Direction      directiontype.Type
+	TargetPosition engo.Point
 }
 
 func NewCharacterEntity(spritesheetResource *graphics.SpritesheetResource, actFile *act.ActionFile, gender character.GenderType, job jobid.Type) *CharacterEntity {
 	b := ecs.NewBasic()
 	return &CharacterEntity{
-		BasicEntity:            b,
-		id:                     uuid.NewV4().String(),
-		SpritesheetResource:    spritesheetResource,
-		ActionFile:             actFile,
-		Gender:                 gender,
-		Job:                    job,
-		State:                  statetype.Idle,
-		Direction:              directiontype.South,
-		PlayMode:               actionplaymode.Repeat,
-		ShouldCompensateOffset: true,
+		BasicEntity:         b,
+		id:                  uuid.NewV4().String(),
+		SpritesheetResource: spritesheetResource,
+		ActionFile:          actFile,
+		Gender:              gender,
+		Job:                 job,
+		State:               statetype.Idle,
+		Direction:           directiontype.South,
+		PlayMode:            actionplaymode.Repeat,
 	}
 }
 

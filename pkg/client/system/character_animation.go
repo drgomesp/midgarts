@@ -19,6 +19,7 @@ const FPSMultiplier = 1.0
 const FixedCameraDirection = 6
 
 var OneSpritePixelSizeIn3D float32 = 1.0 / 35.0
+var OneSpritePixelSizeIn2D float32 = 1.0 * 35.0
 
 var DirectionTable = [8]int{6, 5, 4, 3, 2, 1, 0, 7}
 
@@ -106,22 +107,24 @@ func (s *CharacterAnimationSystem) Update(dt float32) {
 		}
 
 		isMain := true
-		providedOffset := [2]int32{0, 0}
-		var offset [2]int32
+		providedOffset := [2]int16{0, 0}
+		offset := [2]int16{0, 0}
 
 		if !isMain {
 			if len(frame.Positions) > 0 {
-				offset = [2]int32{
-					providedOffset[0] - frame.Positions[frameIndex][0],
-					providedOffset[1] - frame.Positions[frameIndex][1],
+				offset = [2]int16{
+					providedOffset[0] - int16(frame.Positions[frameIndex][0]),
+					providedOffset[1] - int16(frame.Positions[frameIndex][1]),
 				}
+			} else {
+				offset = providedOffset
 			}
 		} else {
-			offset = [2]int32{0, 0}
+			offset = [2]int16{0, 0}
 		}
 
-		offset[0] = layer.Position[0] + offset[0]
-		offset[1] = layer.Position[1] + offset[1]
+		offset[0] = int16(layer.Position[0]) + offset[0]
+		offset[1] = int16(layer.Position[1]) + offset[1]
 
 		var frames []int
 		for _, f := range action.Frames {
@@ -144,46 +147,39 @@ func (s *CharacterAnimationSystem) Update(dt float32) {
 				char.CharacterAnimationComponent.Index = 0
 			}
 
-			var posOffset engo.Point
-
-			posOffset = engo.Point{
-				X: float32(offset[0]) * OneSpritePixelSizeIn3D,
-				Y: float32(offset[1]) * OneSpritePixelSizeIn3D,
-			}
-
-			w := char.SpritesheetResource.Spritesheet.Cell(0).Width()
-
-			if layer.IsMirror {
-				if char.Scale.X > 0 {
-					char.Scale.Set(-1, 1)
-					char.Position.Set(char.Position.X+w, char.Position.Y)
-				}
-			} else {
-				if char.Scale.X < 0 {
-					char.Scale.Set(1, 1)
-					char.Position.Set(char.Position.X-w, char.Position.Y)
-				}
-			}
-
-			//spriteShader := char.RenderComponent.Shader().(*common.SpriteShader)
-			//spriteShader.SetModelMatrix((&engo.Matrix{}).Translate(char.Position.X, char.Position.Y))
-			//spriteShader.SetSpriteSize(engo.Point{
-			//	X: float32(flippedWidth),
-			//	Y: float32(layer.Height),
-			//})
-			//char.Rotation = (&engo.Matrix{Val: [9]float32{
-			//	1.0, 0.0, 0.0,
-			//	0.0, 1.0, 0.0,
-			//	0.0, 0.0, 1.0,
-			//}}).RotationComponent()
-
-			//char.Position.MultiplyMatrixVector(mat.Translate(-0.5*char.Scale.X, -0.5*char.Scale.Y))
-
-			log.Printf("pos=%v offset=%v\n", char.Position, posOffset)
-
 			char.RenderComponent.Drawable = char.CharacterAnimationComponent.Cell()
 			char.CharacterAnimationComponent.NextFrame()
 		}
+
+		var posOffset engo.Point
+
+		posOffset = engo.Point{
+			X: float32(offset[1]),
+			Y: float32(offset[0]),
+		}
+
+		log.Printf("pos=%v, offset=%v\n", char.Position, posOffset)
+
+		sprite := char.SpritesheetResource.Spritesheet.Cell(0)
+
+		if layer.IsMirror {
+			if char.Scale.X > 0 {
+				char.Scale.Set(-1, 1)
+				char.TargetPosition.Set(char.TargetPosition.X+sprite.Width(), char.TargetPosition.Y)
+			}
+		} else {
+			if char.Scale.X < 0 {
+				char.Scale.Set(1, 1)
+				char.TargetPosition.Set(char.TargetPosition.X-sprite.Width(), char.TargetPosition.Y)
+			}
+		}
+
+		char.Position.Set(
+			char.TargetPosition.X+posOffset.X,
+			char.TargetPosition.Y-posOffset.Y,
+		)
+
+		log.Printf("pos=%v offset=%v\n", char.Position, posOffset)
 	}
 }
 

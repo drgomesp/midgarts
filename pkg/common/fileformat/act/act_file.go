@@ -154,23 +154,25 @@ func (f *ActionFile) loadActionFrames(buf io.ReadSeeker) []*ActionFrame {
 
 		if f.Header.Version >= 2.0 {
 			_ = binary.Read(buf, binary.LittleEndian, &sound)
-
-			if f.Header.Version >= 2.3 {
-				_ = binary.Read(buf, binary.LittleEndian, &posCount)
-
-				for i := 0; i < int(posCount); i++ {
-					_ = bytesutil.SkipBytes(buf, 4)
-
-					var a, b int32
-					_ = binary.Read(buf, binary.LittleEndian, &a)
-					_ = binary.Read(buf, binary.LittleEndian, &b)
-					positions[i] = [2]int32{a, b}
-
-					_ = bytesutil.SkipBytes(buf, 4)
-				}
-			}
 		} else {
 			sound = -1
+		}
+
+		if f.Header.Version >= 2.3 {
+			_ = binary.Read(buf, binary.LittleEndian, &posCount)
+
+			for i := 0; i < int(posCount); i++ {
+				_ = bytesutil.SkipBytes(buf, 4)
+
+				var a, b int32
+				_ = binary.Read(buf, binary.LittleEndian, &a)
+				_ = binary.Read(buf, binary.LittleEndian, &b)
+
+				positions[i][0] = a
+				positions[i][0] = b
+
+				_ = bytesutil.SkipBytes(buf, 4)
+			}
 		}
 
 		frames[i] = &ActionFrame{
