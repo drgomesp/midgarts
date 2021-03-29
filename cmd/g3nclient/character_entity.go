@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo/common"
-	"github.com/g3n/engine/graphic"
 )
 
 type CharacterEntity struct {
@@ -12,12 +11,12 @@ type CharacterEntity struct {
 	*RenderComponent
 }
 
-func NewCharacterEntity(bodySprite *graphic.Sprite) *CharacterEntity {
+func NewCharacterEntity(charSprite *CharacterSprite) *CharacterEntity {
 	b := ecs.NewBasic()
 
 	return &CharacterEntity{
 		BasicEntity:     b.GetBasicEntity(),
-		RenderComponent: &RenderComponent{Graphic: bodySprite},
+		RenderComponent: &RenderComponent{Graphic: charSprite.bodySprite},
 	}
 }
 

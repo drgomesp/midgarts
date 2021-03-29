@@ -12,8 +12,9 @@ type CharacterRenderSystem struct {
 	log      *logger.Logger
 	renderer *renderer.Renderer
 	entities []Character
-	scene    *core.Node
-	camera   camera.ICamera
+
+	scene  *core.Node
+	camera camera.ICamera
 }
 
 func NewCharacterRenderSystem(log *logger.Logger, renderer *renderer.Renderer, scene *core.Node, camera camera.ICamera) *CharacterRenderSystem {
