@@ -5,9 +5,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/project-midgard/midgarts/pkg/common/character"
-	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
-
 	"github.com/EngoEngine/ecs"
 	"github.com/g3n/engine/app"
 	"github.com/g3n/engine/camera"
@@ -18,6 +15,8 @@ import (
 	"github.com/g3n/engine/util/helper"
 	"github.com/g3n/engine/util/logger"
 	"github.com/g3n/engine/window"
+	"github.com/project-midgard/midgarts/pkg/common/character"
+	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 )
 

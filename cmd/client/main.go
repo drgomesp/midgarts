@@ -2,6 +2,11 @@ package main
 
 import (
 	"fmt"
+	"image/color"
+	"log"
+	"strconv"
+	"strings"
+
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
@@ -14,10 +19,6 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
-	"image/color"
-	"log"
-	"strconv"
-	"strings"
 )
 
 var F = character.Female.String()
@@ -272,4 +273,19 @@ func main() {
 		Height: 400,
 	}
 	engo.Run(opts, &myScene{})
+}
+
+// NotRenderComponent is used to flag an entity as not in the RenderSystem even
+// if it has the proper components
+type NotRenderComponent struct{}
+
+// GetNotRenderComponent implements the NotRenderable interface
+func (n *NotRenderComponent) GetNotRenderComponent() *NotRenderComponent {
+	return n
+}
+
+// NotRenderable is an interface used to flag an entity as not in the
+// Rendersystem even if it has the proper components
+type NotRenderable interface {
+	GetNotRenderComponent() *NotRenderComponent
 }
