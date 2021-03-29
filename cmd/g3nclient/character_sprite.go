@@ -40,16 +40,7 @@ func LoadCharacterSprite(
 		sprFile *spr.SpriteFile
 	)
 
-	var filePath string
-	if character.Male == gender {
-		filePath = character.MaleFilePathf
-	} else {
-		filePath = character.FemaleFilePathf
-	}
-
-	jobFileName := character.JobSpriteNameTable[jobSpriteID]
-	path := fmt.Sprintf(filePath, "ÀÎ°£Á·", "¸öÅë", jobFileName)
-
+	path := character.BuildSpriteFilePath(gender, jobSpriteID)
 	if entry, err = grfFile.GetEntry(fmt.Sprintf("%s.act", path)); err != nil {
 		return nil, err
 	}
