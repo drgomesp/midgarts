@@ -2,6 +2,10 @@ module github.com/project-midgard/midgarts
 
 go 1.16
 
+replace (
+	github.com/g3n/engine => /home/drgomesp/src/engine
+)
+
 require (
 	github.com/AllenDang/giu v0.5.3
 	github.com/EngoEngine/ecs v1.0.5

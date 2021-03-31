@@ -24,6 +24,8 @@ const (
 	DefaultTargetFPS = 60
 )
 
+var KeyState *window.KeyState
+
 type ClientOption func(*MidgartsClient)
 
 func WithTargetFPS(fps uint) ClientOption {
@@ -62,12 +64,13 @@ func NewMidgartsClient(options ...ClientOption) (c *MidgartsClient, err error) {
 	runtime.LockOSThread()
 
 	a := app.App()
+	KeyState = a.KeyState()
 
 	scene := core.NewNode()
 	gui.Manager().Set(scene)
 
 	cam := camera.New(1.0)
-	cam.SetPosition(0, 0, 550)
+	cam.SetPosition(0, 0, 510)
 	scene.Add(cam)
 
 	// Set up orbit control for the camera
@@ -102,7 +105,7 @@ func NewMidgartsClient(options ...ClientOption) (c *MidgartsClient, err error) {
 	// Set background color to gray
 	a.Gls().ClearColor(0.5, 0.5, 0.5, 1.0)
 
-	charSprite, err := LoadCharacterSprite(grfFile, character.Female, jobspriteid.Alcolyte)
+	charSprite, err := LoadCharacterSprite(grfFile, character.Female, jobspriteid.MonkH)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -133,6 +136,6 @@ func NewMidgartsClient(options ...ClientOption) (c *MidgartsClient, err error) {
 func (c *MidgartsClient) Run() {
 	c.Application.Run(func(renderer *renderer.Renderer, deltaTime time.Duration) {
 		c.Application.Gls().Clear(gls.DEPTH_BUFFER_BIT | gls.STENCIL_BUFFER_BIT | gls.COLOR_BUFFER_BIT)
-		c.world.Update(float32(c.frameTime.Second()))
+		c.world.Update(float32(deltaTime.Seconds()))
 	})
 }

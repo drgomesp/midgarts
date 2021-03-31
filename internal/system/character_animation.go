@@ -1,9 +1,10 @@
 package system
 
 import (
-	"github.com/project-midgard/midgarts/internal/entity"
 	"log"
 	"time"
+
+	"github.com/project-midgard/midgarts/internal/entity"
 
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo"

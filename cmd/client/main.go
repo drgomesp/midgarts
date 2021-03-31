@@ -72,7 +72,7 @@ func (s *myScene) Preload() {
 		log.Fatal(err)
 	}
 
-	if err = engo.Files.Load("build/f/15-1.xml"); err != nil {
+	if err = engo.Files.Load("build/m/15-1.xml"); err != nil {
 		log.Fatal(err)
 	}
 
@@ -88,11 +88,11 @@ func (s *myScene) Preload() {
 	//	log.Fatal(err)
 	//}
 
-	charSpritesheets[M][jobid.Archer] = graphics2.NewSpritesheetResource(
-		common.NewAsymmetricSpritesheetFromFile(
-			"build/m/3-1.png",
-			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Archer),
-		))
+	//charSpritesheets[M][jobid.Archer] = graphics2.NewSpritesheetResource(
+	//	common.NewAsymmetricSpritesheetFromFile(
+	//		"build/f/3-1.png",
+	//		BuildSpriteRegionsFromTextureAtlas(character.Female, jobid.Archer),
+	//	))
 	charSpritesheets[F][jobid.Thief] = graphics2.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/6-1.png",
@@ -105,13 +105,13 @@ func (s *myScene) Preload() {
 		))
 	charSpritesheets[F][jobid.Monk] = graphics2.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
-			"build/f/15-1.png",
-			BuildSpriteRegionsFromTextureAtlas(character.Female, jobid.Monk),
-		))
-	charSpritesheets[M][jobid.Monk] = graphics2.NewSpritesheetResource(
-		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/15-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Monk),
+		))
+	charSpritesheets[M][jobid.Archer] = graphics2.NewSpritesheetResource(
+		common.NewAsymmetricSpritesheetFromFile(
+			"build/m/3-1.png",
+			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Archer),
 		))
 	charSpritesheets[M][jobid.MonkH] = graphics2.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(

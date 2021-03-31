@@ -10,7 +10,7 @@ func main() {
 		err error
 	)
 
-	if c, err = NewMidgartsClient(WithTargetFPS(3)); err != nil {
+	if c, err = NewMidgartsClient(WithTargetFPS(60)); err != nil {
 		log.Fatal(err)
 	}
 

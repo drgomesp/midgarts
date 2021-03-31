@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
 
-	"github.com/g3n/engine/material"
-	"github.com/g3n/engine/math32"
+	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 
 	"github.com/g3n/engine/graphic"
 
@@ -18,14 +18,12 @@ import (
 )
 
 type CharacterSprite struct {
-	Path string
+	Path       string
+	ActionFile *act.ActionFile
+	SpriteFile *spr.SpriteFile
 
-	actFile  *act.ActionFile
-	sprFile  *spr.SpriteFile
-	textures []*texture.Texture2D
-
-	bodyMaterial material.IMaterial
-	bodySprite   *graphic.Sprite
+	spritesheet *Spritesheet
+	bodySprite  *graphic.Sprite
 }
 
 func LoadCharacterSprite(
@@ -65,26 +63,37 @@ func LoadCharacterSprite(
 		}
 	}
 
-	defaultTexture := textures[0]
-	mat := material.NewStandard(math32.NewColor("white"))
-	mat.AddTexture(defaultTexture)
+	f, err := os.Open("assets/build/f/4016-1.xml")
+	if err != nil {
+		return nil, err
+	}
+
+	spritesheet, err := LoadSpritesheet(sprFile, f, "assets/build/f/4016-1.png")
+	if err != nil {
+		return nil, err
+	}
 
 	return &CharacterSprite{
-		Path: path,
-
-		actFile:  actFile,
-		sprFile:  sprFile,
-		textures: textures,
-
-		bodyMaterial: mat,
-		bodySprite: graphic.NewSprite(
-			float32(defaultTexture.Width()),
-			float32(defaultTexture.Height()),
-			mat,
-		),
+		Path:        path,
+		ActionFile:  actFile,
+		SpriteFile:  sprFile,
+		spritesheet: spritesheet,
+		bodySprite:  spritesheet.SpriteAt(0),
 	}, nil
 }
 
-func (s *CharacterSprite) GetTextureAtIndex(i int32) *texture.Texture2D {
-	return s.textures[i]
+func (s *CharacterSprite) GetBodySprite() *graphic.Sprite {
+	return s.bodySprite
+}
+
+func (s *CharacterSprite) SetActiveBodySprite(i actionindex.Type) {
+	s.bodySprite = s.spritesheet.SpriteAt(int32(i))
+}
+
+func (s *CharacterSprite) GetBodySpriteAt(i int32) *graphic.Sprite {
+	return s.spritesheet.SpriteAt(i)
+}
+
+func (s *CharacterSprite) GetSubTextureAt(i int32) *SubTexture {
+	return s.spritesheet.SubTexture(i)
 }
