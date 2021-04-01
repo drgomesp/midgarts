@@ -5,6 +5,10 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/g3n/engine/graphic"
+	"github.com/g3n/engine/material"
+	"github.com/g3n/engine/math32"
+
 	"github.com/EngoEngine/ecs"
 	"github.com/g3n/engine/app"
 	"github.com/g3n/engine/camera"
@@ -19,6 +23,8 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 )
+
+var ANIM *Animator
 
 const (
 	DefaultTargetFPS = 60
@@ -109,7 +115,19 @@ func NewMidgartsClient(options ...ClientOption) (c *MidgartsClient, err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	char := NewCharacterEntity(charSprite)
+
+	anim1 := NewAnimator(charSprite.Spritesheet)
+	ANIM = anim1
+
+	mat1 := material.NewStandard(&math32.Color{R: 1, G: 1, B: 1})
+	mat1.AddTexture(charSprite.Spritesheet.Texture)
+	mat1.SetOpacity(1)
+	mat1.SetTransparent(true)
+	s1 := graphic.NewSprite(57, 76, mat1)
+	s1.SetPosition(0, 0, 0)
+	//scene.Add(s1)
+
+	char := NewCharacterEntity(charSprite, ANIM)
 
 	world := &ecs.World{}
 	var rend *Character

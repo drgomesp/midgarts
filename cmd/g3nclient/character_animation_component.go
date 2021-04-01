@@ -8,18 +8,20 @@ import (
 )
 
 type CharacterAnimationComponent struct {
+	Animator         *Animator
 	Animations       map[string]*common.Animation
 	CharacterSprite  *CharacterSprite
 	CurrentAnimation *common.Animation
-	CurrentFrame     int
+	CurrentFrame     uint32
 	Rate             float32
 	Index            int
 	Change           float32
 	DefaultAnimation *common.Animation
 }
 
-func NewCharacterAnimationComponent(characterSprite *CharacterSprite, rate float32) *CharacterAnimationComponent {
+func NewCharacterAnimationComponent(characterSprite *CharacterSprite, animator *Animator, rate float32) *CharacterAnimationComponent {
 	return &CharacterAnimationComponent{
+		Animator:        animator,
 		Animations:      make(map[string]*common.Animation),
 		CharacterSprite: characterSprite,
 		Rate:            rate,
@@ -60,14 +62,15 @@ func (ac *CharacterAnimationComponent) AddAnimations(actions []*common.Animation
 }
 
 // Cell returns the drawable for the current frame.
-func (ac *CharacterAnimationComponent) Cell() (*graphic.Sprite, *SubTexture) {
+func (ac *CharacterAnimationComponent) Cell() *graphic.Sprite {
 	if len(ac.CurrentAnimation.Frames) == 0 {
 		log.Println("No frame data for this animation. Selecting zeroth drawable. If this is incorrect, add an action to the animation.")
-		return ac.CharacterSprite.GetBodySpriteAt(0), ac.CharacterSprite.GetSubTextureAt(0)
+		return ac.CharacterSprite.Spritesheet.SpriteAt(0)
 	}
-	idx := ac.CurrentAnimation.Frames[ac.Index]
+	idx := uint32(ac.CurrentAnimation.Frames[ac.Index])
 	ac.CurrentFrame = idx
-	return ac.CharacterSprite.GetBodySpriteAt(int32(idx)), ac.CharacterSprite.GetSubTextureAt(int32(idx))
+	ac.Animator.CurrentFrame = idx
+	return ac.CharacterSprite.Spritesheet.SpriteAt(idx)
 }
 
 // NextFrame advances the current animation by one frame.

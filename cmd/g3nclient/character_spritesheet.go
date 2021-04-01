@@ -11,41 +11,49 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
 )
 
+var BackgroundSpriteMaterial = material.NewStandard(math32.NewColor("white"))
+
+type SubTexture struct {
+	Texture *texture.Texture2D
+	ID      uint32 `xml:"id,attr"`
+	X       int32  `xml:"x,attr"`
+	Y       int32  `xml:"y,attr"`
+	Width   int32  `xml:"width,attr"`
+	Height  int32  `xml:"height,attr"`
+}
+
 type Spritesheet struct {
 	XMLName     xml.Name `xml:"Spritesheet"`
 	Texture     *texture.Texture2D
 	ImagePath   string        `xml:"imagePath,attr"`
 	SubTextures []*SubTexture `xml:"SubTexture"`
-	Sprites     []*graphic.Sprite
 }
 
 func (s Spritesheet) URL() string {
 	return s.ImagePath
 }
 
-func (s *Spritesheet) SubTexture(i int32) *SubTexture {
+func (s *Spritesheet) SubTexture(i uint32) *SubTexture {
 	return s.SubTextures[i]
 }
 
-func (s *Spritesheet) SpriteAt(i int32) *graphic.Sprite {
-	return s.Sprites[i]
-}
+func (s *Spritesheet) SpriteAt(i uint32) *graphic.Sprite {
+	sub := s.SubTextures[i]
+	BackgroundSpriteMaterial.AddTexture(s.Texture)
 
-type SubTexture struct {
-	Texture  *texture.Texture2D
-	Name     string `xml:"name,attr"`
-	X        int32  `xml:"x,attr"`
-	Y        int32  `xml:"y,attr"`
-	Width    int32  `xml:"width,attr"`
-	Height   int32  `xml:"height,attr"`
-	FlippedY bool
+	return graphic.NewSprite(
+		float32(sub.Width),
+		float32(sub.Height),
+		BackgroundSpriteMaterial,
+	)
 }
 
 func LoadSpritesheet(sprFile *spr.SpriteFile, r io.Reader, filePath string) (*Spritesheet, error) {
-	atlas := new(Spritesheet)
-	atlas.ImagePath = filePath
+	spritesheet := new(Spritesheet)
+	spritesheet.ImagePath = filePath
 
-	err := xml.NewDecoder(r).Decode(&atlas)
+	var tmp Spritesheet
+	err := xml.NewDecoder(r).Decode(&tmp)
 	if err != nil {
 		return nil, err
 	}
@@ -55,16 +63,29 @@ func LoadSpritesheet(sprFile *spr.SpriteFile, r io.Reader, filePath string) (*Sp
 		return nil, err
 	}
 
-	atlas.Texture = baseTexture
-	atlas.Sprites = make([]*graphic.Sprite, len(atlas.SubTextures))
+	spritesheet.Texture = baseTexture
+	spritesheet.SubTextures = make([]*SubTexture, len(sprFile.Frames))
 
-	for i := 0; i < len(atlas.SubTextures); i++ {
-		tex := texture.NewTexture2DFromRGBA(sprFile.ImageAt(i))
-		mat := material.NewStandard(math32.NewColor("white"))
-		mat.AddTexture(tex)
-		atlas.SubTextures[i].Texture = tex
-		atlas.Sprites[i] = graphic.NewSprite(float32(tex.Width()), float32(tex.Height()), mat)
+	for i := range sprFile.Frames {
+		var sub *SubTexture
+		for _, s := range tmp.SubTextures {
+			if s.ID == uint32(i) {
+				sub = s
+			}
+		}
+
+		if sub != nil {
+			w, h := sub.Width, sub.Height
+
+			spritesheet.SubTextures[sub.ID] = &SubTexture{
+				ID:     sub.ID,
+				X:      sub.X,
+				Y:      sub.Y,
+				Width:  w,
+				Height: h,
+			}
+		}
 	}
 
-	return atlas, nil
+	return spritesheet, nil
 }

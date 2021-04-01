@@ -4,26 +4,25 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
+	"github.com/g3n/engine/material"
+	"github.com/g3n/engine/math32"
 
 	"github.com/g3n/engine/graphic"
 
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 
-	"github.com/g3n/engine/texture"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
 )
 
 type CharacterSprite struct {
-	Path       string
-	ActionFile *act.ActionFile
-	SpriteFile *spr.SpriteFile
-
-	spritesheet *Spritesheet
-	bodySprite  *graphic.Sprite
+	Path        string
+	ActionFile  *act.ActionFile
+	SpriteFile  *spr.SpriteFile
+	Spritesheet *Spritesheet
+	BodySprite  *graphic.Sprite
 }
 
 func LoadCharacterSprite(
@@ -55,14 +54,6 @@ func LoadCharacterSprite(
 		return nil, err
 	}
 
-	textures := make([]*texture.Texture2D, len(sprFile.Frames))
-
-	for i := range sprFile.Frames {
-		if rgba := sprFile.ImageAt(i); rgba != nil {
-			textures[i] = texture.NewTexture2DFromRGBA(rgba)
-		}
-	}
-
 	f, err := os.Open("assets/build/f/4016-1.xml")
 	if err != nil {
 		return nil, err
@@ -73,27 +64,18 @@ func LoadCharacterSprite(
 		return nil, err
 	}
 
+	baseMaterial := material.NewStandard(math32.NewColor("white"))
+	baseMaterial.AddTexture(spritesheet.Texture)
+
 	return &CharacterSprite{
+		Spritesheet: spritesheet,
 		Path:        path,
 		ActionFile:  actFile,
 		SpriteFile:  sprFile,
-		spritesheet: spritesheet,
-		bodySprite:  spritesheet.SpriteAt(0),
+		BodySprite: graphic.NewSprite(
+			float32(spritesheet.SubTexture(0).Width),
+			float32(spritesheet.SubTexture(0).Height),
+			baseMaterial,
+		),
 	}, nil
-}
-
-func (s *CharacterSprite) GetBodySprite() *graphic.Sprite {
-	return s.bodySprite
-}
-
-func (s *CharacterSprite) SetActiveBodySprite(i actionindex.Type) {
-	s.bodySprite = s.spritesheet.SpriteAt(int32(i))
-}
-
-func (s *CharacterSprite) GetBodySpriteAt(i int32) *graphic.Sprite {
-	return s.spritesheet.SpriteAt(i)
-}
-
-func (s *CharacterSprite) GetSubTextureAt(i int32) *SubTexture {
-	return s.spritesheet.SubTexture(i)
 }

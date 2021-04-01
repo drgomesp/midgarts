@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/EngoEngine/engo/common"
-	"github.com/g3n/engine/graphic"
 	"github.com/g3n/engine/math32"
 	"github.com/g3n/engine/window"
 	"github.com/project-midgard/midgarts/internal/entity"
@@ -33,7 +32,6 @@ type Character interface {
 }
 
 type CharacterRenderComponent struct {
-	Graphic         graphic.IGraphic
 	CharacterSprite *CharacterSprite
 	Scale           *math32.Vector3
 }

@@ -9,9 +9,6 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
 	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
 
-	"github.com/g3n/engine/material"
-	"github.com/g3n/engine/math32"
-
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/internal/entity"
 
@@ -49,12 +46,7 @@ func NewCharacterRenderSystem(log *logger.Logger, renderer *renderer.Renderer, s
 
 func (s *CharacterRenderSystem) Add(e Character) {
 	s.entities = append(s.entities, e)
-	s.scene.AddAt(
-		int(e.GetBasicEntity().ID()),
-		e.GetCharacterRenderComponent().
-			CharacterSprite.
-			GetBodySprite(),
-	)
+	s.scene.AddAt(int(e.GetBasicEntity().ID()), e.GetCharacterRenderComponent().CharacterSprite.Spritesheet.SpriteAt(0))
 }
 
 func (s *CharacterRenderSystem) AddByInterface(o ecs.Identifier) {
@@ -66,6 +58,7 @@ func (s *CharacterRenderSystem) Update(dt float32) {
 	var err error
 
 	for _, e := range s.entities {
+
 		if KeyState.Pressed(window.KeyUp) && KeyState.Pressed(window.KeyRight) {
 			e.SetState(statetype.Walking)
 			e.SetDirection(directiontype.NorthEast)
@@ -91,7 +84,7 @@ func (s *CharacterRenderSystem) Update(dt float32) {
 			e.SetState(statetype.Walking)
 			e.SetDirection(directiontype.West)
 		} else {
-			e.SetState(statetype.Idle)
+			//e.SetState(statetype.Idle)
 		}
 
 		if e.GetCharacterAnimationComponent().CurrentAnimation == nil {
@@ -140,42 +133,23 @@ func (s *CharacterRenderSystem) Update(dt float32) {
 		e.GetCharacterAnimationComponent().Change += dt
 
 		if e.GetCharacterAnimationComponent().Change >= e.GetCharacterAnimationComponent().Rate {
-			e.GetCharacterAnimationComponent().CurrentFrame = idx * int(frameIndex)
+			e.GetCharacterAnimationComponent().CurrentFrame = uint32(idx * int(frameIndex))
+			e.GetCharacterAnimationComponent().Animator.CurrentFrame = uint32(idx * int(frameIndex))
+			ANIM.CurrentFrame = e.GetCharacterAnimationComponent().CurrentFrame
 
 			if e.GetCharacterAnimationComponent().Index >= len(e.GetCurrentAction().Frames) {
 				e.GetCharacterAnimationComponent().Index = 0
 			}
 
-			bodySprite, subTexture := e.GetCharacterAnimationComponent().Cell()
-
-			s.scene.RemoveAt(int(e.GetBasicEntity().ID()))
-
-			//frame := action.Frames[frameIndex]
-			//layer := frame.Layers[0]
-
-			mat := material.NewStandard(math32.NewColor("white"))
-			mat.AddTexture(subTexture.Texture)
-
-			//if layer.IsMirror {
-			//	if !subTexture.FlippedY {
-			//		subTexture.FlippedY = true
-			//		subTexture.Texture.SetFlipY(true)
-			//		bodySprite = graphic.NewSprite(float32(subTexture.Width), float32(subTexture.Height), mat)
-			//	}
-			//} else {
-			//	if subTexture.FlippedY {
-			//		subTexture.FlippedY = false
-			//		subTexture.Texture.SetFlipY(false)
-			//		bodySprite = graphic.NewSprite(float32(subTexture.Width), float32(subTexture.Height), mat)
-			//	}
-			//}
-
-			s.scene.AddAt(int(e.ID()), bodySprite)
-
+			e.GetCharacterAnimationComponent().Cell()
 			e.GetCharacterAnimationComponent().NextFrame()
-			//s.log.Info("CharacterRenderSystem::Update | should update animation (%v)", dt)
+
+			s.log.Info("CharacterRenderSystem::Update | should update animation (%v)", dt)
 		}
+
+		//e.GetCharacterAnimationComponent().Animator.Update(time.Now())
 	}
+	ANIM.Update(time.Now())
 
 	if err = s.renderer.Render(s.scene, s.camera); err != nil {
 		s.log.Fatal("could not update render system: %v\n", err)
