@@ -7,6 +7,10 @@ import (
 	"github.com/g3n/engine/graphic"
 )
 
+const (
+	DefaultCharacterAnimationRate = 0.08
+)
+
 type CharacterAnimationComponent struct {
 	Animator         *Animator
 	Animations       map[string]*common.Animation
@@ -19,9 +23,9 @@ type CharacterAnimationComponent struct {
 	DefaultAnimation *common.Animation
 }
 
-func NewCharacterAnimationComponent(characterSprite *CharacterSprite, animator *Animator, rate float32) *CharacterAnimationComponent {
+func NewCharacterAnimationComponent(characterSprite *CharacterSprite, rate float32) *CharacterAnimationComponent {
 	return &CharacterAnimationComponent{
-		Animator:        animator,
+		Animator:        NewAnimator(characterSprite.Spritesheet),
 		Animations:      make(map[string]*common.Animation),
 		CharacterSprite: characterSprite,
 		Rate:            rate,

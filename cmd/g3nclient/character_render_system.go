@@ -4,23 +4,19 @@ import (
 	"math"
 	"time"
 
-	"github.com/g3n/engine/window"
-
-	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
-	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
-
-	"github.com/EngoEngine/engo/common"
-	"github.com/project-midgard/midgarts/internal/entity"
-
-	"github.com/project-midgard/midgarts/internal/system"
-	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
-	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
-
 	"github.com/EngoEngine/ecs"
+	"github.com/EngoEngine/engo/common"
 	"github.com/g3n/engine/camera"
 	"github.com/g3n/engine/core"
 	"github.com/g3n/engine/renderer"
 	"github.com/g3n/engine/util/logger"
+	"github.com/g3n/engine/window"
+	"github.com/project-midgard/midgarts/internal/entity"
+	"github.com/project-midgard/midgarts/internal/system"
+	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
+	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
+	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
+	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
 )
 
 type CharacterRenderSystem struct {
@@ -58,7 +54,6 @@ func (s *CharacterRenderSystem) Update(dt float32) {
 	var err error
 
 	for _, e := range s.entities {
-
 		if KeyState.Pressed(window.KeyUp) && KeyState.Pressed(window.KeyRight) {
 			e.SetState(statetype.Walking)
 			e.SetDirection(directiontype.NorthEast)
@@ -84,7 +79,7 @@ func (s *CharacterRenderSystem) Update(dt float32) {
 			e.SetState(statetype.Walking)
 			e.SetDirection(directiontype.West)
 		} else {
-			//e.SetState(statetype.Idle)
+			e.SetState(statetype.Idle)
 		}
 
 		if e.GetCharacterAnimationComponent().CurrentAnimation == nil {
@@ -134,8 +129,6 @@ func (s *CharacterRenderSystem) Update(dt float32) {
 
 		if e.GetCharacterAnimationComponent().Change >= e.GetCharacterAnimationComponent().Rate {
 			e.GetCharacterAnimationComponent().CurrentFrame = uint32(idx * int(frameIndex))
-			e.GetCharacterAnimationComponent().Animator.CurrentFrame = uint32(idx * int(frameIndex))
-			ANIM.CurrentFrame = e.GetCharacterAnimationComponent().CurrentFrame
 
 			if e.GetCharacterAnimationComponent().Index >= len(e.GetCurrentAction().Frames) {
 				e.GetCharacterAnimationComponent().Index = 0
@@ -143,13 +136,10 @@ func (s *CharacterRenderSystem) Update(dt float32) {
 
 			e.GetCharacterAnimationComponent().Cell()
 			e.GetCharacterAnimationComponent().NextFrame()
-
-			s.log.Info("CharacterRenderSystem::Update | should update animation (%v)", dt)
 		}
 
-		//e.GetCharacterAnimationComponent().Animator.Update(time.Now())
+		e.GetCharacterAnimationComponent().Animator.Update(time.Now())
 	}
-	ANIM.Update(time.Now())
 
 	if err = s.renderer.Render(s.scene, s.camera); err != nil {
 		s.log.Fatal("could not update render system: %v\n", err)

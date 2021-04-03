@@ -17,13 +17,15 @@ type Animator struct {
 }
 
 func NewAnimator(spritesheet *Spritesheet) *Animator {
-	a := new(Animator)
-	a.Texture = spritesheet.Texture
-	a.Spritesheet = spritesheet
-	a.CurrentFrame = 0
+	a := &Animator{
+		Spritesheet:  spritesheet,
+		Texture:      spritesheet.Texture,
+		CurrentFrame: 0,
+	}
 
 	a.Texture.SetWrapS(gls.REPEAT)
 	a.Texture.SetWrapT(gls.REPEAT)
+	a.Texture.SetMagFilter(gls.LINEAR)
 
 	a.Update(time.Now())
 
@@ -39,8 +41,6 @@ func (a *Animator) Update(now time.Time) {
 
 	a.Texture.SetOffset(a.OffsetX, a.OffsetY)
 	a.Texture.SetRepeat(a.RepeatX, a.RepeatY)
-	a.Texture.SetMagFilter(gls.LINEAR)
 
 	log.Printf("repeat=(%v,%v)\n", a.RepeatX, a.RepeatY)
-	log.Printf("offset=(%v,%v)\n", a.OffsetX, a.OffsetY)
 }

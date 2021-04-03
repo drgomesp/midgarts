@@ -5,10 +5,6 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/g3n/engine/graphic"
-	"github.com/g3n/engine/material"
-	"github.com/g3n/engine/math32"
-
 	"github.com/EngoEngine/ecs"
 	"github.com/g3n/engine/app"
 	"github.com/g3n/engine/camera"
@@ -23,8 +19,6 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 )
-
-var ANIM *Animator
 
 const (
 	DefaultTargetFPS = 60
@@ -93,41 +87,17 @@ func NewMidgartsClient(options ...ClientOption) (c *MidgartsClient, err error) {
 	a.Subscribe(window.OnWindowSize, onResize)
 	onResize("", nil)
 
-	//// Create and add lights to the scene
-	//scene.Add(light.NewAmbient(&math32.Color{1.0, 1.0, 1.0}, 0.8))
-	//pointLight := light.NewPoint(&math32.Color{1, 1, 1}, 5.0)
-	//pointLight.SetPosition(1, 0, 2)
-	//scene.Add(pointLight)
-	//
-	//// Create a blue torus and add it to the scene
-	//geom := geometry.NewTorus(2, .4, 12, 32, math32.Pi*2)
-	//mat := material.NewStandard(math32.NewColor("DarkBlue"))
-	//mesh := graphic.NewMesh(geom, mat)
-	//scene.Add(mesh)
-
-	// Create and add an axis helper to the scene
 	scene.Add(helper.NewAxes(100))
 
 	// Set background color to gray
 	a.Gls().ClearColor(0.5, 0.5, 0.5, 1.0)
 
-	charSprite, err := LoadCharacterSprite(grfFile, character.Female, jobspriteid.MonkH)
+	charSprite, err := LoadCharacterSprite(grfFile, character.Female, jobspriteid.Monk)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	anim1 := NewAnimator(charSprite.Spritesheet)
-	ANIM = anim1
-
-	mat1 := material.NewStandard(&math32.Color{R: 1, G: 1, B: 1})
-	mat1.AddTexture(charSprite.Spritesheet.Texture)
-	mat1.SetOpacity(1)
-	mat1.SetTransparent(true)
-	s1 := graphic.NewSprite(57, 76, mat1)
-	s1.SetPosition(0, 0, 0)
-	//scene.Add(s1)
-
-	char := NewCharacterEntity(charSprite, ANIM)
+	char := NewCharacterEntity(charSprite)
 
 	world := &ecs.World{}
 	var rend *Character

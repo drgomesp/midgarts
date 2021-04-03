@@ -19,27 +19,28 @@ type CharacterEntity struct {
 	*CharacterAnimationComponent
 	*CharacterControlComponent
 
-	Animator      *Animator
 	PlayMode      actionplaymode.Type
 	Direction     directiontype.Type
 	State         statetype.Type
 	CurrentAction *entity.CharacterAction
 }
 
-func NewCharacterEntity(charSprite *CharacterSprite, animator *Animator) *CharacterEntity {
+func NewCharacterEntity(charSprite *CharacterSprite) *CharacterEntity {
 	b := ecs.NewBasic()
 
 	e := &CharacterEntity{
-		Animator:    animator,
 		BasicEntity: b.GetBasicEntity(),
 		CharacterRenderComponent: &CharacterRenderComponent{
 			CharacterSprite: charSprite,
 		},
-		CharacterAnimationComponent: NewCharacterAnimationComponent(charSprite, animator, 0.1),
-		CharacterControlComponent:   &CharacterControlComponent{},
-		PlayMode:                    actionplaymode.Repeat,
-		Direction:                   directiontype.South,
-		State:                       statetype.Idle,
+		CharacterAnimationComponent: NewCharacterAnimationComponent(
+			charSprite,
+			DefaultCharacterAnimationRate,
+		),
+		CharacterControlComponent: &CharacterControlComponent{},
+		PlayMode:                  actionplaymode.Repeat,
+		Direction:                 directiontype.South,
+		State:                     statetype.Idle,
 	}
 
 	e.SetAction(statetype.Idle)
@@ -92,14 +93,9 @@ func (e *CharacterEntity) SetCurrentAction(action *entity.CharacterAction) {
 
 func (e *CharacterEntity) SetAction(state statetype.Type) {
 	e.State = state
-	//e.CharacterAnimationComponent = &CharacterAnimationComponent{
-	//	Animator:   e.Animator,
-	//	Animations: map[string]*common.Animation{},
-	//}
 	e.CharacterAnimationComponent = NewCharacterAnimationComponent(
 		e.GetCharacterRenderComponent().CharacterSprite,
-		e.Animator,
-		0.08,
+		DefaultCharacterAnimationRate,
 	)
 	e.CurrentAction = entity.NewCharacterAction(actionindex.GetActionIndex(e.State))
 	anim := &common.Animation{Name: e.CurrentAction.Name, Frames: e.CurrentAction.Frames}

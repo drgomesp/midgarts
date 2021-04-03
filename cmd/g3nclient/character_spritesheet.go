@@ -11,8 +11,6 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
 )
 
-var BackgroundSpriteMaterial = material.NewStandard(math32.NewColor("white"))
-
 type SubTexture struct {
 	Texture *texture.Texture2D
 	ID      uint32 `xml:"id,attr"`
@@ -23,10 +21,11 @@ type SubTexture struct {
 }
 
 type Spritesheet struct {
-	XMLName     xml.Name `xml:"Spritesheet"`
-	Texture     *texture.Texture2D
-	ImagePath   string        `xml:"imagePath,attr"`
-	SubTextures []*SubTexture `xml:"SubTexture"`
+	XMLName             xml.Name `xml:"Spritesheet"`
+	Texture             *texture.Texture2D
+	ImagePath           string        `xml:"imagePath,attr"`
+	SubTextures         []*SubTexture `xml:"SubTexture"`
+	MaxWidth, MaxHeight int
 }
 
 func (s Spritesheet) URL() string {
@@ -39,13 +38,16 @@ func (s *Spritesheet) SubTexture(i uint32) *SubTexture {
 
 func (s *Spritesheet) SpriteAt(i uint32) *graphic.Sprite {
 	sub := s.SubTextures[i]
-	BackgroundSpriteMaterial.AddTexture(s.Texture)
+	baseMaterial := material.NewStandard(math32.NewColor("white"))
+	baseMaterial.AddTexture(s.Texture)
 
-	return graphic.NewSprite(
+	sprite := graphic.NewSprite(
 		float32(sub.Width),
 		float32(sub.Height),
-		BackgroundSpriteMaterial,
+		baseMaterial,
 	)
+
+	return sprite
 }
 
 func LoadSpritesheet(sprFile *spr.SpriteFile, r io.Reader, filePath string) (*Spritesheet, error) {

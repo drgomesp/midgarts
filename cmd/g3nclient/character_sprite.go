@@ -7,8 +7,6 @@ import (
 	"github.com/g3n/engine/material"
 	"github.com/g3n/engine/math32"
 
-	"github.com/g3n/engine/graphic"
-
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 
@@ -22,7 +20,6 @@ type CharacterSprite struct {
 	ActionFile  *act.ActionFile
 	SpriteFile  *spr.SpriteFile
 	Spritesheet *Spritesheet
-	BodySprite  *graphic.Sprite
 }
 
 func LoadCharacterSprite(
@@ -54,12 +51,12 @@ func LoadCharacterSprite(
 		return nil, err
 	}
 
-	f, err := os.Open("assets/build/f/4016-1.xml")
+	f, err := os.Open("assets/build/f/15-1.xml")
 	if err != nil {
 		return nil, err
 	}
 
-	spritesheet, err := LoadSpritesheet(sprFile, f, "assets/build/f/4016-1.png")
+	spritesheet, err := LoadSpritesheet(sprFile, f, "assets/build/f/15-1.png")
 	if err != nil {
 		return nil, err
 	}
@@ -72,10 +69,5 @@ func LoadCharacterSprite(
 		Path:        path,
 		ActionFile:  actFile,
 		SpriteFile:  sprFile,
-		BodySprite: graphic.NewSprite(
-			float32(spritesheet.SubTexture(0).Width),
-			float32(spritesheet.SubTexture(0).Height),
-			baseMaterial,
-		),
 	}, nil
 }
