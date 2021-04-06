@@ -11,7 +11,7 @@ type Vertex struct {
 
 const (
 	vbPosition = iota
-
+	vbIndex
 	numBuffers
 )
 
@@ -23,31 +23,37 @@ type Mesh struct {
 	drawCount int32
 }
 
-func NewMesh(vertices []Vertex) *Mesh {
-	mesh := new(Mesh)
-	mesh.vertices = vertices
-	mesh.drawCount = int32(len(vertices))
+func NewMesh(vertices []Vertex, indices []uint32) *Mesh {
+	mesh := &Mesh{
+		vertices:  vertices,
+		indices:   indices,
+		drawCount: int32(len(indices)),
+	}
+
+	gl.GenVertexArrays(1, &mesh.vao)
+	gl.BindVertexArray(mesh.vao)
 
 	var positions []float32
 	for _, v := range vertices {
 		positions = append(positions, v.Position.X(), v.Position.Y(), v.Position.Z())
 	}
 
-	gl.GenBuffers(1, &mesh.vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, mesh.vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, 4*len(positions), gl.Ptr(positions), gl.STATIC_DRAW)
+	gl.GenBuffers(numBuffers, &mesh.vaBuffers[0])
 
-	gl.GenVertexArrays(1, &mesh.vao)
-	gl.BindVertexArray(mesh.vao)
+	gl.BindBuffer(gl.ARRAY_BUFFER, mesh.vaBuffers[vbPosition])
+	gl.BufferData(gl.ARRAY_BUFFER, len(positions)*4, gl.Ptr(positions), gl.STATIC_DRAW)
+
 	gl.EnableVertexAttribArray(0)
-	gl.BindBuffer(gl.ARRAY_BUFFER, mesh.vbo)
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.vaBuffers[vbIndex])
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(mesh.indices), gl.STATIC_DRAW)
 
 	return mesh
 }
 
 func (m *Mesh) Draw() {
 	gl.BindVertexArray(m.vao)
-	gl.DrawArrays(gl.TRIANGLES, 0, m.drawCount)
+	gl.DrawElements(gl.TRIANGLES, m.drawCount, gl.UNSIGNED_INT, gl.Ptr(nil))
 	gl.BindVertexArray(0)
 }

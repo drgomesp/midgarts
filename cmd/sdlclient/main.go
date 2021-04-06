@@ -102,6 +102,7 @@ func main() {
 			{mgl32.Vec3{-0.5, -0.5, 0}},
 			{mgl32.Vec3{0.5, -0.5, 0}},
 		},
+		[]uint32{0, 1, 2},
 	)
 
 	running := true
@@ -124,7 +125,6 @@ func main() {
 		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(triangle)/3))
 
 		triangleMesh.Draw()
-
 		window.GLSwap()
 	}
 }
@@ -164,9 +164,7 @@ func makeVao(points []float32) uint32 {
 	var vao uint32
 	gl.GenVertexArrays(1, &vao)
 	gl.BindVertexArray(vao)
-	gl.EnableVertexAttribArray(0)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
 
 	return vao
 }
