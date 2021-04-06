@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	windowWidth  = 1280
-	windowHeight = 720
+	windowWidth  = 920
+	windowHeight = 760
 
 	vertexShaderSource = `
 		#version 330 core
@@ -75,37 +75,34 @@ func main() {
 	defer sdl.GLDeleteContext(context)
 
 	program := initOpenGL()
+	vao := makeVao(triangle)
+
+	cam := NewPerspectiveCamera(
+		mgl32.Vec3{0, 0, -10},
+		70.0,
+		float32(windowWidth/windowHeight),
+		0.1,
+		10.0,
+	)
+
+	model := mgl32.Ident4()
+	mvp := cam.ViewProjection().Mul4(model)
+	mvpUniform := gl.GetUniformLocation(program, gl.Str("mvp\x00"))
+	gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.ClearDepth(1)
 	gl.DepthFunc(gl.LEQUAL)
 	gl.Viewport(0, 0, int32(windowWidth), int32(windowHeight))
-
 	gl.ClearColor(0, 0.5, 1.0, 1.0)
-	vao := makeVao(triangle)
 
-	//projection := mgl32.Perspective(
-	//	mgl32.DegToRad(45),
-	//	float32(windowWidth/windowHeight),
-	//	0.1,
-	//	100.0,
-	//)
-	projection := mgl32.Ortho(
-		-10,
-		10,
-		-10,
-		10.0,
-		0,
-		100.0,
+	triangleMesh := NewMesh(
+		[]Vertex{
+			{mgl32.Vec3{0, 0.5, 0}},
+			{mgl32.Vec3{-0.5, -0.5, 0}},
+			{mgl32.Vec3{0.5, -0.5, 0}},
+		},
 	)
-	view := mgl32.LookAtV(
-		mgl32.Vec3{4, 3, 3},
-		mgl32.Vec3{0, 0, 0},
-		mgl32.Vec3{0, -1, 0},
-	)
-	model := mgl32.Ident4()
-	mvp := projection.Mul4(view).Mul4(model)
-	mvpUniform := gl.GetUniformLocation(program, gl.Str("mvp\x00"))
 
 	running := true
 	for running {
@@ -122,8 +119,11 @@ func main() {
 		gl.UseProgram(program)
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 
-		gl.BindVertexArray(vao)
-		gl.DrawArrays(gl.TRIANGLES, 0, int32(len(triangle)/3))
+		_ = vao
+		//gl.BindVertexArray(vao)
+		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(triangle)/3))
+
+		triangleMesh.Draw()
 
 		window.GLSwap()
 	}
@@ -154,7 +154,7 @@ func initOpenGL() uint32 {
 	return prog
 }
 
-// makeVao initializes and returns a vertex array from the points provided.
+// makeVao initializes and returns a Vertex array from the points provided.
 func makeVao(points []float32) uint32 {
 	var vbo uint32
 	gl.GenBuffers(1, &vbo)
