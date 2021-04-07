@@ -18,7 +18,7 @@ const (
 type Mesh struct {
 	vertices  []Vertex
 	indices   []uint32
-	vao, vbo  uint32
+	vao       uint32
 	vaBuffers [numBuffers]uint32
 	drawCount int32
 }

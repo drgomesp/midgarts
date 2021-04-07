@@ -6,6 +6,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/EngoEngine/engo/math"
+
 	"github.com/veandco/go-sdl2/sdl"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -18,30 +20,22 @@ const (
 	windowHeight = 760
 
 	vertexShaderSource = `
-		#version 330 core
-		layout(location = 0) in vec3 vp;
-		uniform mat4 mvp;
+#version 330 core
+layout(location = 0) in vec3 vp;
+uniform mat4 mvp;
 
-		void main() {
-			gl_Position = mvp * vec4(vp, 1.0);
-		}
+void main() {
+	gl_Position = mvp * vec4(vp, 1.0);
+}
 	` + "\x00"
 
 	fragmentShaderSource = `
-		#version 330 core
-		out vec4 frag_colour;
-		void main() {
-			frag_colour = vec4(1.0, 1.0, 1.0, 1);
-		}
+#version 330 core
+out vec4 frag_colour;
+void main() {
+	frag_colour = vec4(1.0, 1.0, 1.0, 1);
+}
 	` + "\x00"
-)
-
-var (
-	triangle = []float32{
-		0, 0.5, 0,
-		-0.5, -0.5, 0,
-		0.5, -0.5, 0,
-	}
 )
 
 func main() {
@@ -75,20 +69,14 @@ func main() {
 	defer sdl.GLDeleteContext(context)
 
 	program := initOpenGL()
-	vao := makeVao(triangle)
 
-	cam := NewPerspectiveCamera(
-		mgl32.Vec3{0, 0, -10},
+	cam := NewOrthographicCamera(
+		mgl32.Vec3{0, 0, -2},
 		70.0,
 		float32(windowWidth/windowHeight),
 		0.1,
-		10.0,
+		100.0,
 	)
-
-	model := mgl32.Ident4()
-	mvp := cam.ViewProjection().Mul4(model)
-	mvpUniform := gl.GetUniformLocation(program, gl.Str("mvp\x00"))
-	gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 
 	gl.Enable(gl.DEPTH_TEST)
 	gl.ClearDepth(1)
@@ -98,34 +86,46 @@ func main() {
 
 	triangleMesh := NewMesh(
 		[]Vertex{
-			{mgl32.Vec3{0, 0.5, 0}},
-			{mgl32.Vec3{-0.5, -0.5, 0}},
-			{mgl32.Vec3{0.5, -0.5, 0}},
+			{mgl32.Vec3{0, 300, 0}},
+			{mgl32.Vec3{-300, -300, 0}},
+			{mgl32.Vec3{300, -300, 0}},
 		},
 		[]uint32{0, 1, 2},
 	)
 
-	running := true
-	for running {
+	modelMatrix := mgl32.Ident4()
+	counter := float32(0.0)
+
+	shouldStop := false
+	for !shouldStop {
+		sin := math.Sin(counter)
+		cos := math.Cos(counter)
+
+		mvp := cam.ViewProjectionMatrix().Mul4(modelMatrix)
+		mvpUniform := gl.GetUniformLocation(program, gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
+
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
 			case *sdl.QuitEvent:
 				println("Quit")
-				running = false
+				shouldStop = true
 				break
 			}
 		}
+
+		pos := cam.Position()
+		cam.SetPosition(pos.Add(mgl32.Vec3{sin, cos, 0}))
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(program)
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 
-		_ = vao
-		//gl.BindVertexArray(vao)
-		//gl.DrawArrays(gl.TRIANGLES, 0, int32(len(triangle)/3))
-
 		triangleMesh.Draw()
+
 		window.GLSwap()
+
+		counter += 0.01
 	}
 }
 
@@ -152,21 +152,6 @@ func initOpenGL() uint32 {
 	gl.AttachShader(prog, fragmentShader)
 	gl.LinkProgram(prog)
 	return prog
-}
-
-// makeVao initializes and returns a Vertex array from the points provided.
-func makeVao(points []float32) uint32 {
-	var vbo uint32
-	gl.GenBuffers(1, &vbo)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, 4*len(points), gl.Ptr(points), gl.STATIC_DRAW)
-
-	var vao uint32
-	gl.GenVertexArrays(1, &vao)
-	gl.BindVertexArray(vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-
-	return vao
 }
 
 func compileShader(source string, shaderType uint32) (uint32, error) {
