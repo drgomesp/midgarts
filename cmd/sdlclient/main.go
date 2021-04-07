@@ -70,12 +70,12 @@ func main() {
 
 	program := initOpenGL()
 
-	cam := NewOrthographicCamera(
-		mgl32.Vec3{0, 0, -2},
+	cam := NewPerspectiveCamera(
+		mgl32.Vec3{0, 0, -3},
 		70.0,
 		float32(windowWidth/windowHeight),
 		0.1,
-		100.0,
+		1000.0,
 	)
 
 	gl.Enable(gl.DEPTH_TEST)
@@ -86,9 +86,9 @@ func main() {
 
 	triangleMesh := NewMesh(
 		[]Vertex{
-			{mgl32.Vec3{0, 300, 0}},
-			{mgl32.Vec3{-300, -300, 0}},
-			{mgl32.Vec3{300, -300, 0}},
+			{mgl32.Vec3{0, 0.5, 0}},
+			{mgl32.Vec3{-0.5, -0.5, 0}},
+			{mgl32.Vec3{0.5, -0.5, 0}},
 		},
 		[]uint32{0, 1, 2},
 	)
@@ -115,7 +115,8 @@ func main() {
 		}
 
 		pos := cam.Position()
-		cam.SetPosition(pos.Add(mgl32.Vec3{sin, cos, 0}))
+		_ = cos
+		cam.SetPosition(pos.Add(mgl32.Vec3{sin, 0, -cos}))
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(program)
@@ -125,7 +126,7 @@ func main() {
 
 		window.GLSwap()
 
-		counter += 0.01
+		counter += 0.001
 	}
 }
 
