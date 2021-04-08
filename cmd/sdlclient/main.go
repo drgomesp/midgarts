@@ -22,10 +22,9 @@ const (
 #version 330 core
 layout(location = 0) in vec3 vp;
 uniform mat4 mvp;
-uniform mat4 transform;
 
 void main() {
-	gl_Position = transform * mvp * vec4(vp, 1.0);
+	gl_Position = mvp * vec4(vp, 1.0);
 }
 	` + "\x00"
 
@@ -83,7 +82,7 @@ func main() {
 	gl.Viewport(0, 0, int32(windowWidth), int32(windowHeight))
 	gl.ClearColor(0, 0.5, 1.0, 1.0)
 
-	triangleMesh := NewMesh(
+	t1 := NewMesh(
 		[]Vertex{
 			{mgl32.Vec3{0, 0.5, 0}},
 			{mgl32.Vec3{-0.5, -0.5, 0}},
@@ -92,18 +91,20 @@ func main() {
 		[]uint32{0, 1, 2},
 	)
 
+	t2 := NewMesh(
+		[]Vertex{
+			{mgl32.Vec3{0, 0.25, 0}},
+			{mgl32.Vec3{-0.25, -0.25, 0}},
+			{mgl32.Vec3{0.25, -0.25, 0}},
+		},
+		[]uint32{0, 1, 2},
+	)
+	t2.SetPosition(mgl32.Vec3{2, 1, 3})
+
 	counter := float32(0.0)
 
 	shouldStop := false
 	for !shouldStop {
-		modelMatrix := triangleMesh.Model()
-		transformUniform := gl.GetUniformLocation(program, gl.Str("transform\x00"))
-		gl.UniformMatrix4fv(transformUniform, 1, false, &modelMatrix[0])
-
-		mvp := cam.ViewProjectionMatrix().Mul4(triangleMesh.Model())
-		mvpUniform := gl.GetUniformLocation(program, gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
-
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
 			case *sdl.QuitEvent:
@@ -116,15 +117,27 @@ func main() {
 		sin := math.Sin(counter)
 		cos := math.Cos(counter)
 
-		triangleMesh.SetPosition(triangleMesh.Position().Add(mgl32.Vec3{sin, 0, 0}))
-		triangleMesh.SetRotation(triangleMesh.Rotation().Add(mgl32.Vec3{0, 0, cos * 50}))
-		triangleMesh.SetScale(triangleMesh.Scale().Add(mgl32.Vec3{cos * counter, 0, 0}))
+		pos := t1.Position()
+
+		t1.SetPosition(mgl32.Vec3{sin, pos.X(), cos})
+		t1.SetRotation(mgl32.Vec3{0, 0, counter * 50})
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(program)
+
+		mvp := cam.ViewProjectionMatrix().Mul4(t1.Model())
+		mvpUniform := gl.GetUniformLocation(program, gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 
-		triangleMesh.Draw()
+		t1.Draw()
+
+		mvp = cam.ViewProjectionMatrix().Mul4(t2.Model())
+		mvpUniform = gl.GetUniformLocation(program, gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
+		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
+
+		t2.Draw()
 
 		window.GLSwap()
 
