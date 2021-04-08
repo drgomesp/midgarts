@@ -118,7 +118,6 @@ func main() {
 		cos := math.Cos(counter)
 
 		pos := t1.Position()
-
 		t1.SetPosition(mgl32.Vec3{sin, pos.X(), cos})
 		t1.SetRotation(mgl32.Vec3{0, 0, counter * 50})
 
@@ -138,6 +137,7 @@ func main() {
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 
 		t2.Draw()
+		t2.SetRotation(mgl32.Vec3{sin * 25, cos * 25, 0})
 
 		window.GLSwap()
 
