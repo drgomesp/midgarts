@@ -29,9 +29,6 @@ func initOpenGL() uint32 {
 	gl.AttachShader(prog, fragmentShader)
 	gl.LinkProgram(prog)
 
-	fragOutString := gl.Str("outColor" + "\x00")
-	gl.BindFragDataLocation(prog, 0, fragOutString)
-
 	gl.Enable(gl.CULL_FACE) // cull face
 	gl.CullFace(gl.BACK)    // cull back face
 	gl.FrontFace(gl.CW)

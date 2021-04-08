@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"runtime"
 
 	"github.com/EngoEngine/engo/math"
@@ -58,22 +59,52 @@ func main() {
 
 	t1 := NewMesh(
 		[]Vertex{
-			{mgl32.Vec3{0, 0.5, 0}, mgl32.Vec3{1, 0, 0}},
-			{mgl32.Vec3{-0.5, -0.5, 0}, mgl32.Vec3{0, 1, 0}},
-			{mgl32.Vec3{0.5, -0.5, 0}, mgl32.Vec3{0, 0, 1}},
+			{
+				mgl32.Vec3{0, 0.5, 0},
+				mgl32.Vec3{1, 0, 0},
+				mgl32.Vec2{0, 0},
+			},
+			{
+				mgl32.Vec3{-0.5, -0.5, 0},
+				mgl32.Vec3{0, 1, 0},
+				mgl32.Vec2{1.0, 1.0},
+			},
+			{
+				mgl32.Vec3{0.5, -0.5, 0},
+				mgl32.Vec3{0, 0, 1},
+				mgl32.Vec2{0.0, 1.0},
+			},
 		},
 		[]uint32{0, 1, 2},
 	)
 
 	t2 := NewMesh(
 		[]Vertex{
-			{mgl32.Vec3{0, 0.25, 0}, mgl32.Vec3{0, 1, 0}},
-			{mgl32.Vec3{-0.25, -0.25, 0}, mgl32.Vec3{0, 1, 0}},
-			{mgl32.Vec3{0.25, -0.25, 0}, mgl32.Vec3{0, 1, 0}},
+			{
+				mgl32.Vec3{0, 0.25, 0},
+				mgl32.Vec3{0, 1, 0},
+				mgl32.Vec2{},
+			},
+			{
+				mgl32.Vec3{-0.25, -0.25, 0},
+				mgl32.Vec3{0, 1, 0},
+				mgl32.Vec2{},
+			},
+			{
+				mgl32.Vec3{0.25, -0.25, 0},
+				mgl32.Vec3{0, 1, 0},
+				mgl32.Vec2{0.5, 1.0},
+			},
 		},
 		[]uint32{0, 1, 2},
 	)
 	t2.SetPosition(mgl32.Vec3{2, 1, 3})
+	tex, err := NewTextureFromImage("assets/out/0/f/0.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(gl.GetAttribLocation(program, gl.Str("vertexCoords"+"\x00")))
 
 	counter := float32(0.0)
 	shouldStop := false
@@ -86,6 +117,8 @@ func main() {
 				break
 			}
 		}
+
+		tex.Bind(1)
 
 		sin := math.Sin(counter)
 		cos := math.Cos(counter)
