@@ -1,45 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"runtime"
-	"strings"
 
 	"github.com/EngoEngine/engo/math"
-
-	"github.com/veandco/go-sdl2/sdl"
-
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/veandco/go-sdl2/sdl"
 )
 
 const (
 	windowWidth  = 920
 	windowHeight = 760
-
-	vertexShaderSource = `
-#version 330 core
-layout(location = 0) in vec3 position;
-layout(location = 1) in vec3 vertexColor;
-uniform mat4 mvp;
-
-out vec3 fragColor;
-
-void main() {
-	gl_Position = mvp * vec4(position, 1.0);
-	fragColor = vertexColor;
-}
-	` + "\x00"
-
-	fragmentShaderSource = `
-#version 330 core
-out vec4 outColor;
-in vec3 fragColor;
-void main() {
-	outColor = vec4(fragColor, 1.0);
-}
-	` + "\x00"
 )
 
 func main() {
@@ -81,17 +53,14 @@ func main() {
 		1000.0,
 	)
 
-	gl.Enable(gl.DEPTH_TEST)
-	gl.ClearDepth(1)
-	gl.DepthFunc(gl.LEQUAL)
 	gl.Viewport(0, 0, int32(windowWidth), int32(windowHeight))
 	gl.ClearColor(0, 0.5, 1.0, 1.0)
 
 	t1 := NewMesh(
 		[]Vertex{
 			{mgl32.Vec3{0, 0.5, 0}, mgl32.Vec3{1, 0, 0}},
-			{mgl32.Vec3{-0.5, -0.5, 0}, mgl32.Vec3{1, 0, 0}},
-			{mgl32.Vec3{0.5, -0.5, 0}, mgl32.Vec3{1, 0, 0}},
+			{mgl32.Vec3{-0.5, -0.5, 0}, mgl32.Vec3{0, 1, 0}},
+			{mgl32.Vec3{0.5, -0.5, 0}, mgl32.Vec3{0, 0, 1}},
 		},
 		[]uint32{0, 1, 2},
 	)
@@ -107,7 +76,6 @@ func main() {
 	t2.SetPosition(mgl32.Vec3{2, 1, 3})
 
 	counter := float32(0.0)
-
 	shouldStop := false
 	for !shouldStop {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -133,71 +101,17 @@ func main() {
 		mvpUniform := gl.GetUniformLocation(program, gl.Str("mvp\x00"))
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
-
 		t1.Draw()
 
+		t2.SetRotation(mgl32.Vec3{sin * 25, cos * 25, 0})
 		mvp = cam.ViewProjectionMatrix().Mul4(t2.Model())
 		mvpUniform = gl.GetUniformLocation(program, gl.Str("mvp\x00"))
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
-
 		t2.Draw()
-		t2.SetRotation(mgl32.Vec3{sin * 25, cos * 25, 0})
 
 		window.GLSwap()
 
 		counter += 0.001
 	}
-}
-
-// initOpenGL initializes OpenGL and returns an initialized program.
-func initOpenGL() uint32 {
-	if err := gl.Init(); err != nil {
-		panic(err)
-	}
-	version := gl.GoStr(gl.GetString(gl.VERSION))
-	log.Println("OpenGL version", version)
-
-	vertexShader, err := compileShader(vertexShaderSource, gl.VERTEX_SHADER)
-	if err != nil {
-		panic(err)
-	}
-
-	fragmentShader, err := compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
-	if err != nil {
-		panic(err)
-	}
-
-	prog := gl.CreateProgram()
-	gl.AttachShader(prog, vertexShader)
-	gl.AttachShader(prog, fragmentShader)
-	gl.LinkProgram(prog)
-
-	fragOutString := gl.Str("outColor" + "\x00")
-	gl.BindFragDataLocation(prog, 0, fragOutString)
-
-	return prog
-}
-
-func compileShader(source string, shaderType uint32) (uint32, error) {
-	shader := gl.CreateShader(shaderType)
-
-	csources, free := gl.Strs(source)
-	gl.ShaderSource(shader, 1, csources, nil)
-	free()
-	gl.CompileShader(shader)
-
-	var status int32
-	gl.GetShaderiv(shader, gl.COMPILE_STATUS, &status)
-	if status == gl.FALSE {
-		var logLength int32
-		gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &logLength)
-
-		log := strings.Repeat("\x00", int(logLength+1))
-		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(log))
-
-		return 0, fmt.Errorf("failed to compile %v: %v", source, log)
-	}
-
-	return shader, nil
 }
