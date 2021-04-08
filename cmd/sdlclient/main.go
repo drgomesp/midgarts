@@ -20,19 +20,24 @@ const (
 
 	vertexShaderSource = `
 #version 330 core
-layout(location = 0) in vec3 vp;
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 vertexColor;
 uniform mat4 mvp;
 
+out vec3 fragColor;
+
 void main() {
-	gl_Position = mvp * vec4(vp, 1.0);
+	gl_Position = mvp * vec4(position, 1.0);
+	fragColor = vertexColor;
 }
 	` + "\x00"
 
 	fragmentShaderSource = `
 #version 330 core
-out vec4 frag_colour;
+out vec4 outColor;
+in vec3 fragColor;
 void main() {
-	frag_colour = vec4(1.0, 1.0, 1.0, 1);
+	outColor = vec4(fragColor, 1.0);
 }
 	` + "\x00"
 )
@@ -84,18 +89,18 @@ func main() {
 
 	t1 := NewMesh(
 		[]Vertex{
-			{mgl32.Vec3{0, 0.5, 0}},
-			{mgl32.Vec3{-0.5, -0.5, 0}},
-			{mgl32.Vec3{0.5, -0.5, 0}},
+			{mgl32.Vec3{0, 0.5, 0}, mgl32.Vec3{1, 0, 0}},
+			{mgl32.Vec3{-0.5, -0.5, 0}, mgl32.Vec3{1, 0, 0}},
+			{mgl32.Vec3{0.5, -0.5, 0}, mgl32.Vec3{1, 0, 0}},
 		},
 		[]uint32{0, 1, 2},
 	)
 
 	t2 := NewMesh(
 		[]Vertex{
-			{mgl32.Vec3{0, 0.25, 0}},
-			{mgl32.Vec3{-0.25, -0.25, 0}},
-			{mgl32.Vec3{0.25, -0.25, 0}},
+			{mgl32.Vec3{0, 0.25, 0}, mgl32.Vec3{0, 1, 0}},
+			{mgl32.Vec3{-0.25, -0.25, 0}, mgl32.Vec3{0, 1, 0}},
+			{mgl32.Vec3{0.25, -0.25, 0}, mgl32.Vec3{0, 1, 0}},
 		},
 		[]uint32{0, 1, 2},
 	)
@@ -167,6 +172,10 @@ func initOpenGL() uint32 {
 	gl.AttachShader(prog, vertexShader)
 	gl.AttachShader(prog, fragmentShader)
 	gl.LinkProgram(prog)
+
+	fragOutString := gl.Str("outColor" + "\x00")
+	gl.BindFragDataLocation(prog, 0, fragOutString)
+
 	return prog
 }
 

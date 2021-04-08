@@ -7,17 +7,15 @@ import (
 
 type Vertex struct {
 	Position mgl32.Vec3
+	Color    mgl32.Vec3
 }
 
 const (
 	vbPosition = iota
+	vbColor
 	vbIndex
-	numBuffers
-)
 
-const (
-	uniformTransform = iota
-	numUniforms
+	numBuffers
 )
 
 type Mesh struct {
@@ -40,9 +38,10 @@ func NewMesh(vertices []Vertex, indices []uint32) *Mesh {
 	gl.GenVertexArrays(1, &mesh.vao)
 	gl.BindVertexArray(mesh.vao)
 
-	var positions []float32
+	var positions, colors []float32
 	for _, v := range vertices {
 		positions = append(positions, v.Position.X(), v.Position.Y(), v.Position.Z())
+		colors = append(colors, v.Color.X(), v.Color.Y(), v.Color.Z())
 	}
 
 	gl.GenBuffers(numBuffers, &mesh.vaBuffers[0])
@@ -52,6 +51,12 @@ func NewMesh(vertices []Vertex, indices []uint32) *Mesh {
 
 	gl.EnableVertexAttribArray(0)
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 0, nil)
+
+	gl.BindBuffer(gl.ARRAY_BUFFER, mesh.vaBuffers[vbColor])
+	gl.BufferData(gl.ARRAY_BUFFER, len(colors)*4, gl.Ptr(colors), gl.STATIC_DRAW)
+
+	gl.EnableVertexAttribArray(1)
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 0, nil)
 
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.vaBuffers[vbIndex])
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(mesh.indices), gl.STATIC_DRAW)
