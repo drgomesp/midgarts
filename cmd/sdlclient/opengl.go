@@ -29,6 +29,9 @@ func initOpenGL() uint32 {
 	gl.AttachShader(prog, fragmentShader)
 	gl.LinkProgram(prog)
 
+	gl.Enable(gl.BLEND)
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+
 	gl.Enable(gl.CULL_FACE) // cull face
 	gl.CullFace(gl.BACK)    // cull back face
 	gl.FrontFace(gl.CW)
