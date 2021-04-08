@@ -21,27 +21,26 @@ var (
 )
 
 type Camera struct {
+	transform              *Transform
 	projection             Projection
 	fov, aspect, near, far float32
-	position               mgl32.Vec3
 	projectionMatrix       mgl32.Mat4
 }
 
 func NewPerspectiveCamera(position mgl32.Vec3, fov, aspect, near, far float32) *Camera {
 	return &Camera{
+		transform:  NewTransform(position),
 		projection: Perspective,
 		aspect:     aspect,
 		fov:        fov,
 		near:       near,
 		far:        far,
-		position:   position,
 	}
 }
 
 func NewOrthographicCamera(position mgl32.Vec3, left, right, bottom, top float32) *Camera {
 	return &Camera{
 		projection: Orthographic,
-		position:   position,
 	}
 }
 
@@ -51,12 +50,12 @@ func (c *Camera) ViewProjectionMatrix() (vp mgl32.Mat4) {
 		return mgl32.
 			Perspective(c.fov, c.aspect, c.near, c.far).
 			Mul4(mgl32.LookAt(
-				c.position.X(),
-				c.position.Y(),
-				c.position.Z(),
-				c.position.X()+Forward.X(),
-				c.position.Y()+Forward.Y(),
-				c.position.Z()+Forward.Z(),
+				c.transform.Position().X(),
+				c.transform.Position().Y(),
+				c.transform.Position().Z(),
+				c.transform.Position().X()+Forward.X(),
+				c.transform.Position().Y()+Forward.Y(),
+				c.transform.Position().Z()+Forward.Z(),
 				Up.X(),
 				Up.Y(),
 				Up.Z(),
@@ -65,12 +64,12 @@ func (c *Camera) ViewProjectionMatrix() (vp mgl32.Mat4) {
 		return mgl32.
 			Ortho(0, 1000, 0, 1000, 01, 100).
 			Mul4(mgl32.LookAt(
-				c.position.X(),
-				c.position.Y(),
-				c.position.Z(),
-				c.position.X()+Forward.X(),
-				c.position.Y()+Forward.Y(),
-				c.position.Z()+Forward.Z(),
+				c.transform.Position().X(),
+				c.transform.Position().Y(),
+				c.transform.Position().Z(),
+				c.transform.Position().X()+Forward.X(),
+				c.transform.Position().Y()+Forward.Y(),
+				c.transform.Position().Z()+Forward.Z(),
 				Up.X(),
 				Up.Y(),
 				Up.Z(),
@@ -83,9 +82,5 @@ func (c *Camera) ViewProjectionMatrix() (vp mgl32.Mat4) {
 }
 
 func (c *Camera) SetPosition(position mgl32.Vec3) {
-	c.position = position
-}
-
-func (c *Camera) Position() mgl32.Vec3 {
-	return c.position
+	c.transform.SetPosition(position)
 }

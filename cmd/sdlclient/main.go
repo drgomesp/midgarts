@@ -10,9 +10,8 @@ import (
 
 	"github.com/veandco/go-sdl2/sdl"
 
-	"github.com/go-gl/mathgl/mgl32"
-
 	"github.com/go-gl/gl/v3.3-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 const (
@@ -23,6 +22,7 @@ const (
 #version 330 core
 layout(location = 0) in vec3 vp;
 uniform mat4 mvp;
+uniform mat4 transform;
 
 void main() {
 	gl_Position = mvp * vec4(vp, 1.0);
@@ -93,7 +93,6 @@ func main() {
 		[]uint32{0, 1, 2},
 	)
 
-	modelMatrix := mgl32.Ident4()
 	counter := float32(0.0)
 
 	shouldStop := false
@@ -101,7 +100,7 @@ func main() {
 		sin := math.Sin(counter)
 		cos := math.Cos(counter)
 
-		mvp := cam.ViewProjectionMatrix().Mul4(modelMatrix)
+		mvp := cam.ViewProjectionMatrix().Mul4(triangleMesh.Transform().Model())
 		mvpUniform := gl.GetUniformLocation(program, gl.Str("mvp\x00"))
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 
@@ -114,8 +113,7 @@ func main() {
 			}
 		}
 
-		pos := cam.Position()
-		_ = cos
+		pos := cam.transform.Position()
 		cam.SetPosition(pos.Add(mgl32.Vec3{sin, 0, -cos}))
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)

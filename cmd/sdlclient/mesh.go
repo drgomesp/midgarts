@@ -16,6 +16,7 @@ const (
 )
 
 type Mesh struct {
+	transform *Transform
 	vertices  []Vertex
 	indices   []uint32
 	vao       uint32
@@ -25,6 +26,7 @@ type Mesh struct {
 
 func NewMesh(vertices []Vertex, indices []uint32) *Mesh {
 	mesh := &Mesh{
+		transform: NewTransform(Origin),
 		vertices:  vertices,
 		indices:   indices,
 		drawCount: int32(len(indices)),
@@ -56,4 +58,8 @@ func (m *Mesh) Draw() {
 	gl.BindVertexArray(m.vao)
 	gl.DrawElements(gl.TRIANGLES, m.drawCount, gl.UNSIGNED_INT, gl.Ptr(nil))
 	gl.BindVertexArray(0)
+}
+
+func (m *Mesh) Transform() *Transform {
+	return m.transform
 }
