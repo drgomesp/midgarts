@@ -50,3 +50,11 @@ func (t *Transform) Scale() mgl32.Vec3 {
 func (t *Transform) SetScale(scale mgl32.Vec3) {
 	t.scale = scale
 }
+
+func (t *Transform) Rotation() mgl32.Vec3 {
+	return t.rotation
+}
+
+func (t *Transform) SetRotation(rotation mgl32.Vec3) {
+	t.rotation = rotation
+}

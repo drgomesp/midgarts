@@ -21,15 +21,15 @@ var (
 )
 
 type Camera struct {
-	transform              *Transform
+	*Transform
 	projection             Projection
 	fov, aspect, near, far float32
 	projectionMatrix       mgl32.Mat4
 }
 
-func NewPerspectiveCamera(position mgl32.Vec3, fov, aspect, near, far float32) *Camera {
+func NewPerspectiveCamera(fov, aspect, near, far float32) *Camera {
 	return &Camera{
-		transform:  NewTransform(position),
+		Transform:  NewTransform(mgl32.Vec3{0, 0, -5}),
 		projection: Perspective,
 		aspect:     aspect,
 		fov:        fov,
@@ -50,12 +50,12 @@ func (c *Camera) ViewProjectionMatrix() (vp mgl32.Mat4) {
 		return mgl32.
 			Perspective(c.fov, c.aspect, c.near, c.far).
 			Mul4(mgl32.LookAt(
-				c.transform.Position().X(),
-				c.transform.Position().Y(),
-				c.transform.Position().Z(),
-				c.transform.Position().X()+Forward.X(),
-				c.transform.Position().Y()+Forward.Y(),
-				c.transform.Position().Z()+Forward.Z(),
+				c.Position().X(),
+				c.Position().Y(),
+				c.Position().Z(),
+				c.Position().X()+Forward.X(),
+				c.Position().Y()+Forward.Y(),
+				c.Position().Z()+Forward.Z(),
 				Up.X(),
 				Up.Y(),
 				Up.Z(),
@@ -64,12 +64,12 @@ func (c *Camera) ViewProjectionMatrix() (vp mgl32.Mat4) {
 		return mgl32.
 			Ortho(0, 1000, 0, 1000, 01, 100).
 			Mul4(mgl32.LookAt(
-				c.transform.Position().X(),
-				c.transform.Position().Y(),
-				c.transform.Position().Z(),
-				c.transform.Position().X()+Forward.X(),
-				c.transform.Position().Y()+Forward.Y(),
-				c.transform.Position().Z()+Forward.Z(),
+				c.Position().X(),
+				c.Position().Y(),
+				c.Position().Z(),
+				c.Position().X()+Forward.X(),
+				c.Position().Y()+Forward.Y(),
+				c.Position().Z()+Forward.Z(),
 				Up.X(),
 				Up.Y(),
 				Up.Z(),
@@ -79,8 +79,4 @@ func (c *Camera) ViewProjectionMatrix() (vp mgl32.Mat4) {
 	}
 
 	return
-}
-
-func (c *Camera) SetPosition(position mgl32.Vec3) {
-	c.transform.SetPosition(position)
 }

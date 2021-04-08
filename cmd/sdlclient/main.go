@@ -25,7 +25,7 @@ uniform mat4 mvp;
 uniform mat4 transform;
 
 void main() {
-	gl_Position = mvp * vec4(vp, 1.0);
+	gl_Position = transform * mvp * vec4(vp, 1.0);
 }
 	` + "\x00"
 
@@ -71,7 +71,6 @@ func main() {
 	program := initOpenGL()
 
 	cam := NewPerspectiveCamera(
-		mgl32.Vec3{0, 0, -3},
 		70.0,
 		float32(windowWidth/windowHeight),
 		0.1,
@@ -97,10 +96,11 @@ func main() {
 
 	shouldStop := false
 	for !shouldStop {
-		sin := math.Sin(counter)
-		cos := math.Cos(counter)
+		modelMatrix := triangleMesh.Model()
+		transformUniform := gl.GetUniformLocation(program, gl.Str("transform\x00"))
+		gl.UniformMatrix4fv(transformUniform, 1, false, &modelMatrix[0])
 
-		mvp := cam.ViewProjectionMatrix().Mul4(triangleMesh.Transform().Model())
+		mvp := cam.ViewProjectionMatrix().Mul4(triangleMesh.Model())
 		mvpUniform := gl.GetUniformLocation(program, gl.Str("mvp\x00"))
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 
@@ -113,8 +113,12 @@ func main() {
 			}
 		}
 
-		pos := cam.transform.Position()
-		cam.SetPosition(pos.Add(mgl32.Vec3{sin, 0, -cos}))
+		sin := math.Sin(counter)
+		cos := math.Cos(counter)
+
+		triangleMesh.SetPosition(triangleMesh.Position().Add(mgl32.Vec3{sin, 0, 0}))
+		triangleMesh.SetRotation(triangleMesh.Rotation().Add(mgl32.Vec3{0, 0, cos * 50}))
+		triangleMesh.SetScale(triangleMesh.Scale().Add(mgl32.Vec3{cos * counter, 0, 0}))
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(program)
