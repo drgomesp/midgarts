@@ -63,45 +63,45 @@ func main() {
 			{
 				mgl32.Vec3{0, 0.75, 0},
 				Red,
-				mgl32.Vec2{1.0, 1.0},
+				mgl32.Vec2{0.1, 0.1},
 			},
 			{
 				mgl32.Vec3{-0.75, -0.75, 0},
 				Red,
-				mgl32.Vec2{},
+				mgl32.Vec2{0.1, 0.1},
 			},
 			{
 				mgl32.Vec3{0.75, -0.75, 0},
 				Red,
-				mgl32.Vec2{},
+				mgl32.Vec2{0.1, 0.1},
 			},
 		},
 		[]uint32{0, 1, 2},
 	)
-	t1.SetPosition(mgl32.Vec3{-2, 2, 3})
+	t1.SetPosition(mgl32.Vec3{-1, 1, 1})
 
 	t2 := NewMesh(
 		[]Vertex{
 			{
 				mgl32.Vec3{0, 0.75, 0},
 				Red,
-				mgl32.Vec2{1.0, 1.0},
+				mgl32.Vec2{0.5, 0.5},
 			},
 			{
 				mgl32.Vec3{-0.75, -0.75, 0},
 				Green,
-				mgl32.Vec2{0.5, 0.5},
+				mgl32.Vec2{0.1, 0.1},
 			},
 			{
 				mgl32.Vec3{0.75, -0.75, 0},
 				Blue,
-				mgl32.Vec2{0.25, 0.25},
+				mgl32.Vec2{0.1, 0.1},
 			},
 		},
 		[]uint32{0, 1, 2},
 	)
 	t2.SetPosition(mgl32.Vec3{3, 0, 5})
-	tex, err := NewTextureFromImage("assets/out/0/f/0.png")
+	tex, err := NewTextureFromImage("assets/build/m/4016-1.png")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -118,22 +118,22 @@ func main() {
 			{
 				mgl32.Vec3{-w * OnePixelSize, -h * OnePixelSize, 0},
 				White,
-				mgl32.Vec2{1, 1},
+				mgl32.Vec2{0.05, 0.05},
 			},
 			{
 				mgl32.Vec3{w * OnePixelSize, -h * OnePixelSize, 0},
 				White,
-				mgl32.Vec2{0, 1},
+				mgl32.Vec2{0, 0.05},
 			},
 			{
 				mgl32.Vec3{-w * OnePixelSize, h * OnePixelSize, 0},
 				White,
-				mgl32.Vec2{1, 0},
+				mgl32.Vec2{0.05, 0},
 			},
 		},
 		[]uint32{0, 1, 2, 3, 1, 0},
 	)
-	rect.SetPosition(mgl32.Vec3{-1, -1, 40})
+	rect.SetPosition(mgl32.Vec3{-1, -1, 45})
 
 	counter := float32(0.0)
 	shouldStop := false

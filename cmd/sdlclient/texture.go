@@ -47,8 +47,8 @@ func NewTextureFromImage(path string) (tex *Texture, err error) {
 		format:         gl.RGBA,
 		formatType:     gl.UNSIGNED_BYTE,
 		img:            rgba,
-		magFilter:      gl.LINEAR,
-		minFilter:      gl.LINEAR,
+		magFilter:      gl.NEAREST,
+		minFilter:      gl.NEAREST,
 		wrapS:          gl.REPEAT,
 		wrapT:          gl.REPEAT,
 	}
