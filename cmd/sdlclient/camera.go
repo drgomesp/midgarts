@@ -13,13 +13,6 @@ const (
 	Orthographic
 )
 
-type direction int
-
-var (
-	Up      = mgl32.Vec3{0, 1, 0}
-	Forward = mgl32.Vec3{0, 0, 1}
-)
-
 type Camera struct {
 	*Transform
 	projection             Projection

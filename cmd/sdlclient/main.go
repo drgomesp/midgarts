@@ -60,22 +60,27 @@ func main() {
 	t1 := NewMesh(
 		[]Vertex{
 			{
-				mgl32.Vec3{0, 0.5, 0},
-				mgl32.Vec3{1, 0, 0},
+				mgl32.Vec3{0.5, 0.5, 0},
+				Red,
 				mgl32.Vec2{0, 0},
 			},
 			{
 				mgl32.Vec3{-0.5, -0.5, 0},
-				mgl32.Vec3{0, 1, 0},
+				Green,
 				mgl32.Vec2{1.0, 1.0},
 			},
 			{
 				mgl32.Vec3{0.5, -0.5, 0},
-				mgl32.Vec3{0, 0, 1},
+				Blue,
 				mgl32.Vec2{0.0, 1.0},
 			},
+			{
+				mgl32.Vec3{-0.5, 0.5, 0},
+				Red,
+				mgl32.Vec2{0, 0},
+			},
 		},
-		[]uint32{0, 1, 2},
+		[]uint32{0, 1, 2, 3, 1, 0},
 	)
 
 	t2 := NewMesh(
@@ -98,13 +103,11 @@ func main() {
 		},
 		[]uint32{0, 1, 2},
 	)
-	t2.SetPosition(mgl32.Vec3{2, 1, 3})
+	t2.SetPosition(mgl32.Vec3{2, 1, 2})
 	tex, err := NewTextureFromImage("assets/out/0/f/0.png")
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	log.Println(gl.GetAttribLocation(program, gl.Str("vertexCoords"+"\x00")))
 
 	counter := float32(0.0)
 	shouldStop := false
@@ -133,13 +136,11 @@ func main() {
 		mvp := cam.ViewProjectionMatrix().Mul4(t1.Model())
 		mvpUniform := gl.GetUniformLocation(program, gl.Str("mvp\x00"))
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
-		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 		t1.Draw()
 
 		t2.SetRotation(mgl32.Vec3{sin * 25, cos * 25, 0})
 		mvp = cam.ViewProjectionMatrix().Mul4(t2.Model())
 		mvpUniform = gl.GetUniformLocation(program, gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 		t2.Draw()
 

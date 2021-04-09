@@ -47,6 +47,11 @@ func NewMesh(vertices []Vertex, indices []uint32) *Mesh {
 		texCoords = append(texCoords, v.TexCoords.X(), v.TexCoords.Y())
 	}
 
+	for _, i := range indices {
+		v := vertices[i]
+		texCoords = append(texCoords, v.TexCoords.X(), v.TexCoords.Y())
+	}
+
 	gl.GenBuffers(numBuffers, &mesh.vaBuffers[0])
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, mesh.vaBuffers[vbPosition])
@@ -68,13 +73,14 @@ func NewMesh(vertices []Vertex, indices []uint32) *Mesh {
 	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, 0, nil)
 
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.vaBuffers[vbIndex])
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices)*4, gl.Ptr(mesh.indices), gl.STATIC_DRAW)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(mesh.indices)*4, gl.Ptr(mesh.indices), gl.STATIC_DRAW)
 
 	return mesh
 }
 
 func (m *Mesh) Draw() {
 	gl.BindVertexArray(m.vao)
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, m.vaBuffers[vbIndex])
 	gl.DrawElements(gl.TRIANGLES, m.drawCount, gl.UNSIGNED_INT, gl.Ptr(nil))
 	gl.BindVertexArray(0)
 }
