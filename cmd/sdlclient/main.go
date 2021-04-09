@@ -13,6 +13,7 @@ import (
 const (
 	windowWidth  = 920
 	windowHeight = 760
+	OnePixelSize = 1.0 / 35.0
 )
 
 func main() {
@@ -60,54 +61,79 @@ func main() {
 	t1 := NewMesh(
 		[]Vertex{
 			{
-				mgl32.Vec3{0.5, 0.5, 0},
+				mgl32.Vec3{0, 0.75, 0},
 				Red,
-				mgl32.Vec2{0, 0},
-			},
-			{
-				mgl32.Vec3{-0.5, -0.5, 0},
-				Green,
 				mgl32.Vec2{1.0, 1.0},
 			},
 			{
-				mgl32.Vec3{0.5, -0.5, 0},
-				Blue,
-				mgl32.Vec2{0.0, 1.0},
-			},
-			{
-				mgl32.Vec3{-0.5, 0.5, 0},
+				mgl32.Vec3{-0.75, -0.75, 0},
 				Red,
-				mgl32.Vec2{0, 0},
-			},
-		},
-		[]uint32{0, 1, 2, 3, 1, 0},
-	)
-
-	t2 := NewMesh(
-		[]Vertex{
-			{
-				mgl32.Vec3{0, 0.25, 0},
-				mgl32.Vec3{0, 1, 0},
 				mgl32.Vec2{},
 			},
 			{
-				mgl32.Vec3{-0.25, -0.25, 0},
-				mgl32.Vec3{0, 1, 0},
+				mgl32.Vec3{0.75, -0.75, 0},
+				Red,
 				mgl32.Vec2{},
-			},
-			{
-				mgl32.Vec3{0.25, -0.25, 0},
-				mgl32.Vec3{0, 1, 0},
-				mgl32.Vec2{0.5, 1.0},
 			},
 		},
 		[]uint32{0, 1, 2},
 	)
-	t2.SetPosition(mgl32.Vec3{2, 1, 2})
+	t1.SetPosition(mgl32.Vec3{-2, 2, 3})
+
+	t2 := NewMesh(
+		[]Vertex{
+			{
+				mgl32.Vec3{0, 0.75, 0},
+				Red,
+				mgl32.Vec2{1.0, 1.0},
+			},
+			{
+				mgl32.Vec3{-0.75, -0.75, 0},
+				Green,
+				mgl32.Vec2{0.5, 0.5},
+			},
+			{
+				mgl32.Vec3{0.75, -0.75, 0},
+				Blue,
+				mgl32.Vec2{0.25, 0.25},
+			},
+		},
+		[]uint32{0, 1, 2},
+	)
+	t2.SetPosition(mgl32.Vec3{3, 0, 5})
 	tex, err := NewTextureFromImage("assets/out/0/f/0.png")
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	w := float32(35)
+	h := float32(75)
+	rect := NewMesh(
+		[]Vertex{
+			{
+				mgl32.Vec3{w * OnePixelSize, h * OnePixelSize, 0},
+				White,
+				mgl32.Vec2{0, 0},
+			},
+			{
+				mgl32.Vec3{-w * OnePixelSize, -h * OnePixelSize, 0},
+				White,
+				mgl32.Vec2{1, 1},
+			},
+			{
+				mgl32.Vec3{w * OnePixelSize, -h * OnePixelSize, 0},
+				White,
+				mgl32.Vec2{0, 1},
+			},
+			{
+				mgl32.Vec3{-w * OnePixelSize, h * OnePixelSize, 0},
+				White,
+				mgl32.Vec2{1, 0},
+			},
+		},
+		[]uint32{0, 1, 2, 3, 1, 0},
+	)
+	rect.SetPosition(mgl32.Vec3{-1, -1, 40})
 
 	counter := float32(0.0)
 	shouldStop := false
@@ -126,8 +152,6 @@ func main() {
 		sin := math.Sin(counter)
 		cos := math.Cos(counter)
 
-		pos := t1.Position()
-		t1.SetPosition(mgl32.Vec3{sin, pos.X(), cos})
 		t1.SetRotation(mgl32.Vec3{0, 0, counter * 50})
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
@@ -143,6 +167,11 @@ func main() {
 		mvpUniform = gl.GetUniformLocation(program, gl.Str("mvp\x00"))
 		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 		t2.Draw()
+
+		mvp = cam.ViewProjectionMatrix().Mul4(rect.Model())
+		mvpUniform = gl.GetUniformLocation(program, gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
+		rect.Draw()
 
 		window.GLSwap()
 
