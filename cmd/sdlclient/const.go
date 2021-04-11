@@ -8,8 +8,3 @@ var (
 	Green = mgl32.Vec3{0, 1, 0}
 	Blue  = mgl32.Vec3{0, 0, 1}
 )
-
-var (
-	Up      = mgl32.Vec3{0, 1, 0}
-	Forward = mgl32.Vec3{0, 0, 1}
-)
