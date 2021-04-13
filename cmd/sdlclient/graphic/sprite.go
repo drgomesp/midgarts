@@ -15,10 +15,10 @@ func NewSprite(width, height float32) *Sprite {
 	h := height / 2
 
 	positions := []float32{
-		+w, +h, 0,
-		-w, -h, 0,
-		+w, -h, 0,
-		-w, +h, 0,
+		+w, +h, 0, // top-left
+		-w, -h, 0, // bottom-right
+		+w, -h, 0, // bottom-left
+		-w, +h, 0, // top-right
 	}
 	colors := []float32{
 		1, 1, 1,
@@ -33,10 +33,11 @@ func NewSprite(width, height float32) *Sprite {
 		1, 0,
 	}
 
-	geom.AddVBO(opengl.NewVBO(
-		[opengl.NumVertexAttributes][]float32{
-			positions, colors, texCoords,
-		}).AddAttribute(opengl.VertexPosition).
+	geom.AddVBO(opengl.NewVBO([opengl.NumVertexAttributes][]float32{
+		positions,
+		colors,
+		texCoords,
+	}).AddAttribute(opengl.VertexPosition).
 		AddAttribute(opengl.VertexColor).
 		AddAttribute(opengl.VertexTexCoord),
 	).SetIndices([]uint32{0, 1, 2, 3, 1, 0})

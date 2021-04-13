@@ -11,7 +11,7 @@ import (
 )
 
 type Texture struct {
-	name                          uint32
+	handle                        uint32
 	path                          string
 	img                           *image.RGBA
 	width, height, internalFormat int32
@@ -53,8 +53,8 @@ func NewTextureFromImage(path string) (tex *Texture, err error) {
 		wrapT:          gl.REPEAT,
 	}
 
-	gl.GenTextures(1, &tex.name)
-	gl.BindTexture(gl.TEXTURE_2D, tex.name)
+	gl.GenTextures(1, &tex.handle)
+	gl.BindTexture(gl.TEXTURE_2D, tex.handle)
 
 	gl.GenerateMipmap(gl.TEXTURE_2D)
 
@@ -79,6 +79,6 @@ func NewTextureFromImage(path string) (tex *Texture, err error) {
 }
 
 func (t *Texture) Bind(unit uint32) {
-	gl.ActiveTexture(gl.TEXTURE0)
-	gl.BindTexture(gl.TEXTURE_2D, t.name)
+	gl.ActiveTexture(gl.TEXTURE0 + unit)
+	gl.BindTexture(gl.TEXTURE_2D, t.handle)
 }
