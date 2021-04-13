@@ -48,10 +48,6 @@ func main() {
 	}
 	defer sdl.GLDeleteContext(context)
 
-	sdl.GLSetAttribute(sdl.GL_CONTEXT_PROFILE_MASK, sdl.GL_CONTEXT_PROFILE_CORE)
-	sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 3)
-	sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 3)
-
 	gls := opengl.InitOpenGL()
 	cam := graphic.NewPerspectiveCamera(
 		70.0,
@@ -63,50 +59,6 @@ func main() {
 	gl.Viewport(0, 0, int32(windowWidth), int32(windowHeight))
 	gl.ClearColor(0, 0.5, 0.8, 1.0)
 
-	//t1 := NewMesh(
-	//	[]Vertex{
-	//		{
-	//			mgl32.Vec3{0, 0.75, 0},
-	//			Red,
-	//			mgl32.Vec2{0.1, 0.1},
-	//		},
-	//		{
-	//			mgl32.Vec3{-0.75, -0.75, 0},
-	//			Red,
-	//			mgl32.Vec2{0.1, 0.1},
-	//		},
-	//		{
-	//			mgl32.Vec3{0.75, -0.75, 0},
-	//			Red,
-	//			mgl32.Vec2{0.1, 0.1},
-	//		},
-	//	},
-	//	[]uint32{0, 1, 2},
-	//)
-	//t1.SetPosition(mgl32.Vec3{-1, 1, 1})
-	//
-	//t2 := NewMesh(
-	//	[]Vertex{
-	//		{
-	//			mgl32.Vec3{0, 0.75, 0},
-	//			Red,
-	//			mgl32.Vec2{0.5, 0.5},
-	//		},
-	//		{
-	//			mgl32.Vec3{-0.75, -0.75, 0},
-	//			Green,
-	//			mgl32.Vec2{0.1, 0.1},
-	//		},
-	//		{
-	//			mgl32.Vec3{0.75, -0.75, 0},
-	//			Blue,
-	//			mgl32.Vec2{0.1, 0.1},
-	//		},
-	//	},
-	//	[]uint32{0, 1, 2},
-	//)
-	//t2.SetPosition(mgl32.Vec3{3, 0, 5})
-
 	tex, err := NewTextureFromImage("assets/out/4016/f/0.png")
 	if err != nil {
 		log.Fatal(err)
@@ -114,36 +66,8 @@ func main() {
 
 	w := float32(35) * OnePixelSize
 	h := float32(75) * OnePixelSize
-	//rect := NewMesh(
-	//	[]Vertex{
-	//		{
-	//			mgl32.Vec3{w, h, 0},
-	//			White,
-	//			mgl32.Vec2{0, 0},
-	//		},
-	//		{
-	//			mgl32.Vec3{-w, -h, 0},
-	//			White,
-	//			mgl32.Vec2{0.05, 0.05},
-	//		},
-	//		{
-	//			mgl32.Vec3{w, -h, 0},
-	//			White,
-	//			mgl32.Vec2{0, 0.05},
-	//		},
-	//		{
-	//			mgl32.Vec3{-w, h, 0},
-	//			White,
-	//			mgl32.Vec2{0.05, 0},
-	//		},
-	//	},
-	//	[]uint32{0, 1, 2, 3, 1, 0},
-	//)
-	//rect.SetPosition(mgl32.Vec3{-1, -1, 0})
-
-	//sprite := graphic.NewSprite(w, h)
 	sprite := graphic.NewSprite(w, h)
-	sprite.SetPosition(mgl32.Vec3{-1, -1, 1})
+	sprite.SetPosition(mgl32.Vec3{-1, -1, 21})
 
 	counter := 0.0
 	shouldStop := false
@@ -163,27 +87,8 @@ func main() {
 		sin := math.Sin(counter)
 		cos := math.Cos(counter)
 
-		//t1.SetRotation(mgl32.Vec3{0, 0, counter * 50})
-
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(gls.Program().ID())
-
-		//mvp := cam.ViewProjectionMatrix().Mul4(t1.Model())
-		//mvpUniform := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		//gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
-		//t1.Render()
-
-		//t2.SetRotation(mgl32.Vec3{sin * 25, cos * 25, 0})
-		//mvp = cam.ViewProjectionMatrix().Mul4(t2.Model())
-		//mvpUniform = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		//gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
-		//t2.Render()
-
-		//mvp := cam.ViewProjectionMatrix().Mul4(rect.Model())
-		//mvpUniform := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		//gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
-		//
-		//rect.Render()
 
 		mvp := cam.ViewProjectionMatrix().Mul4(sprite.Model())
 		mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
