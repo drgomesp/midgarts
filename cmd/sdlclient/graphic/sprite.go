@@ -6,11 +6,12 @@ import (
 )
 
 type Sprite struct {
-	*Geometry
+	*Graphic
+	texture *Texture
 }
 
-func NewSprite(width, height float32) *Sprite {
-	geom := NewGeometry(gl.TRIANGLES)
+func NewSprite(width, height float32, texture *Texture) *Sprite {
+	geom := NewGeometry()
 	w := width / 2
 	h := height / 2
 
@@ -42,5 +43,8 @@ func NewSprite(width, height float32) *Sprite {
 		AddAttribute(opengl.VertexTexCoord),
 	).SetIndices([]uint32{0, 1, 2, 3, 1, 0})
 
-	return &Sprite{Geometry: geom}
+	return &Sprite{
+		Graphic: NewGraphic(geom, gl.TRIANGLES),
+		texture: texture,
+	}
 }
