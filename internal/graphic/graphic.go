@@ -5,6 +5,10 @@ import (
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
 )
 
+const (
+	OnePixelSize = 1.0 / 35.0
+)
+
 type Graphic struct {
 	*Transform
 	geometry   *Geometry

@@ -82,7 +82,14 @@ func (vbo *VBO) Load(gls *State) {
 			gl.BufferData(gl.ARRAY_BUFFER, len(vbo.buffers[loc])*4, gl.Ptr(vbo.buffers[loc]), vbo.usage)
 
 			gl.EnableVertexAttribArray(uint32(loc))
-			gl.VertexAttribPointer(uint32(loc), attrib.NumElements, attrib.ElementType, false, 0, unsafe.Pointer(uintptr(attrib.ByteOffset)))
+			gl.VertexAttribPointer(
+				uint32(loc),
+				attrib.NumElements,
+				attrib.ElementType,
+				false,
+				0,
+				unsafe.Pointer(uintptr(attrib.ByteOffset)),
+			)
 		}
 
 		vbo.gls = gls

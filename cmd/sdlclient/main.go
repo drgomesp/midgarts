@@ -6,21 +6,28 @@ import (
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/project-midgard/midgarts/cmd/sdlclient/graphic"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
+	"github.com/project-midgard/midgarts/internal/graphic"
+	"github.com/project-midgard/midgarts/pkg/common/character"
+	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
 const (
 	windowWidth  = 920
 	windowHeight = 760
-	OnePixelSize = 1.0 / 35.0
 )
 
 func main() {
 	runtime.LockOSThread()
 
 	var err error
+	var grfFile *grf.File
+	if grfFile, err = grf.Load("/home/drgomesp/grf/data.grf"); err != nil {
+		log.Fatal(err)
+	}
+
 	if err = sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(err)
 	}
@@ -58,22 +65,23 @@ func main() {
 	gl.Viewport(0, 0, int32(windowWidth), int32(windowHeight))
 	gl.ClearColor(0, 0.5, 0.8, 1.0)
 
-	monkTexture, err := graphic.NewTextureFromImage("assets/out/15/m/0.png")
+	cs1, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobid.Swordsman)
 	if err != nil {
 		log.Fatal(err)
 	}
-	champTexture, err := graphic.NewTextureFromImage("assets/out/4016/f/0.png")
+	cs1.BodySprite.SetPosition(mgl32.Vec3{-1, -1, 21})
+
+	cs2, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobid.Merchant)
 	if err != nil {
 		log.Fatal(err)
 	}
+	cs2.BodySprite.SetPosition(mgl32.Vec3{-2, -3, 21})
 
-	w := float32(35) * OnePixelSize
-	h := float32(75) * OnePixelSize
-	s1 := graphic.NewSprite(w, h, monkTexture)
-	s1.SetPosition(mgl32.Vec3{-1, -1, 21})
-
-	s2 := graphic.NewSprite(w, h, champTexture)
-	s2.SetPosition(mgl32.Vec3{-2, -2, 21})
+	cs3, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobid.Monk)
+	if err != nil {
+		log.Fatal(err)
+	}
+	cs3.BodySprite.SetPosition(mgl32.Vec3{2, 1, 21})
 
 	counter := 0.0
 	shouldStop := false
@@ -90,23 +98,23 @@ func main() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(gls.Program().ID())
 
-		monkTexture.Bind(0)
-		mvp := cam.ViewProjectionMatrix().Mul4(s1.Model())
-		mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-
 		//sin := math.Sin(counter)
 		//cos := math.Cos(counter)
-		//s1.SetRotation(mgl32.Vec3{float32(sin) * 25, float32(cos) * 25, 0})
+		//cs1.SetRotation(mgl32.Vec3{float32(sin) * 25, float32(cos) * 25, 0})
+		mvp := cam.ViewProjectionMatrix().Mul4(cs1.BodySprite.Model())
+		mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+		cs1.Render(gls, cam)
 
-		s1.Render(gls, cam)
-
-		champTexture.Bind(0)
-		mvp = cam.ViewProjectionMatrix().Mul4(s2.Model())
+		mvp = cam.ViewProjectionMatrix().Mul4(cs2.BodySprite.Model())
 		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
 		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+		cs2.Render(gls, cam)
 
-		s2.Render(gls, cam)
+		mvp = cam.ViewProjectionMatrix().Mul4(cs3.BodySprite.Model())
+		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+		cs3.Render(gls, cam)
 
 		window.GLSwap()
 

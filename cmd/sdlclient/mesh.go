@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/project-midgard/midgarts/cmd/sdlclient/graphic"
+	graphic2 "github.com/project-midgard/midgarts/internal/graphic"
 )
 
 type Vertex struct {
@@ -22,7 +22,7 @@ const (
 )
 
 type Mesh struct {
-	*graphic.Transform
+	*graphic2.Transform
 	vertices  []Vertex
 	indices   []uint32
 	vao       uint32
@@ -32,7 +32,7 @@ type Mesh struct {
 
 func NewMesh(vertices []Vertex, indices []uint32) *Mesh {
 	mesh := &Mesh{
-		Transform: graphic.NewTransform(graphic.Origin),
+		Transform: graphic2.NewTransform(graphic2.Origin),
 		vertices:  vertices,
 		indices:   indices,
 		drawCount: int32(len(indices)),

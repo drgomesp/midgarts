@@ -31,6 +31,6 @@ func (g *Geometry) Indices() []uint32 {
 	return g.indices
 }
 
-func (g *Geometry) SetIndices(indices []uint32) {
+func (g *Geometry) SetIndices(indices ...uint32) {
 	g.indices = indices
 }

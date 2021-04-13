@@ -10,7 +10,7 @@ import (
 	"github.com/EngoEngine/engo"
 	"github.com/RaniSputnik/lovepac/packer"
 	"github.com/RaniSputnik/lovepac/target"
-	"github.com/project-midgard/midgarts/internal/graphics"
+	"github.com/project-midgard/midgarts/internal/graphic"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
@@ -40,8 +40,8 @@ func (s *myScene) Preload() {
 	}
 
 	jid := jobspriteid.MonkH
-	var sprite *graphics.CharacterSprite
-	if sprite, err = graphics.LoadCharacterSprite(grfFile, character.Female, jid); err != nil {
+	var sprite *graphic.CharacterSprite
+	if sprite, err = graphic.LoadCharacterSprite(grfFile, character.Female, jid); err != nil {
 		log.Fatal(err)
 	}
 

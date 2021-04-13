@@ -20,7 +20,7 @@ type Texture struct {
 	wrapS, wrapT                  int32
 }
 
-func NewTextureFromImage(path string) (tex *Texture, err error) {
+func NewTextureFromFile(path string) (tex *Texture, err error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,12 @@ func NewTextureFromImage(path string) (tex *Texture, err error) {
 		return nil, err
 	}
 
+	return NewTextureFromImage(img)
+}
+
+func NewTextureFromImage(img image.Image) (tex *Texture, err error) {
 	rgba := image.NewRGBA(img.Bounds())
+
 	if rgba.Stride != rgba.Rect.Size().X*4 {
 		return nil, fmt.Errorf("unsupported stride")
 	}
@@ -40,7 +45,6 @@ func NewTextureFromImage(path string) (tex *Texture, err error) {
 	draw.Draw(rgba, rgba.Bounds(), img, image.Point{}, draw.Src)
 
 	tex = &Texture{
-		path:           path,
 		width:          int32(rgba.Rect.Size().X),
 		height:         int32(rgba.Rect.Size().Y),
 		internalFormat: gl.RGBA8,

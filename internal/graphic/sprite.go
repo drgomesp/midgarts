@@ -7,7 +7,7 @@ import (
 
 type Sprite struct {
 	*Graphic
-	texture *Texture
+	Texture *Texture
 }
 
 func NewSprite(width, height float32, texture *Texture) *Sprite {
@@ -41,10 +41,10 @@ func NewSprite(width, height float32, texture *Texture) *Sprite {
 	}).AddAttribute(opengl.VertexPosition).
 		AddAttribute(opengl.VertexColor).
 		AddAttribute(opengl.VertexTexCoord),
-	).SetIndices([]uint32{0, 1, 2, 3, 1, 0})
+	).SetIndices(0, 1, 2, 3, 1, 0)
 
 	return &Sprite{
 		Graphic: NewGraphic(geom, gl.TRIANGLES),
-		texture: texture,
+		Texture: texture,
 	}
 }

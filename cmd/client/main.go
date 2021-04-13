@@ -11,7 +11,7 @@ import (
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/internal/entity"
-	graphics2 "github.com/project-midgard/midgarts/internal/graphics"
+	graphics2 "github.com/project-midgard/midgarts/internal/graphic"
 	system2 "github.com/project-midgard/midgarts/internal/system"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
@@ -119,7 +119,7 @@ func (s *myScene) Preload() {
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.MonkH),
 		))
 
-	//monsterSpritesheets["ork_warrior"] = graphics.NewSpritesheetResource(
+	//monsterSpritesheets["ork_warrior"] = graphic.NewSpritesheetResource(
 	//	common.NewAsymmetricSpritesheetFromFile(
 	//		"build/ork_warrior/2-1.png",
 	//		BuildMonsterSpriteRegionsFromTextureAtlas("ork_warrior"),

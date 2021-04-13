@@ -5,7 +5,7 @@ import (
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
 	clientcomponent "github.com/project-midgard/midgarts/internal/component"
-	"github.com/project-midgard/midgarts/internal/graphics"
+	"github.com/project-midgard/midgarts/internal/graphic"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
@@ -26,7 +26,7 @@ type Character struct {
 
 	// spritesheetResource should come from a shared system later, but for now its ok
 	// for every character to hold its own spritesheetResource.
-	SpritesheetResource *graphics.SpritesheetResource
+	SpritesheetResource *graphic.SpritesheetResource
 	ActionFile          *act.ActionFile
 	CurrentAction       *CharacterAction
 	PlayMode            actionplaymode.Type
@@ -38,7 +38,7 @@ type Character struct {
 	TargetPosition engo.Point
 }
 
-func NewCharacterEntity(spritesheetResource *graphics.SpritesheetResource, actFile *act.ActionFile, gender character.GenderType, job jobid.Type) *Character {
+func NewCharacterEntity(spritesheetResource *graphic.SpritesheetResource, actFile *act.ActionFile, gender character.GenderType, job jobid.Type) *Character {
 	b := ecs.NewBasic()
 	return &Character{
 		BasicEntity:         b,
