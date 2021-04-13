@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"math"
 	"runtime"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
@@ -59,15 +58,22 @@ func main() {
 	gl.Viewport(0, 0, int32(windowWidth), int32(windowHeight))
 	gl.ClearColor(0, 0.5, 0.8, 1.0)
 
-	tex, err := NewTextureFromImage("assets/out/4016/f/0.png")
+	monkTexture, err := NewTextureFromImage("assets/out/15/f/0.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	champTexture, err := NewTextureFromImage("assets/out/4016/f/0.png")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	w := float32(35) * OnePixelSize
 	h := float32(75) * OnePixelSize
-	sprite := graphic.NewSprite(w, h)
-	sprite.SetPosition(mgl32.Vec3{-1, -1, 21})
+	s1 := graphic.NewSprite(w, h)
+	s1.SetPosition(mgl32.Vec3{-1, -1, 21})
+
+	s2 := graphic.NewSprite(w, h)
+	s2.SetPosition(mgl32.Vec3{-2, -2, 21})
 
 	counter := 0.0
 	shouldStop := false
@@ -81,23 +87,26 @@ func main() {
 			}
 		}
 
-		_ = tex
-		tex.Bind(0)
-
-		sin := math.Sin(counter)
-		cos := math.Cos(counter)
-
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(gls.Program().ID())
 
-		mvp := cam.ViewProjectionMatrix().Mul4(sprite.Model())
+		monkTexture.Bind(0)
+		mvp := cam.ViewProjectionMatrix().Mul4(s1.Model())
 		mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
 		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
 
-		_ = sin
-		_ = cos
-		//sprite.SetRotation(mgl32.Vec3{float32(sin) * 25, float32(cos) * 25, 0})
-		sprite.Render(gls, cam)
+		//sin := math.Sin(counter)
+		//cos := math.Cos(counter)
+		//s1.SetRotation(mgl32.Vec3{float32(sin) * 25, float32(cos) * 25, 0})
+
+		s1.Render(gls, cam)
+
+		champTexture.Bind(0)
+		mvp = cam.ViewProjectionMatrix().Mul4(s2.Model())
+		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+
+		s2.Render(gls, cam)
 
 		window.GLSwap()
 
