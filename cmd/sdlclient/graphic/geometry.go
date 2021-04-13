@@ -2,7 +2,6 @@ package graphic
 
 import (
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/project-midgard/midgarts/cmd/sdlclient/array"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
 )
 
@@ -33,7 +32,7 @@ func (g *Geometry) AddVBO(vbo *opengl.VBO) *Geometry {
 	return g
 }
 
-func (g *Geometry) Indices() array.Uint32 {
+func (g *Geometry) Indices() []uint32 {
 	return g.indices
 }
 
@@ -59,6 +58,6 @@ func (g *Geometry) Render(gls *opengl.State, _ *Camera) {
 		g.shouldUpdateIndices = false
 	}
 
-	gl.DrawElements(g.renderMode, g.Indices().Size(), gl.UNSIGNED_INT, gl.Ptr(nil))
+	gl.DrawElements(g.renderMode, int32(len(g.Indices())*4), gl.UNSIGNED_INT, gl.Ptr(nil))
 	gl.BindVertexArray(0)
 }

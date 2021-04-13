@@ -141,11 +141,8 @@ func main() {
 	//)
 	//rect.SetPosition(mgl32.Vec3{-1, -1, 0})
 
-	_ = w
-	_ = h
-
 	//sprite := graphic.NewSprite(w, h)
-	sprite := graphic.NewSprite(2.0, 2.0)
+	sprite := graphic.NewSprite(w, h)
 	sprite.SetPosition(mgl32.Vec3{-1, -1, 1})
 
 	counter := 0.0
