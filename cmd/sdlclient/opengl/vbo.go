@@ -1,6 +1,8 @@
 package opengl
 
 import (
+	"unsafe"
+
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
@@ -11,10 +13,10 @@ const (
 	VertexColor
 	VertexTexCoord
 
-	NumVertexBuffers
+	NumVertexAttributes
 )
 
-var attribTypeNameMap = map[VBOAttributeType]string{
+var attribTypeNames = map[VBOAttributeType]string{
 	VertexPosition: "VertexPosition",
 	VertexColor:    "VertexColor",
 	VertexTexCoord: "VertexTexCoord",
@@ -27,25 +29,30 @@ var attributeTypeSizes = map[VBOAttributeType]int{
 }
 
 type VBO struct {
-	gls        *State
-	buf        []float32
-	usage      uint32
-	attributes []VBOAttribute
-	buffers    [NumVertexBuffers]uint32
+	gls          *State
+	initialized  bool
+	buffers      [NumVertexAttributes][]float32
+	usage        uint32
+	attributes   []VBOAttribute
+	handles      [NumVertexAttributes]uint32
+	shouldUpdate bool
 }
 
 type VBOAttribute struct {
 	Type        VBOAttributeType
 	Name        string
-	NumElements int
+	NumElements int32
+	ByteOffset  uint32
 	ElementType uint32
 }
 
-func NewVBO(buf []float32) *VBO {
+func NewVBO(buffers [NumVertexAttributes][]float32) *VBO {
 	vbo := &VBO{
-		buf:        buf,
-		usage:      gl.STATIC_DRAW,
-		attributes: make([]VBOAttribute, 0),
+		gls:          nil,
+		buffers:      buffers,
+		usage:        gl.STATIC_DRAW,
+		attributes:   make([]VBOAttribute, 0),
+		shouldUpdate: true,
 	}
 
 	return vbo
@@ -54,51 +61,36 @@ func NewVBO(buf []float32) *VBO {
 func (vbo *VBO) AddAttribute(t VBOAttributeType) *VBO {
 	vbo.attributes = append(vbo.attributes, VBOAttribute{
 		Type:        t,
-		Name:        attribTypeNameMap[t],
-		NumElements: attributeTypeSizes[t],
+		Name:        attribTypeNames[t],
+		NumElements: int32(attributeTypeSizes[t]),
+		ByteOffset:  0,
 		ElementType: gl.FLOAT,
 	})
 
 	return vbo
 }
 
-func (vbo *VBO) StrideByteSize() int {
-	stride := int(0)
-
-	for _, attrib := range vbo.attributes {
-		stride += attributeTypeSizes[attrib.Type] * attrib.NumElements
+func (vbo *VBO) Load(gls *State) {
+	if len(vbo.attributes) == 0 {
+		return
 	}
 
-	return stride
-}
-
-func (vbo *VBO) Load(gls *State) {
 	if vbo.gls == nil {
-		gl.GenBuffers(int32(NumVertexBuffers), &vbo.buffers[0])
-		gl.BindBuffer(gl.ARRAY_BUFFER, vbo.buffers[0])
-
-		if len(vbo.attributes) == 0 {
-			return
-		}
-
 		for loc, attrib := range vbo.attributes {
-			//loc := gls.program.GetAttribLocation(attrib.Name)
-			//if loc < 0 {
-			//	log.Fatalf("VBO attribute '%s' not found", attrib.Name)
-			//}
+			gl.GenBuffers(int32(NumVertexAttributes), &vbo.handles[loc])
+			gl.BindBuffer(gl.ARRAY_BUFFER, vbo.handles[loc])
+			gl.BufferData(gl.ARRAY_BUFFER, len(vbo.buffers[loc])*4, gl.Ptr(vbo.buffers[loc]), vbo.usage)
 
 			gl.EnableVertexAttribArray(uint32(loc))
-			gl.VertexAttribPointer(uint32(loc), int32(attrib.NumElements), attrib.ElementType, false, int32(vbo.StrideByteSize()), nil)
-
-			var data []float32
-			for _, v := range vbo.buf {
-				data = append(data, v)
-			}
-
-			gl.BindBuffer(gl.ARRAY_BUFFER, vbo.buffers[loc])
-			gl.BufferData(gl.ARRAY_BUFFER, len(vbo.buf)*attributeTypeSizes[attrib.Type], gl.Ptr(data), vbo.usage)
+			gl.VertexAttribPointer(uint32(loc), attrib.NumElements, attrib.ElementType, false, 0, unsafe.Pointer(uintptr(attrib.ByteOffset)))
 		}
+
+		vbo.gls = gls
 	}
 
-	vbo.gls = gls
+	if !vbo.shouldUpdate {
+		return
+	}
+
+	vbo.shouldUpdate = false
 }

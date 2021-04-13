@@ -17,9 +17,9 @@ func (u *Uint32) Bytes() int {
 }
 
 func (u Uint32) ToUint32() []uint32 {
-	return (*[1 << 27]uint32)(unsafe.Pointer(&u[0]))[:len(u)]
+	return u[:]
 }
 
-func (u *Uint32) Size() int {
-	return len(*u)
+func (u Uint32) Size() int32 {
+	return int32(len(u))
 }

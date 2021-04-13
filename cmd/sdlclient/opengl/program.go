@@ -1,6 +1,10 @@
 package opengl
 
-import "github.com/go-gl/gl/v3.3-core/gl"
+import (
+	"log"
+
+	"github.com/go-gl/gl/v3.3-core/gl"
+)
 
 type Program struct {
 	id uint32
@@ -11,6 +15,10 @@ func NewProgram() *Program {
 }
 
 func (p *Program) GetAttribLocation(name string) int32 {
+	if p.id == 0 {
+		log.Fatalf("program '%v' not loaded", p.id)
+	}
+
 	return gl.GetAttribLocation(p.id, gl.Str(name+"\x00"))
 }
 

@@ -1,11 +1,12 @@
 package main
 
 import (
+	"log"
+	"math"
 	"runtime"
 
-	"github.com/go-gl/mathgl/mgl32"
-
 	"github.com/go-gl/gl/v3.3-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/graphic"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
 	"github.com/veandco/go-sdl2/sdl"
@@ -51,8 +52,7 @@ func main() {
 	sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 3)
 	sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 3)
 
-	prog := opengl.InitOpenGL()
-
+	gls := opengl.InitOpenGL()
 	cam := graphic.NewPerspectiveCamera(
 		70.0,
 		float32(windowWidth/windowHeight),
@@ -61,7 +61,7 @@ func main() {
 	)
 
 	gl.Viewport(0, 0, int32(windowWidth), int32(windowHeight))
-	gl.ClearColor(0, 0.5, 1.0, 1.0)
+	gl.ClearColor(0, 0.5, 0.8, 1.0)
 
 	//t1 := NewMesh(
 	//	[]Vertex{
@@ -106,45 +106,49 @@ func main() {
 	//	[]uint32{0, 1, 2},
 	//)
 	//t2.SetPosition(mgl32.Vec3{3, 0, 5})
-	//tex, err := NewTextureFromImage("assets/build/m/4016-1.png")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
 
-	w := float32(35)
-	h := float32(75)
-	rect := NewMesh(
-		[]Vertex{
-			{
-				mgl32.Vec3{w * OnePixelSize, h * OnePixelSize, 0},
-				White,
-				mgl32.Vec2{0, 0},
-			},
-			{
-				mgl32.Vec3{-w * OnePixelSize, -h * OnePixelSize, 0},
-				White,
-				mgl32.Vec2{0.05, 0.05},
-			},
-			{
-				mgl32.Vec3{w * OnePixelSize, -h * OnePixelSize, 0},
-				White,
-				mgl32.Vec2{0, 0.05},
-			},
-			{
-				mgl32.Vec3{-w * OnePixelSize, h * OnePixelSize, 0},
-				White,
-				mgl32.Vec2{0.05, 0},
-			},
-		},
-		[]uint32{0, 1, 2, 3, 1, 0},
-	)
-	rect.SetPosition(mgl32.Vec3{-1, -1, 45})
+	tex, err := NewTextureFromImage("assets/out/4016/f/0.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	w := float32(35) * OnePixelSize
+	h := float32(75) * OnePixelSize
+	//rect := NewMesh(
+	//	[]Vertex{
+	//		{
+	//			mgl32.Vec3{w, h, 0},
+	//			White,
+	//			mgl32.Vec2{0, 0},
+	//		},
+	//		{
+	//			mgl32.Vec3{-w, -h, 0},
+	//			White,
+	//			mgl32.Vec2{0.05, 0.05},
+	//		},
+	//		{
+	//			mgl32.Vec3{w, -h, 0},
+	//			White,
+	//			mgl32.Vec2{0, 0.05},
+	//		},
+	//		{
+	//			mgl32.Vec3{-w, h, 0},
+	//			White,
+	//			mgl32.Vec2{0.05, 0},
+	//		},
+	//	},
+	//	[]uint32{0, 1, 2, 3, 1, 0},
+	//)
+	//rect.SetPosition(mgl32.Vec3{-1, -1, 0})
+
+	_ = w
+	_ = h
+
+	//sprite := graphic.NewSprite(w, h)
 	sprite := graphic.NewSprite(2.0, 2.0)
-	sprite.SetPosition(mgl32.Vec3{-1, -1, 5})
-	//sprite.PreRender(prog, cam)
+	sprite.SetPosition(mgl32.Vec3{-1, -1, 1})
 
-	counter := float32(0.0)
+	counter := 0.0
 	shouldStop := false
 	for !shouldStop {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -156,34 +160,42 @@ func main() {
 			}
 		}
 
-		//tex.Bind(0)
+		_ = tex
+		tex.Bind(0)
 
-		//sin := math.Sin(counter)
-		//cos := math.Cos(counter)
+		sin := math.Sin(counter)
+		cos := math.Cos(counter)
 
 		//t1.SetRotation(mgl32.Vec3{0, 0, counter * 50})
 
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-		gl.UseProgram(prog.Program().ID())
+		gl.UseProgram(gls.Program().ID())
 
 		//mvp := cam.ViewProjectionMatrix().Mul4(t1.Model())
-		//mvpUniform := gl.GetUniformLocation(prog.Program().ID(), gl.Str("mvp\x00"))
+		//mvpUniform := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
 		//gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 		//t1.Render()
 
 		//t2.SetRotation(mgl32.Vec3{sin * 25, cos * 25, 0})
 		//mvp = cam.ViewProjectionMatrix().Mul4(t2.Model())
-		//mvpUniform = gl.GetUniformLocation(prog.Program().ID(), gl.Str("mvp\x00"))
+		//mvpUniform = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
 		//gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
 		//t2.Render()
 
-		mvp := cam.ViewProjectionMatrix().Mul4(rect.Model())
-		mvpUniform := gl.GetUniformLocation(prog.Program().ID(), gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
+		//mvp := cam.ViewProjectionMatrix().Mul4(rect.Model())
+		//mvpUniform := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		//gl.UniformMatrix4fv(mvpUniform, 1, false, &mvp[0])
+		//
+		//rect.Render()
 
-		rect.Render()
+		mvp := cam.ViewProjectionMatrix().Mul4(sprite.Model())
+		mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
 
-		//sprite.Render(prog, cam)
+		_ = sin
+		_ = cos
+		//sprite.SetRotation(mgl32.Vec3{float32(sin) * 25, float32(cos) * 25, 0})
+		sprite.Render(gls, cam)
 
 		window.GLSwap()
 
