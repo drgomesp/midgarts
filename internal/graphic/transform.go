@@ -30,7 +30,9 @@ func (t *Transform) Model() mgl32.Mat4 {
 
 	rotationMatrix := rotationZ.Mul4(rotationY).Mul4(rotationX)
 
-	return positionMatrix.Mul4(rotationMatrix).Mul4(scaleMatrix)
+	model := positionMatrix.Mul4(rotationMatrix).Mul4(scaleMatrix)
+
+	return model
 }
 
 func (t *Transform) Position() mgl32.Vec3 {

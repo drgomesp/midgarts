@@ -4,13 +4,14 @@ import (
 	"log"
 	"runtime"
 
-	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
 	"github.com/project-midgard/midgarts/internal/graphic"
 	"github.com/project-midgard/midgarts/pkg/common/character"
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
+	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -23,11 +24,6 @@ func main() {
 	runtime.LockOSThread()
 
 	var err error
-	var grfFile *grf.File
-	if grfFile, err = grf.Load("/home/drgomesp/grf/data.grf"); err != nil {
-		log.Fatal(err)
-	}
-
 	if err = sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		panic(err)
 	}
@@ -56,6 +52,27 @@ func main() {
 
 	gls := opengl.InitOpenGL()
 
+	var grfFile *grf.File
+	if grfFile, err = grf.Load("/home/drgomesp/grf/data.grf"); err != nil {
+		log.Fatal(err)
+	}
+
+	e, err := grfFile.GetEntry("data/sprite/ÀÎ°£Á·/¸Ó¸®Åë/³²/1_³².spr")
+	if err != nil {
+		log.Fatal(err)
+	}
+	sprFile, err := spr.Load(e.Data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	img := sprFile.ImageAt(0)
+	t, _ := graphic.NewTextureFromImage(img)
+	w, h := float32(img.Bounds().Size().X)*graphic.OnePixelSize, float32(img.Bounds().Size().Y)*graphic.OnePixelSize
+	h += h / 3
+
+	s := graphic.NewSprite(w, h, t)
+	s.SetPosition(0, 2, 0)
+
 	gl.Viewport(0, 0, windowWidth, windowHeight)
 
 	cam := graphic.NewPerspectiveCamera(
@@ -64,13 +81,6 @@ func main() {
 		0.1,
 		1000.0,
 	)
-	//aspect := float32(windowWidth / windowHe)
-	//cam := graphic.NewOrthographicCamera(
-	//	-windowWidth/2,
-	//	windowWidth/2,
-	//	-windowHeight/2,
-	//	windowHeight/2,
-	//)
 
 	pos := cam.Position()
 	cam.Transform.SetPosition(pos.X(), pos.Y(), pos.Z()-25)
@@ -134,10 +144,10 @@ func main() {
 
 		p1.SetPosition(5, 5, 0)
 
-		cs3.SetPosition(+6, 0, 0)
-		cs6.SetPosition(+4, 0, 0)
-		cs4.SetPosition(+2, 0, 0)
-		cs8.SetPosition(+0, 0, 0)
+		cs3.SetPosition(6, 0, 0)
+		cs6.SetPosition(4, 0, 0)
+		cs4.SetPosition(2, 0, 0)
+		cs8.SetPosition(0, 0, 0)
 		cs1.SetPosition(-2, 0, 0)
 		cs5.SetPosition(-4, 0, 0)
 		cs7.SetPosition(-6, 0, 0)
@@ -213,6 +223,14 @@ func main() {
 			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
 			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
 			cs9.Render(gls, cam)
+		}
+
+		{
+			t.Bind(0)
+			mvp := cam.ViewProjectionMatrix().Mul4(s.Model())
+			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+			s.Render(gls, cam)
 		}
 
 		window.GLSwap()
