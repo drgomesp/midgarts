@@ -16,8 +16,7 @@ func init() {
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB0, 0xCB, 0xBB, 0xE7})
 	JobSpriteNameTable[jobspriteid.Swordsman] = string(dst)
 
-	// TODO check and see if this string actually works
-	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte("¸¶¹Ý»Ç"))
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB8, 0xB6, 0xB9, 0xDD, 0xBB, 0xC7})
 	JobSpriteNameTable[jobspriteid.Magician] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB1, 0xC3, 0xBC, 0xF6})
