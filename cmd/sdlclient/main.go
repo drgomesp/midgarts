@@ -58,22 +58,22 @@ func main() {
 
 	gl.Viewport(0, 0, windowWidth, windowHeight)
 
-	//cam := graphic.NewPerspectiveCamera(
-	//	70.0,
-	//	float32(windowWidth/windowHeight),
-	//	0.1,
-	//	1000.0,
-	//)
-	//aspect:=float32(windowWidth/windowHe)
-	cam := graphic.NewOrthographicCamera(
-		-windowWidth/2,
-		windowWidth/2,
-		-windowHeight/2,
-		windowHeight/2,
+	cam := graphic.NewPerspectiveCamera(
+		70.0,
+		float32(windowWidth/windowHeight),
+		0.1,
+		1000.0,
 	)
+	//aspect := float32(windowWidth / windowHe)
+	//cam := graphic.NewOrthographicCamera(
+	//	-windowWidth/2,
+	//	windowWidth/2,
+	//	-windowHeight/2,
+	//	windowHeight/2,
+	//)
 
 	pos := cam.Position()
-	cam.Transform.SetPosition(pos.X(), pos.Y(), pos.Z())
+	cam.Transform.SetPosition(pos.X(), pos.Y(), pos.Z()-25)
 
 	gl.Viewport(0, 0, int32(windowWidth), int32(windowHeight))
 	gl.ClearColor(0, 0.5, 0.8, 1.0)
@@ -108,7 +108,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	p1 := graphic.NewPlane(100, 100)
+	p1 := graphic.NewPlane(2.5, 2.5)
 
 	counter := 0.0
 	shouldStop := false
@@ -125,13 +125,14 @@ func main() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(gls.Program().ID())
 
-		p1.SetPosition(-200, -400, 0)
-		cs1.SetPosition(0, 0, 0)
-		cs2.Sprite.SetPosition(2, 1, 0)
-		cs3.Sprite.SetPosition(4, 1, 0)
-		cs4.Sprite.SetPosition(-2, 1, 0)
-		cs5.Sprite.SetPosition(-4, 1, 0)
-		cs6.Sprite.SetPosition(-1, 1, 0)
+		p1.SetPosition(5, 5, 0)
+
+		cs1.SetPosition(0, 1, 0)
+		cs2.SetPosition(2, 1, 0)
+		cs3.SetPosition(4, 1, 0)
+		cs4.SetPosition(-2, 1, 0)
+		cs5.SetPosition(-4, 1, 0)
+		cs6.SetPosition(-1, 1, 0)
 
 		//sin := math.Sin(counter)
 		//cos := math.Cos(counter)
@@ -146,30 +147,30 @@ func main() {
 		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
 		p1.Render(gls, cam)
 
-		//mvp = cam.ViewProjectionMatrix().Mul4(cs2.BodySprite.Model())
-		//mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		//gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		//cs2.Render(gls, cam)
-		//
-		//mvp = cam.ViewProjectionMatrix().Mul4(cs3.BodySprite.Model())
-		//mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		//gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		//cs3.Render(gls, cam)
-		//
-		//mvp = cam.ViewProjectionMatrix().Mul4(cs4.BodySprite.Model())
-		//mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		//gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		//cs4.Render(gls, cam)
-		//
-		//mvp = cam.ViewProjectionMatrix().Mul4(cs5.BodySprite.Model())
-		//mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		//gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		//cs5.Render(gls, cam)
-		//
-		//mvp = cam.ViewProjectionMatrix().Mul4(cs6.BodySprite.Model())
-		//mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		//gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		//cs6.Render(gls, cam)
+		mvp = cam.ViewProjectionMatrix().Mul4(cs2.Model())
+		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+		cs2.Render(gls, cam)
+
+		mvp = cam.ViewProjectionMatrix().Mul4(cs3.Model())
+		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+		cs3.Render(gls, cam)
+
+		mvp = cam.ViewProjectionMatrix().Mul4(cs4.Model())
+		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+		cs4.Render(gls, cam)
+
+		mvp = cam.ViewProjectionMatrix().Mul4(cs5.Model())
+		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+		cs5.Render(gls, cam)
+
+		mvp = cam.ViewProjectionMatrix().Mul4(cs6.Model())
+		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+		cs6.Render(gls, cam)
 
 		window.GLSwap()
 

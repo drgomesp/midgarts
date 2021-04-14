@@ -75,8 +75,10 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 		log.Fatal(err)
 	}
 
-	w := float32(bodySpriteImage.Rect.Size().X)
-	h := float32(bodySpriteImage.Rect.Size().Y)
+	w := float32(bodySpriteImage.Rect.Size().X) * OnePixelSize
+	h := float32(bodySpriteImage.Rect.Size().Y) * OnePixelSize
+	// Add a third of the height to compensate for aspect ratio
+	h += h / 3
 
 	return &CharacterSprite{
 		act:    actFile,
@@ -96,8 +98,10 @@ func (s *CharacterSprite) Render(gls *opengl.State, cam *Camera) {
 		log.Fatal(err)
 	}
 
-	w := float32(bodySpriteImage.Rect.Size().X)
-	h := float32(bodySpriteImage.Rect.Size().Y)
+	w := float32(bodySpriteImage.Rect.Size().X) * OnePixelSize
+	h := float32(bodySpriteImage.Rect.Size().Y) * OnePixelSize
+	// Add a third of the height to compensate for aspect ratio
+	h += h / 3
 
 	s.Sprite = NewSprite(w, h, bodySpriteTexture)
 	s.Sprite.Texture.Bind(0)
