@@ -6,6 +6,12 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 )
 
+var (
+	Origin  = mgl32.Vec3{0, 0, 0}
+	Up      = mgl32.Vec3{0, 1, 0}
+	Forward = mgl32.Vec3{0, 0, 1}
+)
+
 type Projection int
 
 const (
@@ -15,9 +21,10 @@ const (
 
 type Camera struct {
 	*Transform
-	projection             Projection
-	fov, aspect, near, far float32
-	projectionMatrix       mgl32.Mat4
+	projection               Projection
+	fov, aspect, near, far   float32
+	left, right, bottom, top float32
+	projectionMatrix         mgl32.Mat4
 }
 
 func NewPerspectiveCamera(fov, aspect, near, far float32) *Camera {
@@ -31,8 +38,13 @@ func NewPerspectiveCamera(fov, aspect, near, far float32) *Camera {
 	}
 }
 
-func NewOrthographicCamera(position mgl32.Vec3, left, right, bottom, top float32) *Camera {
+func NewOrthographicCamera(left, right, bottom, top float32) *Camera {
 	return &Camera{
+		Transform:  NewTransform(mgl32.Vec3{0, 0, 0}),
+		left:       left,
+		right:      right,
+		bottom:     bottom,
+		top:        top,
 		projection: Orthographic,
 	}
 }
@@ -55,7 +67,7 @@ func (c *Camera) ViewProjectionMatrix() (vp mgl32.Mat4) {
 			))
 	case Orthographic:
 		return mgl32.
-			Ortho(0, 1000, 0, 1000, 01, 100).
+			Ortho2D(c.left, c.right, c.bottom, c.top).
 			Mul4(mgl32.LookAt(
 				c.Position().X(),
 				c.Position().Y(),

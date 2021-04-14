@@ -15,11 +15,11 @@ import (
 )
 
 type CharacterSprite struct {
-	act *act.ActionFile
-	spr *spr.SpriteFile
+	*Sprite
 
-	Gender     character.GenderType
-	BodySprite *Sprite
+	act    *act.ActionFile
+	spr    *spr.SpriteFile
+	Gender character.GenderType
 }
 
 func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID jobspriteid.Type) (sprite *CharacterSprite, err error) {
@@ -68,20 +68,21 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 	}
 
 	bodySpriteImage := sprFile.ImageAt(0)
-	bodySpriteTex, err := NewTextureFromImage(bodySpriteImage)
+	bodySpriteTexture, err := NewTextureFromImage(bodySpriteImage)
+	bodySpriteTexture.Bind(0)
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	w := float32(bodySpriteImage.Rect.Size().X) * OnePixelSize
-	h := float32(bodySpriteImage.Rect.Size().Y) * OnePixelSize
+	w := float32(bodySpriteImage.Rect.Size().X)
+	h := float32(bodySpriteImage.Rect.Size().Y)
 
 	return &CharacterSprite{
-		act: actFile,
-		spr: sprFile,
-
-		Gender:     gender,
-		BodySprite: NewSprite(w, h, bodySpriteTex),
+		act:    actFile,
+		spr:    sprFile,
+		Sprite: NewSprite(w, h, bodySpriteTexture),
+		Gender: gender,
 	}, nil
 
 }
@@ -90,13 +91,16 @@ func (s *CharacterSprite) Render(gls *opengl.State, cam *Camera) {
 	currentFrame := 0
 
 	bodySpriteImage := s.spr.ImageAt(currentFrame)
-	bodySpriteTex, err := NewTextureFromImage(bodySpriteImage)
+	bodySpriteTexture, err := NewTextureFromImage(bodySpriteImage)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	s.BodySprite.Texture = bodySpriteTex
-	s.BodySprite.Texture.Bind(0)
+	w := float32(bodySpriteImage.Rect.Size().X)
+	h := float32(bodySpriteImage.Rect.Size().Y)
 
-	s.BodySprite.Render(gls, cam)
+	s.Sprite = NewSprite(w, h, bodySpriteTexture)
+	s.Sprite.Texture.Bind(0)
+
+	s.Sprite.Render(gls, cam)
 }
