@@ -78,32 +78,39 @@ func main() {
 	gl.Viewport(0, 0, int32(windowWidth), int32(windowHeight))
 	gl.ClearColor(0, 0.5, 0.8, 1.0)
 
-	cs1, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Archer)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	cs2, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.MonkH)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	cs3, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Novice)
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	cs6, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Swordsman)
+	if err != nil {
+		log.Fatal(err)
+	}
 	cs4, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Alcolyte)
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	cs8, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Thief)
+	if err != nil {
+		log.Fatal(err)
+	}
+	cs9, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Magician)
+	if err != nil {
+		log.Fatal(err)
+	}
+	cs1, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Archer)
+	if err != nil {
+		log.Fatal(err)
+	}
 	cs5, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Merchant)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	cs6, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Swordsman)
+	cs7, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Monk)
+	if err != nil {
+		log.Fatal(err)
+	}
+	cs2, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.MonkH)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -127,50 +134,86 @@ func main() {
 
 		p1.SetPosition(5, 5, 0)
 
-		cs1.SetPosition(0, 1, 0)
-		cs2.SetPosition(2, 1, 0)
-		cs3.SetPosition(4, 1, 0)
-		cs4.SetPosition(-2, 1, 0)
-		cs5.SetPosition(-4, 1, 0)
-		cs6.SetPosition(-1, 1, 0)
+		cs3.SetPosition(+6, 0, 0)
+		cs6.SetPosition(+4, 0, 0)
+		cs4.SetPosition(+2, 0, 0)
+		cs8.SetPosition(+0, 0, 0)
+		cs1.SetPosition(-2, 0, 0)
+		cs5.SetPosition(-4, 0, 0)
+		cs7.SetPosition(-6, 0, 0)
+		cs2.SetPosition(-8, 0, 0)
+		cs9.SetPosition(-10, 0, 0)
 
-		//sin := math.Sin(counter)
-		//cos := math.Cos(counter)
-		//cs1.SetRotation(mgl32.Vec3{float32(sin) * 25, float32(cos) * 25, 0})
-		mvp := cam.ViewProjectionMatrix().Mul4(cs1.Model())
-		mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		cs1.Render(gls, cam)
+		//mvp = cam.ViewProjectionMatrix().Mul4(p1.Model())
+		//mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		//gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+		//p1.Render(gls, cam)
+		{
+			mvp := cam.ViewProjectionMatrix().Mul4(cs3.Model())
+			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+			cs3.Render(gls, cam)
+		}
 
-		mvp = cam.ViewProjectionMatrix().Mul4(p1.Model())
-		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		p1.Render(gls, cam)
+		{
+			mvp := cam.ViewProjectionMatrix().Mul4(cs6.Model())
+			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+			cs6.Render(gls, cam)
+		}
 
-		mvp = cam.ViewProjectionMatrix().Mul4(cs2.Model())
-		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		cs2.Render(gls, cam)
+		{
 
-		mvp = cam.ViewProjectionMatrix().Mul4(cs3.Model())
-		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		cs3.Render(gls, cam)
+			mvp := cam.ViewProjectionMatrix().Mul4(cs4.Model())
+			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+			cs4.Render(gls, cam)
+		}
 
-		mvp = cam.ViewProjectionMatrix().Mul4(cs4.Model())
-		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		cs4.Render(gls, cam)
+		{
+			mvp := cam.ViewProjectionMatrix().Mul4(cs8.Model())
+			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+			cs8.Render(gls, cam)
+		}
 
-		mvp = cam.ViewProjectionMatrix().Mul4(cs5.Model())
-		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		cs5.Render(gls, cam)
+		{
+			//sin := math.Sin(counter)
+			//cos := math.Cos(counter)
+			//cs1.SetRotation(mgl32.Vec3{float32(sin) * 25, float32(cos) * 25, 0})
+			mvp := cam.ViewProjectionMatrix().Mul4(cs1.Model())
+			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+			cs1.Render(gls, cam)
+		}
 
-		mvp = cam.ViewProjectionMatrix().Mul4(cs6.Model())
-		mvpu = gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-		cs6.Render(gls, cam)
+		{
+			mvp := cam.ViewProjectionMatrix().Mul4(cs5.Model())
+			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+			cs5.Render(gls, cam)
+		}
+
+		{
+			mvp := cam.ViewProjectionMatrix().Mul4(cs7.Model())
+			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+			cs7.Render(gls, cam)
+		}
+
+		{
+			mvp := cam.ViewProjectionMatrix().Mul4(cs2.Model())
+			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+			cs2.Render(gls, cam)
+		}
+
+		{
+			mvp := cam.ViewProjectionMatrix().Mul4(cs9.Model())
+			mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+			gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+			cs9.Render(gls, cam)
+		}
 
 		window.GLSwap()
 
