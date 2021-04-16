@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/go-gl/mathgl/mgl32"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
@@ -59,9 +58,8 @@ type CharacterSprite struct {
 
 	Gender character.GenderType
 
-	files      [NumCharacterSpriteElements]fileSet
-	headSprite *Sprite
-	bodySprite *Sprite
+	files          [NumCharacterSpriteElements]fileSet
+	elementSprites [NumCharacterSpriteElements]*Sprite
 }
 
 func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID jobspriteid.Type) (
@@ -113,8 +111,7 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 			CharacterSpriteElementBody:   {bodyActFile, bodySprFile},
 			CharacterSpriteElementHead:   {headActFile, headSprFile},
 		},
-		headSprite: nil,
-		bodySprite: nil,
+		elementSprites: [NumCharacterSpriteElements]*Sprite{},
 	}
 
 	return characterSprite, nil
@@ -127,10 +124,6 @@ func getDecodedFolder(buf []byte) (folder []byte, err error) {
 	}
 
 	return folder, nil
-}
-
-func (s *CharacterSprite) Model() mgl32.Mat4 {
-	return s.bodySprite.Model()
 }
 
 func (s *CharacterSprite) Render(gls *opengl.State, cam *Camera) {
@@ -199,17 +192,17 @@ func (s *CharacterSprite) renderLayer(
 
 	offsetX := (float32(layer.Position[0]) + position[0]) * OnePixelSize
 	offsetY := (float32(layer.Position[1]) + position[1]) * OnePixelSize
-	s.bodySprite = NewSprite(width, height, texture)
-	s.bodySprite.SetPosition(s.position.X()+offsetX, s.position.Y()+offsetY, 0)
+	s.elementSprites[elem] = NewSprite(width, height, texture)
+	s.elementSprites[elem].SetPosition(s.position.X()-offsetX, s.position.Y()-offsetY, 0)
 
-	log.Printf("elem=(%s) w=(%v) h=(%v) offset=(%v, %v)\n", elem, width, height, offsetX, offsetY)
+	log.Printf("elem=(%s) w=(%v) h=(%v) pos=(%v) offset=(%v, %v)\n", elem, width, height, position, offsetX, offsetY)
 
 	{
-		mvp := cam.ViewProjectionMatrix().Mul4(s.bodySprite.Model())
+		mvp := cam.ViewProjectionMatrix().Mul4(s.elementSprites[elem].Model())
 		mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
 		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
 
-		s.bodySprite.Texture.Bind(0)
-		s.bodySprite.Render(gls, cam)
+		s.elementSprites[elem].Texture.Bind(0)
+		s.elementSprites[elem].Render(gls, cam)
 	}
 }
