@@ -21,7 +21,6 @@ type CharacterSpriteElement int
 
 const (
 	SpriteScaleFactor    = float32(1.0)
-	FPSMultiplier        = 1.0
 	FixedCameraDirection = 6
 )
 
@@ -62,7 +61,7 @@ type CharacterSprite struct {
 	elementSprites [NumCharacterSpriteElements]*Sprite
 }
 
-func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID jobspriteid.Type) (
+func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int32) (
 	sprite *CharacterSprite,
 	err error,
 ) {
@@ -84,15 +83,15 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 	var (
 		bodyFilePath   string
 		shadowFilePath = "data/sprite/shadow"
-		headFilePathf  = "data/sprite/ÀÎ°£Á·/¸Ó¸®Åë/%s/1_%s"
+		headFilePathf  = "data/sprite/ÀÎ°£Á·/¸Ó¸®Åë/%s/%d_%s"
 	)
 
 	if character.Male == gender {
 		bodyFilePath = fmt.Sprintf(character.MaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
-		headFilePathf = fmt.Sprintf(headFilePathf, "³²", "³²")
+		headFilePathf = fmt.Sprintf(headFilePathf, "³²", headIndex, "³²")
 	} else {
 		bodyFilePath = fmt.Sprintf(character.FemaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
-		headFilePathf = fmt.Sprintf(headFilePathf, "¿©", "¿©")
+		headFilePathf = fmt.Sprintf(headFilePathf, "¿©", headIndex, "¿©")
 	}
 
 	shadowActFile, shadowSprFile, err := f.GetActionAndSpriteFiles(shadowFilePath)
@@ -108,8 +107,8 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 		Gender:    gender,
 		files: [NumCharacterSpriteElements]fileSet{
 			CharacterSpriteElementShadow: {shadowActFile, shadowSprFile},
-			CharacterSpriteElementBody:   {bodyActFile, bodySprFile},
 			CharacterSpriteElementHead:   {headActFile, headSprFile},
+			CharacterSpriteElementBody:   {bodyActFile, bodySprFile},
 		},
 		elementSprites: [NumCharacterSpriteElements]*Sprite{},
 	}
@@ -192,8 +191,9 @@ func (s *CharacterSprite) renderLayer(
 
 	offsetX := (float32(layer.Position[0]) + position[0]) * OnePixelSize
 	offsetY := (float32(layer.Position[1]) + position[1]) * OnePixelSize
+
 	s.elementSprites[elem] = NewSprite(width, height, texture)
-	s.elementSprites[elem].SetPosition(s.position.X()-offsetX, s.position.Y()-offsetY, 0)
+	s.elementSprites[elem].SetPosition(s.position.X()+offsetX, s.position.Y()-offsetY, 0)
 
 	log.Printf("elem=(%s) w=(%v) h=(%v) pos=(%v) offset=(%v, %v)\n", elem, width, height, position, offsetX, offsetY)
 

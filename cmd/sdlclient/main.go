@@ -67,39 +67,26 @@ func main() {
 	gl.Viewport(0, 0, int32(WindowWidth), int32(WindowHeight))
 	gl.ClearColor(0, 0.5, 0.8, 1.0)
 
-	cs3, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Novice)
-	if err != nil {
-		log.Fatal(err)
-	}
-	cs6, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Swordsman)
-	if err != nil {
-		log.Fatal(err)
-	}
-	cs4, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Alcolyte)
-	if err != nil {
-		log.Fatal(err)
-	}
-	cs8, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Thief)
-	if err != nil {
-		log.Fatal(err)
-	}
-	cs9, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Magician)
-	if err != nil {
-		log.Fatal(err)
-	}
-	cs1, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Archer)
-	if err != nil {
-		log.Fatal(err)
-	}
-	cs5, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Merchant)
-	if err != nil {
-		log.Fatal(err)
-	}
-	cs7, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Monk)
-	if err != nil {
-		log.Fatal(err)
-	}
-	cs2, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.MonkH)
+	cm1, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Novice, 1)
+	cm2, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Swordsman, 2)
+	cm3, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Magician, 3)
+	cm4, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Archer, 4)
+	cm5, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Alcolyte, 5)
+	cm6, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Merchant, 6)
+	cm7, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Thief, 7)
+	cm8, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.Monk, 8)
+	cm9, err := graphic.LoadCharacterSprite(grfFile, character.Male, jobspriteid.MonkH, 9)
+
+	cf1, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Novice, 10)
+	cf2, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Swordsman, 11)
+	cf3, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Magician, 12)
+	cf4, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Archer, 13)
+	cf5, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Alcolyte, 14)
+	cf6, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Merchant, 15)
+	cf7, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Thief, 16)
+	cf8, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.Monk, 17)
+	cf9, err := graphic.LoadCharacterSprite(grfFile, character.Female, jobspriteid.MonkH, 18)
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -119,28 +106,48 @@ func main() {
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 		gl.UseProgram(gls.Program().ID())
 
-		cs3.SetPosition(6, 0, 0)
-		cs6.SetPosition(4, 0, 0)
-		cs4.SetPosition(2, 0, 0)
-		cs8.SetPosition(0, 0, 0)
-		cs1.SetPosition(-2, 0, 0)
-		cs5.SetPosition(-4, 0, 0)
-		cs7.SetPosition(-6, 0, 0)
-		cs2.SetPosition(-8, 0, 0)
-		cs9.SetPosition(-10, 0, 0)
+		cm1.SetPosition(-10, 0, 0)
+		cm2.SetPosition(-8, 0, 0)
+		cm3.SetPosition(-6, 0, 0)
+		cm4.SetPosition(-4, 0, 0)
+		cm5.SetPosition(-2, 0, 0)
+		cm6.SetPosition(0, 0, 0)
+		cm7.SetPosition(2, 0, 0)
+		cm8.SetPosition(4, 0, 0)
+		cm9.SetPosition(6, 0, 0)
+
+		cf1.SetPosition(-10, 4, 0)
+		cf2.SetPosition(-8, 4, 0)
+		cf3.SetPosition(-6, 4, 0)
+		cf4.SetPosition(-4, 4, 0)
+		cf5.SetPosition(-2, 4, 0)
+		cf6.SetPosition(0, 4, 0)
+		cf7.SetPosition(2, 4, 0)
+		cf8.SetPosition(4, 4, 0)
+		cf9.SetPosition(6, 4, 0)
 
 		//sin := math.Sin(counter)
 		//cos := math.Cos(counter)
 		//cs1.SetRotation(mgl32.Vec3{float32(sin) * 25, float32(cos) * 25, 0})
-		cs3.Render(gls, cam)
-		cs6.Render(gls, cam)
-		cs4.Render(gls, cam)
-		cs8.Render(gls, cam)
-		cs1.Render(gls, cam)
-		cs5.Render(gls, cam)
-		cs7.Render(gls, cam)
-		cs2.Render(gls, cam)
-		cs8.Render(gls, cam)
+		cm1.Render(gls, cam)
+		cm2.Render(gls, cam)
+		cm3.Render(gls, cam)
+		cm4.Render(gls, cam)
+		cm5.Render(gls, cam)
+		cm6.Render(gls, cam)
+		cm7.Render(gls, cam)
+		cm8.Render(gls, cam)
+		cm9.Render(gls, cam)
+
+		cf1.Render(gls, cam)
+		cf2.Render(gls, cam)
+		cf3.Render(gls, cam)
+		cf4.Render(gls, cam)
+		cf5.Render(gls, cam)
+		cf6.Render(gls, cam)
+		cf7.Render(gls, cam)
+		cf8.Render(gls, cam)
+		cf9.Render(gls, cam)
 
 		window.GLSwap()
 
