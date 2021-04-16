@@ -11,6 +11,10 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
+
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
+
 	"golang.org/x/text/encoding/charmap"
 
 	"github.com/pkg/errors"
@@ -109,6 +113,30 @@ func (f *File) GetEntry(name string) (entry *Entry, err error) {
 	}
 
 	return
+}
+
+func (f *File) GetActionAndSpriteFiles(name string) (*act.ActionFile, *spr.SpriteFile, error) {
+	e, err := f.GetEntry(fmt.Sprintf("%s.act", name))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	actFile, err := act.Load(e.Data)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	e, err = f.GetEntry(fmt.Sprintf("%s.spr", name))
+	if err != nil {
+		return nil, nil, err
+	}
+
+	sprFile, err := spr.Load(e.Data)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return actFile, sprFile, nil
 }
 
 func (f *File) Close() error {

@@ -85,3 +85,11 @@ func (c *Camera) ViewProjectionMatrix() (vp mgl32.Mat4) {
 
 	return
 }
+
+func (c *Camera) AspectRatio() float32 {
+	return c.aspect
+}
+
+func (c *Camera) Latitude() float32 {
+	return 1.0
+}

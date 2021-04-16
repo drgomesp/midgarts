@@ -4,107 +4,212 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/go-gl/gl/v3.3-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
-
 	"github.com/project-midgard/midgarts/pkg/common/character"
+	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
+	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
+	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
 	"golang.org/x/text/encoding/charmap"
 )
 
-type CharacterSprite struct {
-	*Sprite
+type CharacterSpriteElement int
 
-	act    *act.ActionFile
-	spr    *spr.SpriteFile
-	Gender character.GenderType
+const (
+	SpriteScaleFactor    = float32(1.0)
+	FPSMultiplier        = 1.0
+	FixedCameraDirection = 6
+)
+
+const (
+	CharacterSpriteElementShadow = CharacterSpriteElement(iota)
+	CharacterSpriteElementBody
+	CharacterSpriteElementHead
+
+	NumCharacterSpriteElements
+)
+
+func (e CharacterSpriteElement) String() string {
+	switch e {
+	case CharacterSpriteElementShadow:
+		return "CharacterSpriteElementShadow"
+	case CharacterSpriteElementBody:
+		return "CharacterSpriteElementBody"
+	case CharacterSpriteElementHead:
+		return "CharacterSpriteElementHead"
+	default:
+		return "Unknown"
+	}
 }
 
-func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID jobspriteid.Type) (sprite *CharacterSprite, err error) {
-	var (
-		jobFileName = character.JobSpriteNameTable[jobSpriteID]
-	)
+var DirectionTable = [8]int{6, 5, 4, 3, 2, 1, 0, 7}
 
+type fileSet struct {
+	ACT *act.ActionFile
+	SPR *spr.SpriteFile
+}
+
+type CharacterSprite struct {
+	*Transform
+
+	Gender character.GenderType
+
+	files      [NumCharacterSpriteElements]fileSet
+	headSprite *Sprite
+	bodySprite *Sprite
+}
+
+func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID jobspriteid.Type) (
+	sprite *CharacterSprite,
+	err error,
+) {
+	jobFileName := character.JobSpriteNameTable[jobSpriteID]
 	if "" == jobFileName {
 		return nil, fmt.Errorf("unsupported jobSpriteID %v", jobSpriteID)
 	}
 
-	var decodedFolderA []byte
-	if decodedFolderA, err = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC0, 0xCE, 0xB0, 0xA3, 0xC1, 0xB7}); err != nil {
+	decodedFolderA, err := getDecodedFolder([]byte{0xC0, 0xCE, 0xB0, 0xA3, 0xC1, 0xB7})
+	if err != nil {
 		return nil, err
 	}
 
-	var decodedFolderB []byte
-	if decodedFolderB, err = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB8, 0xF6, 0xC5, 0xEB}); err != nil {
+	decodedFolderB, err := getDecodedFolder([]byte{0xB8, 0xF6, 0xC5, 0xEB})
+	if err != nil {
 		return nil, err
 	}
 
-	var filePath string
+	var (
+		bodyFilePath   string
+		shadowFilePath = "data/sprite/shadow"
+		headFilePathf  = "data/sprite/ÀÎ°£Á·/¸Ó¸®Åë/%s/1_%s"
+	)
+
 	if character.Male == gender {
-		filePath = fmt.Sprintf(character.MaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
+		bodyFilePath = fmt.Sprintf(character.MaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
+		headFilePathf = fmt.Sprintf(headFilePathf, "³²", "³²")
 	} else {
-		filePath = fmt.Sprintf(character.FemaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
+		bodyFilePath = fmt.Sprintf(character.FemaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
+		headFilePathf = fmt.Sprintf(headFilePathf, "¿©", "¿©")
 	}
 
-	var entry *grf.Entry
-	if entry, err = f.GetEntry(fmt.Sprintf("%s.act", filePath)); err != nil {
-		return nil, err
-	}
-
-	var actFile *act.ActionFile
-	if actFile, err = act.Load(entry.Data); err != nil {
-		return nil, err
-	}
-
-	if entry, err = f.GetEntry(fmt.Sprintf("%s.spr", filePath)); err != nil {
-		return nil, err
-	}
-
-	var sprFile *spr.SpriteFile
-	if sprFile, err = spr.Load(entry.Data); err != nil {
-		return nil, err
-	}
-
-	bodySpriteImage := sprFile.ImageAt(0)
-	bodySpriteTexture, err := NewTextureFromImage(bodySpriteImage)
-	bodySpriteTexture.Bind(0)
+	shadowActFile, shadowSprFile, err := f.GetActionAndSpriteFiles(shadowFilePath)
+	bodyActFile, bodySprFile, err := f.GetActionAndSpriteFiles(bodyFilePath)
+	headActFile, headSprFile, err := f.GetActionAndSpriteFiles(headFilePathf)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	w := float32(bodySpriteImage.Rect.Size().X) * OnePixelSize
-	h := float32(bodySpriteImage.Rect.Size().Y) * OnePixelSize
-	// Add a third of the height to compensate for aspect ratio
-	h += h / 3
+	characterSprite := &CharacterSprite{
+		Transform: NewTransform(Origin),
+		Gender:    gender,
+		files: [NumCharacterSpriteElements]fileSet{
+			CharacterSpriteElementShadow: {shadowActFile, shadowSprFile},
+			CharacterSpriteElementBody:   {bodyActFile, bodySprFile},
+			CharacterSpriteElementHead:   {headActFile, headSprFile},
+		},
+		headSprite: nil,
+		bodySprite: nil,
+	}
 
-	return &CharacterSprite{
-		act:    actFile,
-		spr:    sprFile,
-		Sprite: NewSprite(w, h, bodySpriteTexture),
-		Gender: gender,
-	}, nil
+	return characterSprite, nil
 
 }
 
-func (s *CharacterSprite) Render(gls *opengl.State, cam *Camera) {
-	currentFrame := 0
+func getDecodedFolder(buf []byte) (folder []byte, err error) {
+	if folder, err = charmap.Windows1252.NewDecoder().Bytes(buf); err != nil {
+		return nil, err
+	}
 
-	bodySpriteImage := s.spr.ImageAt(currentFrame)
-	bodySpriteTexture, err := NewTextureFromImage(bodySpriteImage)
+	return folder, nil
+}
+
+func (s *CharacterSprite) Model() mgl32.Mat4 {
+	return s.bodySprite.Model()
+}
+
+func (s *CharacterSprite) Render(gls *opengl.State, cam *Camera) {
+	position := [2]float32{}
+
+	s.renderElement(gls, cam, CharacterSpriteElementShadow, &position)
+
+	s.renderElement(gls, cam, CharacterSpriteElementBody, &position)
+
+	s.renderElement(gls, cam, CharacterSpriteElementHead, &position)
+}
+
+func (s *CharacterSprite) renderElement(
+	gls *opengl.State,
+	cam *Camera,
+	elem CharacterSpriteElement,
+	position *[2]float32,
+) {
+	fileSet := s.files[elem]
+
+	actionIndex := actionindex.GetActionIndex(statetype.Idle)
+	idx := int(actionIndex) +
+		(int(directiontype.South)+DirectionTable[FixedCameraDirection])%8
+
+	currentFrame := 0
+	action := fileSet.ACT.Actions[idx]
+	frame := action.Frames[currentFrame]
+
+	pos := [2]float32{0, 0}
+
+	if len(frame.Positions) > 0 && elem != CharacterSpriteElementBody {
+		pos[0] = position[0] - float32(frame.Positions[0][0])
+		pos[1] = position[1] - float32(frame.Positions[0][1])
+	}
+
+	// Render all frames
+	for _, layer := range frame.Layers {
+		s.renderLayer(gls, cam, layer, fileSet.SPR, pos, elem)
+	}
+
+	// Save position reference
+	if elem == CharacterSpriteElementBody && len(frame.Positions) > 0 {
+		*position = [2]float32{float32(frame.Positions[0][0]), float32(frame.Positions[0][1])}
+	}
+}
+
+func (s *CharacterSprite) renderLayer(
+	gls *opengl.State,
+	cam *Camera,
+	layer *act.ActionFrameLayer,
+	spr *spr.SpriteFile,
+	position [2]float32,
+	elem CharacterSpriteElement,
+) {
+	currentFrame := 0
+	frame := spr.Frames[currentFrame]
+	width, height := float32(frame.Width), float32(frame.Height)
+
+	width *= layer.Scale[0] * SpriteScaleFactor * OnePixelSize
+	height *= layer.Scale[1] * SpriteScaleFactor * OnePixelSize
+
+	texture, err := NewTextureFromImage(spr.ImageAt(currentFrame))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	w := float32(bodySpriteImage.Rect.Size().X) * OnePixelSize
-	h := float32(bodySpriteImage.Rect.Size().Y) * OnePixelSize
-	// Add a third of the height to compensate for aspect ratio
-	h += h / 3
+	offsetX := (float32(layer.Position[0]) + position[0]) * OnePixelSize
+	offsetY := (float32(layer.Position[1]) + position[1]) * OnePixelSize
+	s.bodySprite = NewSprite(width, height, texture)
+	s.bodySprite.SetPosition(s.position.X()+offsetX, s.position.Y()+offsetY, 0)
 
-	s.Sprite = NewSprite(w, h, bodySpriteTexture)
-	s.Sprite.Texture.Bind(0)
+	log.Printf("elem=(%s) w=(%v) h=(%v) offset=(%v, %v)\n", elem, width, height, offsetX, offsetY)
 
-	s.Sprite.Render(gls, cam)
+	{
+		mvp := cam.ViewProjectionMatrix().Mul4(s.bodySprite.Model())
+		mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
+		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
+
+		s.bodySprite.Texture.Bind(0)
+		s.bodySprite.Render(gls, cam)
+	}
 }
