@@ -34,6 +34,42 @@ func init() {
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB8, 0xF9, 0xC5, 0xA9})
 	JobSpriteNameTable[jobspriteid.Monk] = string(dst)
 
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB1, 0xE2, 0xBB, 0xE7})
+	JobSpriteNameTable[jobspriteid.Knight] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC7, 0xC1, 0xB8, 0xAE, 0xBD, 0xBA, 0xC6, 0xAE})
+	JobSpriteNameTable[jobspriteid.Priest] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC0, 0xA7, 0xC0, 0xFA, 0xB5, 0xE5})
+	JobSpriteNameTable[jobspriteid.Wizard] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC1, 0xA6, 0xC3, 0xB6, 0xB0, 0xF8})
+	JobSpriteNameTable[jobspriteid.Blacksmith] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC7, 0xE5, 0xC5, 0xCD})
+	JobSpriteNameTable[jobspriteid.Hunter] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC5, 0xA9, 0xB7, 0xE7, 0xBC, 0xBC, 0xC0, 0xCC, 0xB4, 0xF5})
+	JobSpriteNameTable[jobspriteid.Crusader] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xBC, 0xBC, 0xC0, 0xCC, 0xC1, 0xF6})
+	JobSpriteNameTable[jobspriteid.Sage] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB7, 0xCE, 0xB1, 0xD7})
+	JobSpriteNameTable[jobspriteid.Rogue] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xBF, 0xAC, 0xB1, 0xDD, 0xBC, 0xFA, 0xBB, 0xE7})
+	JobSpriteNameTable[jobspriteid.Alchemist] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xBE, 0xEE, 0xBC, 0xBC, 0xBD, 0xC5})
+	JobSpriteNameTable[jobspriteid.Assassin] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB9, 0xD9, 0xB5, 0xE5})
+	JobSpriteNameTable[jobspriteid.Bard] = string(dst)
+
+	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB9, 0xAB, 0xC8, 0xF1})
+	JobSpriteNameTable[jobspriteid.Dancer] = string(dst)
+
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC3, 0xA8, 0xC7, 0xC7, 0xBF, 0xC2})
 	JobSpriteNameTable[jobspriteid.MonkH] = string(dst)
 }

@@ -3,13 +3,18 @@ package jobid
 type Type int
 
 const (
-	Novice    Type = 0
-	Swordsman      = 1
-	Magician       = 2
-	Archer         = 3
-	Alcolyte       = 4
-	Merchant       = 5
-	Thief          = 6
-	Monk           = 15
-	MonkH     Type = 4016
+	Crusader = Type(iota)
+	Swordsman
+	Archer
+	Ranger
+	Assassin
+	Rogue
+	Knight
+	Wizard
+	Sage
+	Alchemist
+	Blacksmith
+	Priest
+	Monk
+	Gunslinger
 )
