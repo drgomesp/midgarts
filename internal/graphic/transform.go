@@ -8,7 +8,7 @@ type Transform struct {
 	position  mgl32.Vec3
 	scale     mgl32.Vec3
 	direction mgl32.Vec3
-	rotation  mgl32.Vec3
+	rotation  mgl32.Quat
 }
 
 func NewTransform(position mgl32.Vec3) *Transform {
@@ -16,7 +16,7 @@ func NewTransform(position mgl32.Vec3) *Transform {
 		position:  position,
 		scale:     mgl32.Vec3{1, 1, 1},
 		direction: Forward,
-		rotation:  mgl32.Vec3{0, 0, 0},
+		rotation:  mgl32.AnglesToQuat(0, 0, 0, mgl32.XYZ),
 	}
 }
 
@@ -51,10 +51,10 @@ func (t *Transform) SetScale(scale mgl32.Vec3) {
 	t.scale = scale
 }
 
-func (t *Transform) Rotation() mgl32.Vec3 {
+func (t *Transform) Rotation() mgl32.Quat {
 	return t.rotation
 }
 
-func (t *Transform) SetRotation(rotation mgl32.Vec3) {
+func (t *Transform) SetRotation(rotation mgl32.Quat) {
 	t.rotation = rotation
 }
