@@ -5,10 +5,11 @@ import (
 	"log"
 	"math"
 
+	graphic2 "github.com/project-midgard/midgarts/pkg/graphic"
+
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/pkg/errors"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
-	"github.com/project-midgard/midgarts/internal/graphic"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
@@ -63,12 +64,12 @@ type fileSet struct {
 }
 
 type CharacterSprite struct {
-	*graphic.Transform
+	*graphic2.Transform
 
 	Gender character.GenderType
 
 	files   [NumCharacterSpriteElements]fileSet
-	sprites [NumCharacterSpriteElements]*graphic.Sprite
+	sprites [NumCharacterSpriteElements]*graphic2.Sprite
 }
 
 func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int32) (
@@ -120,14 +121,14 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 	}
 
 	characterSprite := &CharacterSprite{
-		Transform: graphic.NewTransform(graphic.Origin),
+		Transform: graphic2.NewTransform(graphic2.Origin),
 		Gender:    gender,
 		files: [NumCharacterSpriteElements]fileSet{
 			CharacterSpriteElementShadow: {shadowActFile, shadowSprFile},
 			CharacterSpriteElementHead:   {headActFile, headSprFile},
 			CharacterSpriteElementBody:   {bodyActFile, bodySprFile},
 		},
-		sprites: [NumCharacterSpriteElements]*graphic.Sprite{},
+		sprites: [NumCharacterSpriteElements]*graphic2.Sprite{},
 	}
 
 	return characterSprite, nil
@@ -141,7 +142,7 @@ func getDecodedFolder(buf []byte) (folder []byte, err error) {
 	return folder, nil
 }
 
-func (s *CharacterSprite) Render(gls *opengl.State, cam *graphic.Camera, char *CharState) {
+func (s *CharacterSprite) Render(gls *opengl.State, cam *graphic2.Camera, char *CharState) {
 	offset := [2]float32{}
 
 	// TODO: this must come from character state
@@ -158,7 +159,7 @@ func (s *CharacterSprite) Render(gls *opengl.State, cam *graphic.Camera, char *C
 
 func (s *CharacterSprite) renderElement(
 	gls *opengl.State,
-	cam *graphic.Camera,
+	cam *graphic2.Camera,
 	char *CharState,
 	elem CharacterSpriteElement,
 	offset *[2]float32,
@@ -175,7 +176,6 @@ func (s *CharacterSprite) renderElement(
 	}
 
 	action := s.files[elem].ACT.Actions[idx]
-
 	fileSet := s.files[elem]
 
 	frameCount := len(action.Frames)
@@ -223,7 +223,7 @@ func (s *CharacterSprite) renderElement(
 
 func (s *CharacterSprite) renderLayer(
 	gls *opengl.State,
-	cam *graphic.Camera,
+	cam *graphic2.Camera,
 	layer *act.ActionFrameLayer,
 	spr *spr.SpriteFile,
 	offset [2]float32,
@@ -238,29 +238,29 @@ func (s *CharacterSprite) renderLayer(
 	width, height := float32(frame.Width), float32(frame.Height)
 
 	img := spr.ImageAt(frameIndex)
-	texture, err := graphic.NewTextureFromImage(img)
+	texture, err := graphic2.NewTextureFromImage(img)
 
-	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
-	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
+	width *= layer.Scale[0] * SpriteScaleFactor * graphic2.OnePixelSize
+	height *= layer.Scale[1] * SpriteScaleFactor * graphic2.OnePixelSize
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	offsetX := (float32(layer.Position[0]) + offset[0]) * graphic.OnePixelSize
-	offsetY := (float32(layer.Position[1]) + offset[1]) * graphic.OnePixelSize
+	offsetX := (float32(layer.Position[0]) + offset[0]) * graphic2.OnePixelSize
+	offsetY := (float32(layer.Position[1]) + offset[1]) * graphic2.OnePixelSize
 
 	if layer.Mirrored {
 		width = -width
 	}
 
-	sprite := graphic.NewSprite(width, height, texture)
+	sprite := graphic2.NewSprite(width, height, texture)
 	sprite.SetPosition(s.Position().X()-offsetX, s.Position().Y()-offsetY, 0)
 
 	log.Printf(
 		"elem=(%s) size=(%v, %v), scale=(%+v) position=(%+v), rotation=(%+v)\n",
 		elem,
-		width/graphic.OnePixelSize,
-		height/graphic.OnePixelSize,
+		width/graphic2.OnePixelSize,
+		height/graphic2.OnePixelSize,
 		sprite.Scale(),
 		sprite.Position(),
 		sprite.Rotation(),

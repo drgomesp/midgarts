@@ -7,11 +7,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/project-midgard/midgarts/pkg/graphic"
+
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo"
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/internal/entity"
-	graphics2 "github.com/project-midgard/midgarts/internal/graphic"
 	system2 "github.com/project-midgard/midgarts/internal/system"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
@@ -26,7 +27,7 @@ var M = character.Male.String()
 
 var grfFile *grf.File
 
-var charSpritesheets = map[string][]*graphics2.SpritesheetResource{
+var charSpritesheets = map[string][]*graphic.SpritesheetResource{
 	F: {
 		jobid.Archer: {},
 		jobid.Thief:  {},
@@ -39,7 +40,7 @@ var charSpritesheets = map[string][]*graphics2.SpritesheetResource{
 	},
 }
 
-var monsterSpritesheets = map[string]*graphics2.SpritesheetResource{
+var monsterSpritesheets = map[string]*graphic.SpritesheetResource{
 	"ork_warrior": nil,
 }
 
@@ -93,27 +94,27 @@ func (s *myScene) Preload() {
 	//		"build/f/3-1.png",
 	//		BuildSpriteRegionsFromTextureAtlas(character.Female, jobid.Archer),
 	//	))
-	charSpritesheets[F][jobid.Thief] = graphics2.NewSpritesheetResource(
+	charSpritesheets[F][jobid.Thief] = graphic.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/6-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Thief),
 		))
-	charSpritesheets[F][jobid.Merchant] = graphics2.NewSpritesheetResource(
+	charSpritesheets[F][jobid.Merchant] = graphic.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/5-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Merchant),
 		))
-	charSpritesheets[F][jobid.Monk] = graphics2.NewSpritesheetResource(
+	charSpritesheets[F][jobid.Monk] = graphic.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/15-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Monk),
 		))
-	charSpritesheets[M][jobid.Archer] = graphics2.NewSpritesheetResource(
+	charSpritesheets[M][jobid.Archer] = graphic.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/3-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.Archer),
 		))
-	charSpritesheets[M][jobid.MonkH] = graphics2.NewSpritesheetResource(
+	charSpritesheets[M][jobid.MonkH] = graphic.NewSpritesheetResource(
 		common.NewAsymmetricSpritesheetFromFile(
 			"build/m/4016-1.png",
 			BuildSpriteRegionsFromTextureAtlas(character.Male, jobid.MonkH),
