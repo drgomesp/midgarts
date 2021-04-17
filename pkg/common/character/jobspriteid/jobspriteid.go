@@ -55,3 +55,58 @@ func GetJobSpriteID(jid jobid.Type) (t Type) {
 
 	return
 }
+
+func (j Type) String() string {
+	switch j {
+	case Novice:
+		return "Novice"
+	case Swordsman:
+		return "Swordsman"
+	case Magician:
+		return "Magician"
+	case Archer:
+		return "Archer"
+	case Alcolyte:
+		return "Alcolyte"
+	case Merchant:
+		return "Merchant"
+	case Thief:
+		return "Thief"
+	case Knight:
+		return "Knight"
+	case Priest:
+		return "Priest"
+	case Wizard:
+		return "Wizard"
+	case Blacksmith:
+		return "Blacksmith"
+	case Hunter:
+		return "Hunter"
+	case Assassin:
+		return "Assassin"
+	case Knight2:
+		return "Knight2"
+	case Crusader:
+		return "Crusader"
+	case Monk:
+		return "Monk"
+	case Sage:
+		return "Sage"
+	case Rogue:
+		return "Rogue"
+	case Alchemist:
+		return "Alchemist"
+	case Bard:
+		return "Bard"
+	case Dancer:
+		return "Dancer"
+	case Crusader2:
+		return "Crusader2"
+	case MonkH:
+		return "MonkH"
+	default:
+		log.Fatalf("unsupported jobspriteid %d\n", j)
+	}
+
+	return ""
+}

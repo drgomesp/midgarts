@@ -5,6 +5,8 @@ import (
 	"log"
 	"math"
 
+	"github.com/pkg/errors"
+
 	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
@@ -102,11 +104,18 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 	}
 
 	shadowActFile, shadowSprFile, err := f.GetActionAndSpriteFiles(shadowFilePath)
-	bodyActFile, bodySprFile, err := f.GetActionAndSpriteFiles(bodyFilePath)
-	headActFile, headSprFile, err := f.GetActionAndSpriteFiles(headFilePathf)
-
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(errors.Wrapf(err, "could not load shadow act and spr files (%v, %s)", gender, jobSpriteID))
+	}
+
+	bodyActFile, bodySprFile, err := f.GetActionAndSpriteFiles(bodyFilePath)
+	if err != nil {
+		log.Fatal(errors.Wrapf(err, "could not load body act and spr files (%v, %s)", gender, jobSpriteID))
+	}
+
+	headActFile, headSprFile, err := f.GetActionAndSpriteFiles(headFilePathf)
+	if err != nil {
+		log.Fatal(errors.Wrapf(err, "could not load head act and spr files (%v, %s)", gender, jobSpriteID))
 	}
 
 	characterSprite := &CharacterSprite{
@@ -132,18 +141,18 @@ func getDecodedFolder(buf []byte) (folder []byte, err error) {
 }
 
 func (s *CharacterSprite) Render(gls *opengl.State, cam *Camera, char *CharState) {
-	position := [2]float32{}
+	offset := [2]float32{}
 
 	// TODO: this must come from character state
 	action := char.Action
 
 	if action != actionindex.Dead && action != actionindex.Sitting {
-		s.renderElement(gls, cam, char, CharacterSpriteElementShadow, &position)
+		s.renderElement(gls, cam, char, CharacterSpriteElementShadow, &offset)
 	}
 
-	s.renderElement(gls, cam, char, CharacterSpriteElementBody, &position)
+	s.renderElement(gls, cam, char, CharacterSpriteElementBody, &offset)
 
-	s.renderElement(gls, cam, char, CharacterSpriteElementHead, &position)
+	s.renderElement(gls, cam, char, CharacterSpriteElementHead, &offset)
 }
 
 func (s *CharacterSprite) renderElement(
@@ -151,8 +160,12 @@ func (s *CharacterSprite) renderElement(
 	cam *Camera,
 	char *CharState,
 	elem CharacterSpriteElement,
-	position *[2]float32,
+	offset *[2]float32,
 ) {
+	if len(s.files[elem].ACT.Actions) == 0 {
+		return
+	}
+
 	action := s.files[elem].ACT.Actions[(int(char.Action*8) + (int(directiontype.South)+DirectionTable[FixedCameraDirection]%8)%len(s.files[elem].ACT.Actions))]
 	fileSet := s.files[elem]
 
@@ -180,8 +193,8 @@ func (s *CharacterSprite) renderElement(
 	pos := [2]float32{0, 0}
 
 	if len(frame.Positions) > 0 && elem != CharacterSpriteElementBody {
-		pos[0] = position[0] - float32(frame.Positions[frameIndex][0])
-		pos[1] = position[1] - float32(frame.Positions[frameIndex][1])
+		pos[0] = offset[0] - float32(frame.Positions[frameIndex][0])
+		pos[1] = offset[1] - float32(frame.Positions[frameIndex][1])
 	}
 
 	// Render all frames
@@ -193,9 +206,9 @@ func (s *CharacterSprite) renderElement(
 		s.renderLayer(gls, cam, layer, fileSet.SPR, pos, elem)
 	}
 
-	// Save position reference
+	// Save offset reference
 	if elem == CharacterSpriteElementBody && len(frame.Positions) > 0 {
-		*position = [2]float32{float32(frame.Positions[frameIndex][0]), float32(frame.Positions[frameIndex][1])}
+		*offset = [2]float32{float32(frame.Positions[frameIndex][0]), float32(frame.Positions[frameIndex][1])}
 	}
 }
 
@@ -226,18 +239,21 @@ func (s *CharacterSprite) renderLayer(
 	offsetX := (float32(layer.Position[0]) + position[0]) * OnePixelSize
 	offsetY := (float32(layer.Position[1]) + position[1]) * OnePixelSize
 
+	if layer.Mirrored {
+		width = -width
+	}
+
 	sprite := NewSprite(width, height, texture)
 	sprite.SetPosition(s.position.X()-offsetX, s.position.Y()-offsetY, 0)
-	s.elementSprites[elem] = sprite
-
-	log.Printf("elem=(%s) layer=(%+v)\n", elem, layer)
 
 	{
-		mvp := cam.ViewProjectionMatrix().Mul4(s.elementSprites[elem].Model())
+		mvp := cam.ViewProjectionMatrix().Mul4(sprite.Model())
 		mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
 		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
 
-		s.elementSprites[elem].Texture.Bind(0)
-		s.elementSprites[elem].Render(gls, cam)
+		sprite.Texture.Bind(0)
+		sprite.Render(gls, cam)
 	}
+
+	s.elementSprites[elem] = sprite
 }

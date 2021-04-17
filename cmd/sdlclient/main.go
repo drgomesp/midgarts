@@ -5,6 +5,8 @@ import (
 	"math"
 	"runtime"
 
+	"github.com/pkg/errors"
+
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 
 	"github.com/go-gl/mathgl/mgl32"
@@ -91,7 +93,7 @@ func main() {
 	cm17 := loadCharOrPanic(grfFile, character.Male, jobspriteid.Rogue, 17)
 	cm18 := loadCharOrPanic(grfFile, character.Male, jobspriteid.Alchemist, 18)
 	cm19 := loadCharOrPanic(grfFile, character.Male, jobspriteid.Bard, 19)
-	cm20 := loadCharOrPanic(grfFile, character.Male, jobspriteid.Dancer, 20)
+	//cm20 := loadCharOrPanic(grfFile, character.Male, jobspriteid.Dancer, 20)
 
 	cf1 := loadCharOrPanic(grfFile, character.Female, jobspriteid.Novice, 1)
 	cf2 := loadCharOrPanic(grfFile, character.Female, jobspriteid.Swordsman, 2)
@@ -111,8 +113,8 @@ func main() {
 	cf16 := loadCharOrPanic(grfFile, character.Female, jobspriteid.Sage, 16)
 	cf17 := loadCharOrPanic(grfFile, character.Female, jobspriteid.Rogue, 17)
 	cf18 := loadCharOrPanic(grfFile, character.Female, jobspriteid.Alchemist, 18)
-	cf19 := loadCharOrPanic(grfFile, character.Female, jobspriteid.Bard, 19)
-	cf20 := loadCharOrPanic(grfFile, character.Female, jobspriteid.Dancer, 20)
+	//cf19 := loadCharOrPanic(grfFile, character.Female, jobspriteid.Bard, 19)
+	//cf20 := loadCharOrPanic(grfFile, character.Female, jobspriteid.Dancer, 20)
 
 	counter := 0.0
 	shouldStop := false
@@ -148,7 +150,7 @@ func main() {
 		cm17.SetPosition(-6, 4, 0)
 		cm18.SetPosition(-4, 4, 0)
 		cm19.SetPosition(-2, 4, 0)
-		cm20.SetPosition(0, 4, 0)
+		//cm20.SetPosition(0, 4, 0)
 
 		cf1.SetPosition(-12, 8, 0)
 		cf2.SetPosition(-10, 8, 0)
@@ -169,8 +171,8 @@ func main() {
 		cf16.SetPosition(-4, -4, 0)
 		cf17.SetPosition(-2, -4, 0)
 		cf18.SetPosition(0, -4, 0)
-		cf19.SetPosition(2, -4, 0)
-		cf20.SetPosition(4, -4, 0)
+		//cf19.SetPosition(2, -4, 0)
+		//cf20.SetPosition(4, -4, 0)
 
 		sin := math.Sin(counter)
 		cos := math.Cos(counter)
@@ -214,9 +216,9 @@ func main() {
 		cf13.Render(gls, cam, char)
 		cf14.Render(gls, cam, char)
 		cf15.Render(gls, cam, char)
-		//cf16.Render(gls, cam, char)
-		//cf17.Render(gls, cam, char)
-		//cf18.Render(gls, cam, char)
+		cf16.Render(gls, cam, char)
+		cf17.Render(gls, cam, char)
+		cf18.Render(gls, cam, char)
 		//cf19.Render(gls, cam, char)
 
 		window.GLSwap()
@@ -225,10 +227,10 @@ func main() {
 	}
 }
 
-func loadCharOrPanic(grfFile *grf.File, genderType character.GenderType, p jobspriteid.Type, headIndex int32) *graphic.CharacterSprite {
-	cm14, err := graphic.LoadCharacterSprite(grfFile, genderType, p, headIndex)
+func loadCharOrPanic(grfFile *grf.File, gender character.GenderType, jobspriteid jobspriteid.Type, headIndex int32) *graphic.CharacterSprite {
+	cm14, err := graphic.LoadCharacterSprite(grfFile, gender, jobspriteid, headIndex)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(errors.Wrapf(err, "could not load character (%v, %v)\n", gender, jobspriteid))
 	}
 	return cm14
 }
