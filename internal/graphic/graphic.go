@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	OnePixelSize = 1.0 / 35.0
+	OnePixelSize = 1.0 / 32.0
 )
 
 type Graphic struct {

@@ -3,6 +3,9 @@ package graphic
 import (
 	"fmt"
 	"log"
+	"math"
+
+	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
@@ -10,7 +13,6 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
-	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
@@ -21,6 +23,7 @@ type CharacterSpriteElement int
 
 const (
 	SpriteScaleFactor    = float32(1.0)
+	FPSMultiplier        = float64(1.0)
 	FixedCameraDirection = 6
 )
 
@@ -46,6 +49,10 @@ func (e CharacterSpriteElement) String() string {
 }
 
 var DirectionTable = [8]int{6, 5, 4, 3, 2, 1, 0, 7}
+
+type CharState struct {
+	Action actionindex.Type
+}
 
 type fileSet struct {
 	ACT *act.ActionFile
@@ -114,7 +121,6 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 	}
 
 	return characterSprite, nil
-
 }
 
 func getDecodedFolder(buf []byte) (folder []byte, err error) {
@@ -125,47 +131,71 @@ func getDecodedFolder(buf []byte) (folder []byte, err error) {
 	return folder, nil
 }
 
-func (s *CharacterSprite) Render(gls *opengl.State, cam *Camera) {
+func (s *CharacterSprite) Render(gls *opengl.State, cam *Camera, char *CharState) {
 	position := [2]float32{}
 
-	s.renderElement(gls, cam, CharacterSpriteElementShadow, &position)
+	// TODO: this must come from character state
+	action := char.Action
 
-	s.renderElement(gls, cam, CharacterSpriteElementBody, &position)
+	if action != actionindex.Dead && action != actionindex.Sitting {
+		s.renderElement(gls, cam, char, CharacterSpriteElementShadow, &position)
+	}
 
-	s.renderElement(gls, cam, CharacterSpriteElementHead, &position)
+	s.renderElement(gls, cam, char, CharacterSpriteElementBody, &position)
+
+	s.renderElement(gls, cam, char, CharacterSpriteElementHead, &position)
 }
 
 func (s *CharacterSprite) renderElement(
 	gls *opengl.State,
 	cam *Camera,
+	char *CharState,
 	elem CharacterSpriteElement,
 	position *[2]float32,
 ) {
+	action := s.files[elem].ACT.Actions[(int(char.Action*8) + (int(directiontype.South)+DirectionTable[FixedCameraDirection]%8)%len(s.files[elem].ACT.Actions))]
 	fileSet := s.files[elem]
 
-	actionIndex := actionindex.GetActionIndex(statetype.Idle)
-	idx := int(actionIndex) +
-		(int(directiontype.South)+DirectionTable[FixedCameraDirection])%8
+	frameCount := len(action.Frames)
+	timeNeededForOneFrame := int64(action.Delay.Seconds() * (1.0 / FPSMultiplier))
+	timeNeededForOneFrame = int64(math.Max(float64(timeNeededForOneFrame), 100))
+	elapsedTime := int64(0)
+	realIndex := elapsedTime / timeNeededForOneFrame
 
-	currentFrame := 0
-	action := fileSet.ACT.Actions[idx]
-	frame := action.Frames[currentFrame]
+	// TODO: make this come from char entity
+	playMode := actionplaymode.Repeat
+	var frameIndex int64
+	switch playMode {
+	case actionplaymode.Repeat:
+		frameIndex = realIndex % int64(frameCount)
+		break
+	}
+
+	frame := action.Frames[frameIndex]
+
+	if len(frame.Layers) == 0 {
+		return
+	}
 
 	pos := [2]float32{0, 0}
 
 	if len(frame.Positions) > 0 && elem != CharacterSpriteElementBody {
-		pos[0] = position[0] - float32(frame.Positions[0][0])
-		pos[1] = position[1] - float32(frame.Positions[0][1])
+		pos[0] = position[0] - float32(frame.Positions[frameIndex][0])
+		pos[1] = position[1] - float32(frame.Positions[frameIndex][1])
 	}
 
 	// Render all frames
 	for _, layer := range frame.Layers {
+		if layer.SpriteFrameIndex < 0 {
+			continue
+		}
+
 		s.renderLayer(gls, cam, layer, fileSet.SPR, pos, elem)
 	}
 
 	// Save position reference
 	if elem == CharacterSpriteElementBody && len(frame.Positions) > 0 {
-		*position = [2]float32{float32(frame.Positions[0][0]), float32(frame.Positions[0][1])}
+		*position = [2]float32{float32(frame.Positions[frameIndex][0]), float32(frame.Positions[frameIndex][1])}
 	}
 }
 
@@ -177,14 +207,18 @@ func (s *CharacterSprite) renderLayer(
 	position [2]float32,
 	elem CharacterSpriteElement,
 ) {
-	currentFrame := 0
-	frame := spr.Frames[currentFrame]
+	frameIndex := int(layer.SpriteFrameIndex)
+	if frameIndex < 0 {
+		return
+	}
+
+	frame := spr.Frames[layer.Index]
 	width, height := float32(frame.Width), float32(frame.Height)
 
 	width *= layer.Scale[0] * SpriteScaleFactor * OnePixelSize
 	height *= layer.Scale[1] * SpriteScaleFactor * OnePixelSize
 
-	texture, err := NewTextureFromImage(spr.ImageAt(currentFrame))
+	texture, err := NewTextureFromImage(spr.ImageAt(frameIndex))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -192,10 +226,11 @@ func (s *CharacterSprite) renderLayer(
 	offsetX := (float32(layer.Position[0]) + position[0]) * OnePixelSize
 	offsetY := (float32(layer.Position[1]) + position[1]) * OnePixelSize
 
-	s.elementSprites[elem] = NewSprite(width, height, texture)
-	s.elementSprites[elem].SetPosition(s.position.X()+offsetX, s.position.Y()-offsetY, 0)
+	sprite := NewSprite(width, height, texture)
+	sprite.SetPosition(s.position.X()-offsetX, s.position.Y()-offsetY, 0)
+	s.elementSprites[elem] = sprite
 
-	log.Printf("elem=(%s) w=(%v) h=(%v) pos=(%v) offset=(%v, %v)\n", elem, width, height, position, offsetX, offsetY)
+	log.Printf("elem=(%s) layer=(%+v)\n", elem, layer)
 
 	{
 		mvp := cam.ViewProjectionMatrix().Mul4(s.elementSprites[elem].Model())

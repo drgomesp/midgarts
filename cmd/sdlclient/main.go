@@ -2,7 +2,12 @@ package main
 
 import (
 	"log"
+	"math"
 	"runtime"
+
+	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
+
+	"github.com/go-gl/mathgl/mgl32"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
@@ -126,28 +131,30 @@ func main() {
 		cf8.SetPosition(4, 4, 0)
 		cf9.SetPosition(6, 4, 0)
 
-		//sin := math.Sin(counter)
-		//cos := math.Cos(counter)
-		//cs1.SetRotation(mgl32.Vec3{float32(sin) * 25, float32(cos) * 25, 0})
-		cm1.Render(gls, cam)
-		cm2.Render(gls, cam)
-		cm3.Render(gls, cam)
-		cm4.Render(gls, cam)
-		cm5.Render(gls, cam)
-		cm6.Render(gls, cam)
-		cm7.Render(gls, cam)
-		cm8.Render(gls, cam)
-		cm9.Render(gls, cam)
+		sin := math.Sin(counter)
+		cos := math.Cos(counter)
+		cm1.SetRotation(mgl32.Vec3{float32(sin) * 25, float32(cos) * 25, 0})
 
-		cf1.Render(gls, cam)
-		cf2.Render(gls, cam)
-		cf3.Render(gls, cam)
-		cf4.Render(gls, cam)
-		cf5.Render(gls, cam)
-		cf6.Render(gls, cam)
-		cf7.Render(gls, cam)
-		cf8.Render(gls, cam)
-		cf9.Render(gls, cam)
+		char := &graphic.CharState{Action: actionindex.Idle}
+
+		cm1.Render(gls, cam, char)
+		cm2.Render(gls, cam, char)
+		cm3.Render(gls, cam, char)
+		cm4.Render(gls, cam, char)
+		cm5.Render(gls, cam, char)
+		cm6.Render(gls, cam, char)
+		cm7.Render(gls, cam, char)
+		cm8.Render(gls, cam, char)
+		cm9.Render(gls, cam, char)
+		cf1.Render(gls, cam, char)
+		cf2.Render(gls, cam, char)
+		cf3.Render(gls, cam, char)
+		cf4.Render(gls, cam, char)
+		cf5.Render(gls, cam, char)
+		cf6.Render(gls, cam, char)
+		cf7.Render(gls, cam, char)
+		cf8.Render(gls, cam, char)
+		cf9.Render(gls, cam, char)
 
 		window.GLSwap()
 

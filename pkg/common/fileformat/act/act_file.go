@@ -18,6 +18,7 @@ const (
 )
 
 type ActionFrameLayer struct {
+	Index            int32
 	Position         [2]int32
 	SpriteFrameIndex int32
 	Mirrored         bool
@@ -145,11 +146,11 @@ func (f *ActionFile) loadActionFrames(buf io.ReadSeeker) []*ActionFrame {
 
 	_ = binary.Read(buf, binary.LittleEndian, &frameCount)
 	frames = make([]*ActionFrame, int(frameCount))
-	positions := make([][2]int32, frameCount)
 
 	for i := 0; i < int(frameCount); i++ {
 		_ = bytesutil.SkipBytes(buf, 32)
 
+		positions := make([][2]int32, frameCount)
 		layers := f.loadActionFrameLayers(buf)
 
 		if f.Header.Version >= 2.0 {
@@ -237,20 +238,16 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 		}
 
 		layers[i] = &ActionFrameLayer{
+			Index:            int32(i),
 			Position:         pos,
 			SpriteFrameIndex: spriteFrameIndex,
 			Mirrored:         isMirror != 0,
 			Scale:            scale,
-			Color: &color.RGBA{
-				R: r,
-				G: g,
-				B: b,
-				A: a,
-			},
-			Angle:      angle,
-			SpriteType: spriteType,
-			Width:      width,
-			Height:     height,
+			Color:            &color.RGBA{R: r, G: g, B: b, A: a},
+			Angle:            angle,
+			SpriteType:       spriteType,
+			Width:            width,
+			Height:           height,
 		}
 	}
 
