@@ -6,12 +6,14 @@ import (
 	"runtime"
 	"time"
 
-	graphic2 "github.com/project-midgard/midgarts/pkg/graphic"
+	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/pkg/errors"
 	rographic "github.com/project-midgard/midgarts/cmd/sdlclient/graphic"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
+	"github.com/project-midgard/midgarts/pkg/camera"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
@@ -66,37 +68,13 @@ func main() {
 	gl.Viewport(0, 0, WindowWidth, WindowHeight)
 
 	log.Printf("Window Aspect Ratio = %f\n", AspectRatio)
-	cam := graphic2.NewPerspectiveCamera(70.0, AspectRatio, 0.1, 1000.0)
-
-	pos := cam.Position()
-	cam.Transform.SetPosition(pos.X(), pos.Y(), pos.Z()-17)
+	cam := camera.NewPerspectiveCamera(0.638, AspectRatio, 0.1, 1000.0)
+	cam.ResetAngleAndY(WindowWidth, WindowHeight)
 
 	gl.Viewport(0, 0, int32(WindowWidth), int32(WindowHeight))
 	gl.ClearColor(0, 0.5, 0.8, 1.0)
 
-	classes := []jobspriteid.Type{
-		jobspriteid.Novice,
-		jobspriteid.Swordsman,
-		jobspriteid.Magician,
-		jobspriteid.Archer,
-		jobspriteid.Alcolyte,
-		jobspriteid.Merchant,
-		jobspriteid.Thief,
-		jobspriteid.Knight,
-		jobspriteid.Priest,
-		jobspriteid.Wizard,
-		jobspriteid.Blacksmith,
-		jobspriteid.Hunter,
-		jobspriteid.Assassin,
-		jobspriteid.Knight2,
-		jobspriteid.Crusader,
-		jobspriteid.Monk,
-		jobspriteid.Sage,
-		jobspriteid.Rogue,
-		jobspriteid.Alchemist,
-		jobspriteid.Crusader2,
-		jobspriteid.MonkH,
-	}
+	classes := jobspriteid.All()
 	chars := make([]*rographic.CharacterSprite, 21)
 
 	counter := 0.0
@@ -118,31 +96,33 @@ func main() {
 			chars[i] = loadCharOrPanic(grfFile, character.Female, jid, rand.Intn(20-1)+1)
 		}
 
-		chars[0].SetPosition(-16, 0, 0)
-		chars[1].SetPosition(-14, 0, 0)
-		chars[2].SetPosition(-12, 0, 0)
-		chars[3].SetPosition(-10, 0, 0)
-		chars[4].SetPosition(-8, 0, 0)
-		chars[5].SetPosition(-6, 0, 0)
-		chars[6].SetPosition(-4, 0, 0)
-		chars[7].SetPosition(-2, 0, 0)
-		chars[8].SetPosition(0, 0, 0)
-		chars[9].SetPosition(0, 4, 0)
-		chars[10].SetPosition(2, 4, 0)
-		chars[11].SetPosition(4, 4, 0)
-		chars[12].SetPosition(6, 4, 0)
-		chars[13].SetPosition(8, 4, 0)
-		chars[14].SetPosition(10, 4, 0)
-		chars[15].SetPosition(12, 4, 0)
-		chars[16].SetPosition(14, 4, 0)
-		chars[17].SetPosition(16, 4, 0)
-		chars[18].SetPosition(-14, -4, 0)
-		chars[19].SetPosition(-12, -4, 0)
-		chars[20].SetPosition(-10, -4, 0)
+		chars[0].SetPosition(mgl32.Vec3{0, 42, 0})
+		chars[1].SetPosition(mgl32.Vec3{2, 42, 0})
+		chars[2].SetPosition(mgl32.Vec3{4, 42, 0})
+		chars[3].SetPosition(mgl32.Vec3{6, 42, 0})
+		chars[4].SetPosition(mgl32.Vec3{8, 42, 0})
+		chars[5].SetPosition(mgl32.Vec3{10, 42, 0})
+		chars[6].SetPosition(mgl32.Vec3{12, 42, 0})
+		chars[7].SetPosition(mgl32.Vec3{14, 42, 0})
+		chars[8].SetPosition(mgl32.Vec3{16, 42, 0})
+		chars[9].SetPosition(mgl32.Vec3{18, 45, 0})
+		chars[10].SetPosition(mgl32.Vec3{2, 38, 0})
+		chars[11].SetPosition(mgl32.Vec3{4, 38, 0})
+		chars[12].SetPosition(mgl32.Vec3{6, 38, 0})
+		chars[13].SetPosition(mgl32.Vec3{8, 38, 0})
+		chars[14].SetPosition(mgl32.Vec3{10, 38, 0})
+		chars[15].SetPosition(mgl32.Vec3{12, 38, 0})
+		chars[16].SetPosition(mgl32.Vec3{14, 38, 0})
+		chars[17].SetPosition(mgl32.Vec3{16, 38, 0})
+		chars[18].SetPosition(mgl32.Vec3{-14, 38, 0})
+		chars[19].SetPosition(mgl32.Vec3{-12, 38, 0})
+		chars[20].SetPosition(mgl32.Vec3{-10, 38, 0})
 
 		charState := &rographic.CharState{
-			Direction: directiontype.Type(rand.Intn(8-1) + 1),
+			//Direction: directiontype.Type(rand.Intn(8-1) + 1),
+			Direction: directiontype.South,
 			State:     statetype.Idle,
+			PlayMode:  actionplaymode.Repeat,
 		}
 
 		for _, c := range chars {

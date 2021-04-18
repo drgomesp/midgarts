@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	OnePixelSize = 1.0 / 32.0
+	OnePixelSize = 1.0 / 35.0
 )
 
 type Graphic struct {
@@ -19,7 +19,7 @@ func NewGraphic(geom *Geometry, renderMode uint32) *Graphic {
 	return &Graphic{Transform: NewTransform(Origin), geometry: geom, renderMode: renderMode}
 }
 
-func (g *Graphic) Render(gls *opengl.State, _ *Camera) {
+func (g *Graphic) Render(gls *opengl.State) {
 	geom := g.geometry
 
 	if geom.gls == nil {

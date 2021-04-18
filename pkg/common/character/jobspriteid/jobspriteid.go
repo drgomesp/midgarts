@@ -110,3 +110,29 @@ func (j Type) String() string {
 
 	return ""
 }
+
+func All() []Type {
+	return []Type{
+		Novice,
+		Swordsman,
+		Magician,
+		Archer,
+		Alcolyte,
+		Merchant,
+		Thief,
+		Knight,
+		Priest,
+		Wizard,
+		Blacksmith,
+		Hunter,
+		Assassin,
+		Knight2,
+		Crusader,
+		Monk,
+		Sage,
+		Rogue,
+		Alchemist,
+		Crusader2,
+		MonkH,
+	}
+}

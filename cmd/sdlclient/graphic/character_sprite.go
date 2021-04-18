@@ -5,9 +5,8 @@ import (
 	"log"
 	"math"
 
-	graphic2 "github.com/project-midgard/midgarts/pkg/graphic"
-
 	"github.com/go-gl/gl/v3.3-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
 	"github.com/pkg/errors"
 	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
 	"github.com/project-midgard/midgarts/pkg/common/character"
@@ -19,6 +18,7 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
+	graphic "github.com/project-midgard/midgarts/pkg/graphic"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -56,6 +56,7 @@ var DirectionTable = [8]int{6, 5, 4, 3, 2, 1, 0, 7}
 type CharState struct {
 	Direction directiontype.Type
 	State     statetype.Type
+	PlayMode  actionplaymode.Type
 }
 
 type fileSet struct {
@@ -64,12 +65,12 @@ type fileSet struct {
 }
 
 type CharacterSprite struct {
-	*graphic2.Transform
+	*graphic.Transform
 
 	Gender character.GenderType
 
 	files   [NumCharacterSpriteElements]fileSet
-	sprites [NumCharacterSpriteElements]*graphic2.Sprite
+	sprites [NumCharacterSpriteElements]*graphic.Sprite
 }
 
 func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int32) (
@@ -121,14 +122,14 @@ func LoadCharacterSprite(f *grf.File, gender character.GenderType, jobSpriteID j
 	}
 
 	characterSprite := &CharacterSprite{
-		Transform: graphic2.NewTransform(graphic2.Origin),
+		Transform: graphic.NewTransform(graphic.Origin),
 		Gender:    gender,
 		files: [NumCharacterSpriteElements]fileSet{
 			CharacterSpriteElementShadow: {shadowActFile, shadowSprFile},
 			CharacterSpriteElementHead:   {headActFile, headSprFile},
 			CharacterSpriteElementBody:   {bodyActFile, bodySprFile},
 		},
-		sprites: [NumCharacterSpriteElements]*graphic2.Sprite{},
+		sprites: [NumCharacterSpriteElements]*graphic.Sprite{},
 	}
 
 	return characterSprite, nil
@@ -142,24 +143,22 @@ func getDecodedFolder(buf []byte) (folder []byte, err error) {
 	return folder, nil
 }
 
-func (s *CharacterSprite) Render(gls *opengl.State, cam *graphic2.Camera, char *CharState) {
+func (s *CharacterSprite) Render(gls *opengl.State, renderInfo graphic.RenderInfo, char *CharState) {
 	offset := [2]float32{}
-
-	// TODO: this must come from character state
 	action := actionindex.GetActionIndex(char.State)
 
 	if action != actionindex.Dead && action != actionindex.Sitting {
-		s.renderElement(gls, cam, char, CharacterSpriteElementShadow, &offset)
+		s.renderElement(gls, renderInfo, char, CharacterSpriteElementShadow, &offset)
 	}
 
-	s.renderElement(gls, cam, char, CharacterSpriteElementBody, &offset)
+	s.renderElement(gls, renderInfo, char, CharacterSpriteElementBody, &offset)
 
-	s.renderElement(gls, cam, char, CharacterSpriteElementHead, &offset)
+	s.renderElement(gls, renderInfo, char, CharacterSpriteElementHead, &offset)
 }
 
 func (s *CharacterSprite) renderElement(
 	gls *opengl.State,
-	cam *graphic2.Camera,
+	renderInfo graphic.RenderInfo,
 	char *CharState,
 	elem CharacterSpriteElement,
 	offset *[2]float32,
@@ -184,10 +183,8 @@ func (s *CharacterSprite) renderElement(
 	elapsedTime := int64(0)
 	realIndex := elapsedTime / timeNeededForOneFrame
 
-	// TODO: make this come from char entity
-	playMode := actionplaymode.Repeat
 	var frameIndex int64
-	switch playMode {
+	switch char.PlayMode {
 	case actionplaymode.Repeat:
 		frameIndex = realIndex % int64(frameCount)
 		break
@@ -212,7 +209,7 @@ func (s *CharacterSprite) renderElement(
 			continue
 		}
 
-		s.renderLayer(gls, cam, layer, fileSet.SPR, pos, elem)
+		s.renderLayer(gls, renderInfo, layer, fileSet.SPR, pos, elem)
 	}
 
 	// Save offset reference
@@ -223,7 +220,7 @@ func (s *CharacterSprite) renderElement(
 
 func (s *CharacterSprite) renderLayer(
 	gls *opengl.State,
-	cam *graphic2.Camera,
+	renderInfo graphic.RenderInfo,
 	layer *act.ActionFrameLayer,
 	spr *spr.SpriteFile,
 	offset [2]float32,
@@ -238,42 +235,70 @@ func (s *CharacterSprite) renderLayer(
 	width, height := float32(frame.Width), float32(frame.Height)
 
 	img := spr.ImageAt(frameIndex)
-	texture, err := graphic2.NewTextureFromImage(img)
+	texture, err := graphic.NewTextureFromImage(img)
 
-	width *= layer.Scale[0] * SpriteScaleFactor * graphic2.OnePixelSize
-	height *= layer.Scale[1] * SpriteScaleFactor * graphic2.OnePixelSize
+	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
+	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	offsetX := (float32(layer.Position[0]) + offset[0]) * graphic2.OnePixelSize
-	offsetY := (float32(layer.Position[1]) + offset[1]) * graphic2.OnePixelSize
+	offsetX := (float32(layer.Position[0]) + offset[0]) * graphic.OnePixelSize
+	offsetY := (float32(layer.Position[1]) + offset[1]) * graphic.OnePixelSize
 
 	if layer.Mirrored {
 		width = -width
 	}
 
-	sprite := graphic2.NewSprite(width, height, texture)
-	sprite.SetPosition(s.Position().X()-offsetX, s.Position().Y()-offsetY, 0)
+	sprite := graphic.NewSprite(1.0, 1.0, texture)
+	sprite.SetPosition(mgl32.Vec3{s.Position().X() + offsetX, s.Position().Y(), 0})
 
 	log.Printf(
 		"elem=(%s) size=(%v, %v), scale=(%+v) position=(%+v), rotation=(%+v)\n",
 		elem,
-		width/graphic2.OnePixelSize,
-		height/graphic2.OnePixelSize,
+		width/graphic.OnePixelSize,
+		height/graphic.OnePixelSize,
 		sprite.Scale(),
 		sprite.Position(),
 		sprite.Rotation(),
 	)
 
 	{
-		mvp := cam.ViewProjectionMatrix().Mul4(sprite.Model())
-		mvpu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("mvp\x00"))
-		gl.UniformMatrix4fv(mvpu, 1, false, &mvp[0])
-
 		sprite.Texture.Bind(0)
-		sprite.Render(gls, cam)
+
+		view := renderInfo.ViewMatrix()
+		viewu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("view\x00"))
+		gl.UniformMatrix4fv(viewu, 1, false, &view[0])
+
+		model := sprite.Model()
+		modelu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("model\x00"))
+		gl.UniformMatrix4fv(modelu, 1, false, &model[0])
+
+		projection := renderInfo.ProjectionMatrix()
+		projectionu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("projection\x00"))
+		gl.UniformMatrix4fv(projectionu, 1, false, &projection[0])
+
+		size := mgl32.Vec2{width, height}
+		sizeu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("size\x00"))
+		gl.Uniform2fv(sizeu, 1, &size[0])
+
+		offset := mgl32.Vec2{offsetX, offsetY}
+		offsetu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("offset\x00"))
+		gl.Uniform2fv(offsetu, 1, &offset[0])
+
+		rotation := create3DRotationMatrix(0.0, graphic.Forward)
+		rotationu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("rotation\x00"))
+		gl.UniformMatrix4fv(rotationu, 1, false, &rotation[0])
+
+		sprite.Render(gls)
 	}
 
 	s.sprites[elem] = sprite
+}
+
+func create3DRotationMatrix(angle float32, axis mgl32.Vec3) mgl32.Mat4 {
+	iden := mgl32.Ident4()
+	rotation := mgl32.HomogRotate3D(angle, axis)
+
+	return iden.Mul4(rotation)
 }

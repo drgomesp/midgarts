@@ -4,6 +4,12 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 )
 
+var (
+	Origin  = mgl32.Vec3{0, 0, 0}
+	Up      = mgl32.Vec3{0, 1, 0}
+	Forward = mgl32.Vec3{0, 0, 1}
+)
+
 type Transform struct {
 	position  mgl32.Vec3
 	scale     mgl32.Vec3
@@ -39,8 +45,8 @@ func (t *Transform) Position() mgl32.Vec3 {
 	return t.position
 }
 
-func (t *Transform) SetPosition(x, y, z float32) {
-	t.position = mgl32.Vec3{x, y, z}
+func (t *Transform) SetPosition(position mgl32.Vec3) {
+	t.position = position
 }
 
 func (t *Transform) Scale() mgl32.Vec3 {
