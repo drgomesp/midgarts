@@ -53,8 +53,8 @@ func NewTextureFromImage(img image.Image) (tex *Texture, err error) {
 		img:            rgba,
 		magFilter:      gl.NEAREST,
 		minFilter:      gl.NEAREST,
-		wrapS:          gl.REPEAT,
-		wrapT:          gl.REPEAT,
+		wrapS:          gl.CLAMP_TO_BORDER,
+		wrapT:          gl.CLAMP_TO_BORDER,
 	}
 
 	gl.GenTextures(1, &tex.handle)

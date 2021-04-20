@@ -168,7 +168,8 @@ func (s *CharacterSprite) renderElement(
 	}
 
 	actionIndex := actionindex.GetActionIndex(char.State)
-	idx := int(actionIndex) + (int(char.Direction)+DirectionTable[FixedCameraDirection])%8
+	idx := int(actionIndex)*8 + (int(char.Direction)+DirectionTable[FixedCameraDirection])%8%
+		len(s.files[elem].ACT.Actions)
 
 	if elem == CharacterSpriteElementShadow {
 		idx = 0
@@ -196,11 +197,11 @@ func (s *CharacterSprite) renderElement(
 		return
 	}
 
-	pos := [2]float32{0, 0}
+	position := [2]float32{0, 0}
 
 	if len(frame.Positions) > 0 && elem != CharacterSpriteElementBody {
-		pos[0] = offset[0] - float32(frame.Positions[frameIndex][0])
-		pos[1] = offset[1] - float32(frame.Positions[frameIndex][1])
+		position[0] = offset[0] - float32(frame.Positions[frameIndex][0])
+		position[1] = offset[1] - float32(frame.Positions[frameIndex][1])
 	}
 
 	// Render all frames
@@ -209,12 +210,15 @@ func (s *CharacterSprite) renderElement(
 			continue
 		}
 
-		s.renderLayer(gls, renderInfo, layer, fileSet.SPR, pos, elem)
+		s.renderLayer(gls, renderInfo, layer, fileSet.SPR, position, elem)
 	}
 
 	// Save offset reference
 	if elem == CharacterSpriteElementBody && len(frame.Positions) > 0 {
-		*offset = [2]float32{float32(frame.Positions[frameIndex][0]), float32(frame.Positions[frameIndex][1])}
+		*offset = [2]float32{
+			float32(frame.Positions[frameIndex][0]),
+			float32(frame.Positions[frameIndex][1]),
+		}
 	}
 }
 
@@ -251,17 +255,7 @@ func (s *CharacterSprite) renderLayer(
 	}
 
 	sprite := graphic.NewSprite(1.0, 1.0, texture)
-	sprite.SetPosition(mgl32.Vec3{s.Position().X() + offsetX, s.Position().Y(), 0})
-
-	log.Printf(
-		"elem=(%s) size=(%v, %v), scale=(%+v) position=(%+v), rotation=(%+v)\n",
-		elem,
-		width/graphic.OnePixelSize,
-		height/graphic.OnePixelSize,
-		sprite.Scale(),
-		sprite.Position(),
-		sprite.Rotation(),
-	)
+	sprite.SetPosition(mgl32.Vec3{s.Position().X(), s.Position().Y(), 0})
 
 	{
 		sprite.Texture.Bind(0)

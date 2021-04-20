@@ -12,12 +12,18 @@ Current Screenshots:
 
 - Introduction (coming soon)
 - [TODO](https://github.com/drgomesp/midgarts/blob/master/TODO.md#todo)
+- [Dependencies](https://github.com/drgomesp/midgarts/blob/master/README.md#dependencies)
 - [Tools](https://github.com/drgomesp/midgarts/blob/master/README.md#tools)
   - [GRF Explorer](https://github.com/drgomesp/midgarts/blob/master/README.md#grf-explorer)
 - [Examples](https://github.com/drgomesp/midgarts/blob/master/README.md#examples)
 
 ## Introduction
 
+## Dependencies
+
+1. CentOS/Fedora-like Linux Distros:
+`SDL2{,_image,_mixer,_ttf,_gfx}-devel alsa-lib-devel libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel libXi-devel libXxf86vm-devel`
+  
 ## Tools
 
 ### GRF Explorer
