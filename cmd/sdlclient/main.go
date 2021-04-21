@@ -72,7 +72,7 @@ func main() {
 	gl.ClearColor(0, 0.5, 0.8, 1.0)
 
 	jobs := jobspriteid.All()
-	//jobs := []jobspriteid.Type{jobspriteid.Knight2}
+	//jobs = []jobspriteid.Type{jobspriteid.Crusader2}
 	chars := make([]*rographic.CharacterSprite, 0)
 	for _, jid := range jobs {
 		chars = append(chars, loadCharOrPanic(grfFile, character.Female, jid, rand.Intn(20-1)+1))
@@ -125,8 +125,8 @@ func main() {
 	counter := 0.0
 	shouldStop := false
 	charState := &rographic.CharState{
-		//Direction: directiontype.Type(rand.Intn(8-1) + 1),
-		Direction: directiontype.South,
+		Direction: directiontype.Type(rand.Intn(8-1) + 1),
+		//Direction: directiontype.South,
 		State:     statetype.Idle,
 		PlayMode:  actionplaymode.Repeat,
 	}

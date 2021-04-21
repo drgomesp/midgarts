@@ -19,7 +19,7 @@ out vec3 fragColor;
 out vec2 texCoords;
 
 void main() {
-	vec4 pos = vec4(VertexPosition.x * size.x, VertexPosition.y * size.y, 0.0, 1.0);
+	vec4 pos = vec4(VertexPosition.x, VertexPosition.y, 0.0, 1.0);
 	pos.x += offset.x;
 	pos.y -= offset.y;
 

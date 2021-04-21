@@ -152,7 +152,6 @@ func (s *CharacterSprite) Render(gls *opengl.State, renderInfo graphic.RenderInf
 	}
 
 	s.renderElement(gls, renderInfo, char, CharacterSpriteElementBody, &offset)
-
 	s.renderElement(gls, renderInfo, char, CharacterSpriteElementHead, &offset)
 }
 
@@ -214,7 +213,7 @@ func (s *CharacterSprite) renderElement(
 	}
 
 	// Save offset reference
-	if elem == CharacterSpriteElementBody && len(frame.Positions) > 0 {
+	if len(frame.Positions) > 0 {
 		*offset = [2]float32{
 			float32(frame.Positions[frameIndex][0]),
 			float32(frame.Positions[frameIndex][1]),
@@ -227,7 +226,7 @@ func (s *CharacterSprite) renderLayer(
 	renderInfo graphic.RenderInfo,
 	layer *act.ActionFrameLayer,
 	spr *spr.SpriteFile,
-	offset [2]float32,
+	prevOffset [2]float32,
 	elem CharacterSpriteElement,
 ) {
 	frameIndex := int(layer.SpriteFrameIndex)
@@ -236,25 +235,26 @@ func (s *CharacterSprite) renderLayer(
 	}
 
 	frame := spr.Frames[layer.Index]
-	width, height := float32(frame.Width), float32(frame.Height)
-
 	img := spr.ImageAt(frameIndex)
 	texture, err := graphic.NewTextureFromImage(img)
-
-	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
-	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	offsetX := (float32(layer.Position[0]) + offset[0]) * graphic.OnePixelSize
-	offsetY := (float32(layer.Position[1]) + offset[1]) * graphic.OnePixelSize
+	width, height := float32(frame.Width), float32(frame.Height)
+	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
+	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
+
+	offset := [2]float32{
+		(float32(layer.Position[0]) + prevOffset[0]) * graphic.OnePixelSize,
+		(float32(layer.Position[1]) + prevOffset[1]) * graphic.OnePixelSize,
+	}
 
 	if layer.Mirrored {
 		width = -width
 	}
 
-	sprite := graphic.NewSprite(1.0, 1.0, texture)
+	sprite := graphic.NewSprite(width, height, texture)
 	sprite.SetPosition(mgl32.Vec3{s.Position().X(), s.Position().Y(), 0})
 
 	{
@@ -276,7 +276,6 @@ func (s *CharacterSprite) renderLayer(
 		sizeu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("size\x00"))
 		gl.Uniform2fv(sizeu, 1, &size[0])
 
-		offset := mgl32.Vec2{offsetX, offsetY}
 		offsetu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("offset\x00"))
 		gl.Uniform2fv(offsetu, 1, &offset[0])
 
