@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	graphic2 "github.com/project-midgard/midgarts/cmd/sdlclient/graphic"
+	"github.com/project-midgard/midgarts/internal/entity"
 
 	"github.com/EngoEngine/engo"
 	"github.com/RaniSputnik/lovepac/packer"
@@ -41,8 +41,8 @@ func (s *myScene) Preload() {
 	}
 
 	jid := jobspriteid.MonkH
-	var sprite *graphic2.CharacterSprite
-	if sprite, err = graphic2.LoadCharacterSprite(grfFile, character.Female, jid); err != nil {
+	var sprite *entity.CharacterSprite
+	if sprite, err = entity.LoadCharacterSprite(grfFile, character.Female, jid); err != nil {
 		log.Fatal(err)
 	}
 

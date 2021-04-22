@@ -2,21 +2,20 @@ package main
 
 import (
 	"log"
-	"math/rand"
 	"runtime"
+	"time"
 
+	"github.com/EngoEngine/ecs"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/pkg/errors"
-	rographic "github.com/project-midgard/midgarts/cmd/sdlclient/graphic"
-	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
-	"github.com/project-midgard/midgarts/cmd/sdlclient/window"
+	"github.com/project-midgard/midgarts/internal/entity"
+	"github.com/project-midgard/midgarts/internal/opengl"
+	"github.com/project-midgard/midgarts/internal/system"
+	"github.com/project-midgard/midgarts/internal/window"
 	"github.com/project-midgard/midgarts/pkg/camera"
 	"github.com/project-midgard/midgarts/pkg/common/character"
-	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
 	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
-	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
-	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
+	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -70,72 +69,30 @@ func main() {
 	cam := camera.NewPerspectiveCamera(0.638, AspectRatio, 0.1, 1000.0)
 	cam.ResetAngleAndY(WindowWidth, WindowHeight)
 
-	gl.Viewport(0, 0, int32(WindowWidth), int32(WindowHeight))
-	gl.ClearColor(0, 0.5, 0.8, 1.0)
+	w := ecs.World{}
+	renderSys := system.NewCharacterRenderSystem(grfFile)
+	c1 := entity.NewCharacter(character.Female, jobid.Knight, 29)
+	c2 := entity.NewCharacter(character.Female, jobid.Crusader, 31)
+	c1.SetPosition(mgl32.Vec3{0, 38, 0})
+	c2.SetPosition(mgl32.Vec3{4, 38, 0})
 
-	jobs := jobspriteid.All()
-	jobs = []jobspriteid.Type{jobspriteid.Crusader2}
-	chars := make([]*rographic.CharacterSprite, 0)
-	for _, jid := range jobs {
-		chars = append(chars, loadCharOrPanic(grfFile, character.Female, jid, 10))
-		chars = append(chars, loadCharOrPanic(grfFile, character.Male, jid, rand.Intn(20-1)+1))
-	}
+	var renderable *system.CharacterRenderable
+	w.AddSystemInterface(renderSys, renderable, nil)
+	w.AddSystem(system.NewOpenGLRenderSystem(gls, cam, renderSys.RenderCommands))
 
-	chars[0].SetPosition(mgl32.Vec3{0, 42, 0})
-	//chars[1].SetPosition(mgl32.Vec3{2, 42, 0})
-	//chars[2].SetPosition(mgl32.Vec3{4, 42, 0})
-	//chars[3].SetPosition(mgl32.Vec3{6, 42, 0})
-	//chars[4].SetPosition(mgl32.Vec3{8, 42, 0})
-	//chars[5].SetPosition(mgl32.Vec3{10, 42, 0})
-	//chars[6].SetPosition(mgl32.Vec3{12, 42, 0})
-	//chars[7].SetPosition(mgl32.Vec3{14, 42, 0})
-	//chars[8].SetPosition(mgl32.Vec3{16, 42, 0})
-	//chars[9].SetPosition(mgl32.Vec3{18, 45, 0})
-	//chars[10].SetPosition(mgl32.Vec3{2, 38, 0})
-	//chars[11].SetPosition(mgl32.Vec3{4, 38, 0})
-	//chars[12].SetPosition(mgl32.Vec3{6, 38, 0})
-	//chars[13].SetPosition(mgl32.Vec3{8, 38, 0})
-	//chars[14].SetPosition(mgl32.Vec3{10, 38, 0})
-	//chars[15].SetPosition(mgl32.Vec3{12, 38, 0})
-	//chars[16].SetPosition(mgl32.Vec3{14, 38, 0})
-	//chars[17].SetPosition(mgl32.Vec3{16, 38, 0})
-	//chars[18].SetPosition(mgl32.Vec3{-14, 38, 0})
-	//chars[19].SetPosition(mgl32.Vec3{-12, 38, 0})
-	//chars[20].SetPosition(mgl32.Vec3{-10, 38, 0})
-	//chars[21].SetPosition(mgl32.Vec3{2, 34, 0})
-	//chars[22].SetPosition(mgl32.Vec3{4, 34, 0})
-	//chars[23].SetPosition(mgl32.Vec3{6, 34, 0})
-	//chars[24].SetPosition(mgl32.Vec3{8, 34, 0})
-	//chars[25].SetPosition(mgl32.Vec3{10, 34, 0})
-	//chars[26].SetPosition(mgl32.Vec3{12, 34, 0})
-	//chars[27].SetPosition(mgl32.Vec3{14, 34, 0})
-	//chars[28].SetPosition(mgl32.Vec3{16, 34, 0})
-	//chars[29].SetPosition(mgl32.Vec3{-14, 34, 0})
-	//chars[30].SetPosition(mgl32.Vec3{-12, 34, 0})
-	//chars[31].SetPosition(mgl32.Vec3{-10, 34, 0})
-	//chars[32].SetPosition(mgl32.Vec3{-8, 34, 0})
-	//chars[33].SetPosition(mgl32.Vec3{-6, 34, 0})
-	//chars[34].SetPosition(mgl32.Vec3{-4, 34, 0})
-	//chars[35].SetPosition(mgl32.Vec3{-2, 34, 0})
-	//chars[36].SetPosition(mgl32.Vec3{0, 34, 0})
-	//chars[37].SetPosition(mgl32.Vec3{2, 30, 0})
-	//chars[38].SetPosition(mgl32.Vec3{4, 30, 0})
-	//chars[39].SetPosition(mgl32.Vec3{6, 30, 0})
-	//chars[40].SetPosition(mgl32.Vec3{8, 30, 0})
-	//chars[41].SetPosition(mgl32.Vec3{10, 30, 0})
+	w.AddEntity(c1)
+	w.AddEntity(c2)
 
 	counter := 0.0
 	shouldStop := false
-	charState := &rographic.CharState{
-		Direction: directiontype.Type(rand.Intn(8-1) + 1),
-		//Direction: directiontype.South,
-		State:    statetype.Idle,
-		PlayMode: actionplaymode.Repeat,
-	}
 
 	ks := window.NewKeyState(win)
 
 	for !shouldStop {
+		gl.ClearColor(0, 0.5, 0.8, 1.0)
+
+		start := time.Now()
+
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
 			case *sdl.QuitEvent:
@@ -147,21 +104,29 @@ func main() {
 
 		// char controls
 		if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_RIGHT) {
-			charState.Direction = directiontype.NorthEast
+			c1.Direction = directiontype.NorthEast
+			c2.Direction = directiontype.NorthEast
 		} else if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_LEFT) {
-			charState.Direction = directiontype.NorthWest
+			c1.Direction = directiontype.NorthWest
+			c2.Direction = directiontype.NorthWest
 		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_RIGHT) {
-			charState.Direction = directiontype.SouthEast
+			c1.Direction = directiontype.SouthEast
+			c2.Direction = directiontype.SouthEast
 		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_LEFT) {
-			charState.Direction = directiontype.SouthWest
+			c1.Direction = directiontype.SouthWest
+			c2.Direction = directiontype.SouthWest
 		} else if ks.Pressed(sdl.K_UP) {
-			charState.Direction = directiontype.North
+			c1.Direction = directiontype.North
+			c2.Direction = directiontype.North
 		} else if ks.Pressed(sdl.K_DOWN) {
-			charState.Direction = directiontype.South
+			c1.Direction = directiontype.South
+			c2.Direction = directiontype.South
 		} else if ks.Pressed(sdl.K_RIGHT) {
-			charState.Direction = directiontype.East
+			c1.Direction = directiontype.East
+			c2.Direction = directiontype.East
 		} else if ks.Pressed(sdl.K_LEFT) {
-			charState.Direction = directiontype.West
+			c1.Direction = directiontype.West
+			c2.Direction = directiontype.West
 		}
 
 		// camera controls
@@ -171,12 +136,7 @@ func main() {
 			cam.SetPosition(mgl32.Vec3{cam.Position().X(), cam.Position().Y(), cam.Position().Z() - 0.2})
 		}
 
-		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-		gl.UseProgram(gls.Program().ID())
-
-		for _, c := range chars {
-			c.Render(gls, cam, charState)
-		}
+		w.Update(float32(time.Since(start).Seconds()))
 
 		win.GLSwap()
 
@@ -184,10 +144,11 @@ func main() {
 	}
 }
 
-func loadCharOrPanic(grfFile *grf.File, gender character.GenderType, jobspriteid jobspriteid.Type, headIndex int) *rographic.CharacterSprite {
-	cm14, err := rographic.LoadCharacterSprite(grfFile, gender, jobspriteid, int32(headIndex))
-	if err != nil {
-		log.Fatal(errors.Wrapf(err, "could not load character (%v, %v)\n", gender, jobspriteid))
-	}
-	return cm14
-}
+//
+//func loadCharOrPanic(grfFile *grf.File, gender character.GenderType, jobspriteid jobspriteid.Type, headIndex int) *entity.CharacterSprite {
+//	c, err := entity.LoadCharacterSprite(grfFile, gender, jobspriteid, int32(headIndex))
+//	if err != nil {
+//		log.Fatal(errors.Wrapf(err, "could not load character (%v, %v)\n", gender, jobspriteid))
+//	}
+//	return c
+//}

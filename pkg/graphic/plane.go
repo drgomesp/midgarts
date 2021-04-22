@@ -2,7 +2,7 @@ package graphic
 
 import (
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
+	opengl2 "github.com/project-midgard/midgarts/internal/opengl"
 )
 
 type Plane struct {
@@ -33,13 +33,13 @@ func NewPlane(width, height float32) *Plane {
 		1, 0,
 	}
 
-	geom.AddVBO(opengl.NewVBO([opengl.NumVertexAttributes][]float32{
+	geom.AddVBO(opengl2.NewVBO([opengl2.NumVertexAttributes][]float32{
 		positions,
 		colors,
 		texCoords,
-	}).AddAttribute(opengl.VertexPosition).
-		AddAttribute(opengl.VertexColor).
-		AddAttribute(opengl.VertexTexCoord)).
+	}).AddAttribute(opengl2.VertexPosition).
+		AddAttribute(opengl2.VertexColor).
+		AddAttribute(opengl2.VertexTexCoord)).
 		SetIndices(0, 1, 2, 3, 1, 0)
 
 	return &Plane{

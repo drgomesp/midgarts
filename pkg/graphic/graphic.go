@@ -2,7 +2,7 @@ package graphic
 
 import (
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
+	opengl2 "github.com/project-midgard/midgarts/internal/opengl"
 )
 
 const (
@@ -19,7 +19,7 @@ func NewGraphic(geom *Geometry, renderMode uint32) *Graphic {
 	return &Graphic{Transform: NewTransform(Origin), geometry: geom, renderMode: renderMode}
 }
 
-func (g *Graphic) Render(gls *opengl.State) {
+func (g *Graphic) Render(gls *opengl2.State) {
 	geom := g.geometry
 
 	if geom.gls == nil {

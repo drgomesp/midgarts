@@ -2,7 +2,7 @@ package graphic
 
 import (
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/project-midgard/midgarts/cmd/sdlclient/opengl"
+	"github.com/project-midgard/midgarts/internal/opengl"
 )
 
 type Sprite struct {

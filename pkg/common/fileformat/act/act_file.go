@@ -193,7 +193,7 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 
 		pos                              [2]int32
 		spriteFrameIndex                 int32
-		isMirror                         int32
+		mirrored                         int32
 		r, g, b, a                       byte
 		scale                            [2]float32
 		angle, spriteType, width, height int32
@@ -206,7 +206,7 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 		_ = binary.Read(buf, binary.LittleEndian, &pos[0])
 		_ = binary.Read(buf, binary.LittleEndian, &pos[1])
 		_ = binary.Read(buf, binary.LittleEndian, &spriteFrameIndex)
-		_ = binary.Read(buf, binary.LittleEndian, &isMirror)
+		_ = binary.Read(buf, binary.LittleEndian, &mirrored)
 
 		if f.Header.Version >= 2.0 {
 			_ = binary.Read(buf, binary.LittleEndian, &r)
@@ -241,7 +241,7 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 			Index:            int32(i),
 			Position:         pos,
 			SpriteFrameIndex: spriteFrameIndex,
-			Mirrored:         isMirror == 0,
+			Mirrored:         mirrored != 1,
 			Scale:            scale,
 			Color:            &color.RGBA{R: r, G: g, B: b, A: a},
 			Angle:            angle,

@@ -34,7 +34,7 @@ const (
 	MonkH      = Type(4016)
 )
 
-func GetJobSpriteID(jid jobid.Type) (t Type) {
+func GetJobSpriteID(jid jobid.Type, isMounted bool) (t Type) {
 	switch jid {
 	case jobid.Archer:
 		return Archer
@@ -44,6 +44,18 @@ func GetJobSpriteID(jid jobid.Type) (t Type) {
 		return Monk
 	case jobid.Assassin:
 		return Assassin
+	case jobid.Knight:
+		if isMounted {
+			return Knight2
+		} else {
+			return Knight
+		}
+	case jobid.Crusader:
+		if isMounted {
+			return Crusader2
+		} else {
+			return Crusader
+		}
 	//case jobid.Thief:
 	//	return Thief
 	//case jobid.MonkH:
