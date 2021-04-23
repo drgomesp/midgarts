@@ -4,19 +4,19 @@ import (
 	"github.com/EngoEngine/ecs"
 	"github.com/project-midgard/midgarts/internal/component"
 	"github.com/project-midgard/midgarts/pkg/common/character"
-	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
-	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/graphic"
 )
 
 type Character struct {
-	*ecs.BasicEntity
-	*component.CharacterActionComponent
-	*component.CharacterAttachmentComponent
 	*graphic.Transform
+
+	*ecs.BasicEntity
+	*component.CharacterAttachmentComponent
+	*component.CharacterStateComponent
+	*component.CharacterSpriteRenderInfoComponent
 
 	HeadIndex   int
 	Gender      character.GenderType
@@ -26,34 +26,44 @@ type Character struct {
 
 func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int) *Character {
 	b := ecs.NewBasic()
-	return &Character{
+	c := &Character{
 		BasicEntity: &b,
-		CharacterActionComponent: &component.CharacterActionComponent{
-			PlayMode:  actionplaymode.Repeat,
-			Action:    actionindex.Idle,
-			Direction: directiontype.South,
-			State:     statetype.Idle,
+		CharacterStateComponent: &component.CharacterStateComponent{
+			PlayMode: actionplaymode.Repeat,
+			State:    statetype.Idle,
 		},
-		Transform:   graphic.NewTransform(graphic.Origin),
-		Gender:      gender,
-		JobSpriteID: jobSpriteID,
-		HeadIndex:   headIndex,
-		IsMounted:   true,
+		CharacterSpriteRenderInfoComponent: component.NewCharacterSpriteRenderInfoComponent(),
+		Transform:                          graphic.NewTransform(graphic.Origin),
+		Gender:                             gender,
+		JobSpriteID:                        jobSpriteID,
+		HeadIndex:                          headIndex,
+		IsMounted:                          true,
 	}
+
+	return c
 }
 
-func (c *Character) SetCharacterActionComponent(component *component.CharacterActionComponent) {
-	c.CharacterActionComponent = component
+func (c *Character) SetCharacterStateComponent(component *component.CharacterStateComponent) {
+	c.CharacterStateComponent = component
 }
 
 func (c *Character) SetCharacterAttachmentComponent(component *component.CharacterAttachmentComponent) {
 	c.CharacterAttachmentComponent = component
 }
 
-func (c *Character) GetCharacterActionComponent() *component.CharacterActionComponent {
-	return c.CharacterActionComponent
+func (c *Character) GetCharacterStateComponent() *component.CharacterStateComponent {
+	return c.CharacterStateComponent
 }
 
 func (c *Character) GetCharacterAttachmentComponent() *component.CharacterAttachmentComponent {
 	return c.CharacterAttachmentComponent
+}
+
+func (c *Character) GetCharacterSpriteRenderInfoComponent() *component.CharacterSpriteRenderInfoComponent {
+	return c.CharacterSpriteRenderInfoComponent
+}
+
+func (c *Character) SetState(state statetype.Type) {
+	c.PreviousState = c.State
+	c.State = state
 }

@@ -227,7 +227,7 @@ func (f *SpriteFile) readRGBAFrames(buf io.ReadSeeker) error {
 	return nil
 }
 
-func (f *SpriteFile) ImageAt(index int) *image.RGBA {
+func (f *SpriteFile) ImageAt(index int64) *image.RGBA {
 	var (
 		frame  = f.Frames[index]
 		width  = int(frame.Width)

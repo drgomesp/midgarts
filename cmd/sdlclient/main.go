@@ -5,6 +5,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
+
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 
 	"github.com/EngoEngine/ecs"
@@ -66,17 +68,17 @@ func main() {
 
 	gl.Viewport(0, 0, WindowWidth, WindowHeight)
 
-	log.Printf("Window Aspect Ratio = %f\n", AspectRatio)
 	cam := camera.NewPerspectiveCamera(0.638, AspectRatio, 0.1, 1000.0)
 	cam.ResetAngleAndY(WindowWidth, WindowHeight)
 
 	w := ecs.World{}
 	renderSys := system.NewCharacterRenderSystem(grfFile)
+	actionSystem := system.NewCharacterActionSystem(grfFile)
 
-	c1 := entity.NewCharacter(character.Female, jobspriteid.Assassin, 29)
-	c2 := entity.NewCharacter(character.Female, jobspriteid.Crusader, 31)
+	c1 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 25)
+	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight, 29)
 	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 19)
-	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 25)
+	c4 := entity.NewCharacter(character.Female, jobspriteid.Crusader, 31)
 	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, 11)
 
 	c1.SetPosition(mgl32.Vec3{0, 38, 0})
@@ -85,7 +87,9 @@ func main() {
 	c4.SetPosition(mgl32.Vec3{0, 34, 0})
 	c5.SetPosition(mgl32.Vec3{4, 34, 0})
 
+	var actionable *system.CharacterActionable
 	var renderable *system.CharacterRenderable
+	w.AddSystemInterface(actionSystem, actionable, nil)
 	w.AddSystemInterface(renderSys, renderable, nil)
 	w.AddSystem(system.NewOpenGLRenderSystem(gls, cam, renderSys.RenderCommands))
 
@@ -95,15 +99,14 @@ func main() {
 	w.AddEntity(c4)
 	w.AddEntity(c5)
 
-	counter := 0.0
 	shouldStop := false
 
 	ks := window.NewKeyState(win)
 
+	frameStart := time.Now()
+
 	for !shouldStop {
 		gl.ClearColor(0, 0.5, 0.8, 1.0)
-
-		start := time.Now()
 
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
@@ -117,28 +120,30 @@ func main() {
 		// char controls
 		if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_RIGHT) {
 			c1.Direction = directiontype.NorthEast
-			c2.Direction = directiontype.NorthEast
+			c1.SetState(statetype.Walking)
 		} else if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_LEFT) {
 			c1.Direction = directiontype.NorthWest
-			c2.Direction = directiontype.NorthWest
+			c1.SetState(statetype.Walking)
 		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_RIGHT) {
 			c1.Direction = directiontype.SouthEast
-			c2.Direction = directiontype.SouthEast
+			c1.SetState(statetype.Walking)
 		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_LEFT) {
 			c1.Direction = directiontype.SouthWest
-			c2.Direction = directiontype.SouthWest
+			c1.SetState(statetype.Walking)
 		} else if ks.Pressed(sdl.K_UP) {
 			c1.Direction = directiontype.North
-			c2.Direction = directiontype.North
+			c1.SetState(statetype.Walking)
 		} else if ks.Pressed(sdl.K_DOWN) {
 			c1.Direction = directiontype.South
-			c2.Direction = directiontype.South
+			c1.SetState(statetype.Walking)
 		} else if ks.Pressed(sdl.K_RIGHT) {
 			c1.Direction = directiontype.East
-			c2.Direction = directiontype.East
+			c1.SetState(statetype.Walking)
 		} else if ks.Pressed(sdl.K_LEFT) {
 			c1.Direction = directiontype.West
-			c2.Direction = directiontype.West
+			c1.SetState(statetype.Walking)
+		} else {
+			c1.SetState(statetype.Idle)
 		}
 
 		// camera controls
@@ -148,11 +153,13 @@ func main() {
 			cam.SetPosition(mgl32.Vec3{cam.Position().X(), cam.Position().Y(), cam.Position().Z() - 0.2})
 		}
 
-		w.Update(float32(time.Since(start).Seconds()))
+		now := time.Now()
+		frameDelta := now.Sub(frameStart)
+		frameStart = now
+
+		w.Update(float32(frameDelta.Seconds()))
 
 		win.GLSwap()
-
-		counter += 0.001
 	}
 }
 

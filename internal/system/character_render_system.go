@@ -4,6 +4,7 @@ import (
 	"log"
 	"math"
 	"strconv"
+	"time"
 
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo/common"
@@ -29,7 +30,7 @@ const (
 
 type CharacterRenderable interface {
 	common.BasicFace
-	component.CharacterActionComponentFace
+	component.CharacterStateComponentFace
 	component.CharacterAttachmentComponentFace
 }
 
@@ -53,7 +54,7 @@ func (s *CharacterRenderSystem) Update(dt float32) {
 	s.RenderCommands.sprite = []rendercmd.SpriteRenderCommand{}
 
 	for _, char := range s.characters {
-		s.renderCharacter(char)
+		s.renderCharacter(dt, char)
 	}
 }
 
@@ -76,19 +77,19 @@ func (s *CharacterRenderSystem) Remove(e ecs.BasicEntity) {
 	delete(s.characters, strconv.Itoa(int(e.ID())))
 }
 
-func (s *CharacterRenderSystem) renderCharacter(char *entity.Character) {
+func (s *CharacterRenderSystem) renderCharacter(dt float32, char *entity.Character) {
 	offset := [2]float32{}
-	action := actionindex.GetActionIndex(char.State)
 
-	if action != actionindex.Dead && action != actionindex.Sitting {
-		s.renderAttachment(char, character.AttachmentShadow, &offset)
+	if char.ActionIndex != actionindex.Dead && char.ActionIndex != actionindex.Sitting {
+		s.renderAttachment(dt, char, character.AttachmentShadow, &offset)
 	}
 
-	s.renderAttachment(char, character.AttachmentBody, &offset)
-	s.renderAttachment(char, character.AttachmentHead, &offset)
+	s.renderAttachment(dt, char, character.AttachmentBody, &offset)
+	s.renderAttachment(dt, char, character.AttachmentHead, &offset)
 }
 
 func (s *CharacterRenderSystem) renderAttachment(
+	dt float32,
 	char *entity.Character,
 	elem character.AttachmentType,
 	offset *[2]float32,
@@ -97,21 +98,23 @@ func (s *CharacterRenderSystem) renderAttachment(
 		return
 	}
 
-	actionIndex := actionindex.GetActionIndex(char.State)
-	idx := int(actionIndex)*8 + (int(char.Direction)+directiontype.DirectionTable[FixedCameraDirection])%8%
-		len(char.Files[elem].ACT.Actions)
-
+	var idx int
 	if elem == character.AttachmentShadow {
 		idx = 0
+	} else {
+		idx = int(char.ActionIndex) + (int(char.Direction)+directiontype.DirectionTable[FixedCameraDirection])%8
 	}
 
 	action := char.Files[elem].ACT.Actions[idx]
 	fileSet := char.Files[elem]
 
 	frameCount := len(action.Frames)
-	timeNeededForOneFrame := int64(action.Delay.Seconds() * (1.0 / FPSMultiplier))
+	timeNeededForOneFrame := int64(float64(action.Delay) * (1.0 / char.FPSMultiplier))
+	if char.ForcedDuration != 0 {
+		timeNeededForOneFrame = int64(char.ForcedDuration) / int64(frameCount)
+	}
 	timeNeededForOneFrame = int64(math.Max(float64(timeNeededForOneFrame), 100))
-	elapsedTime := int64(0)
+	elapsedTime := time.Since(char.AnimationStartedAt).Milliseconds() - int64(dt)
 	realIndex := elapsedTime / timeNeededForOneFrame
 
 	var frameIndex int64
@@ -140,7 +143,7 @@ func (s *CharacterRenderSystem) renderAttachment(
 			continue
 		}
 
-		s.renderLayer(char, layer, fileSet.SPR, position)
+		s.renderLayer(char, frameIndex, layer, fileSet.SPR, position)
 	}
 
 	// Save offset reference
@@ -154,22 +157,22 @@ func (s *CharacterRenderSystem) renderAttachment(
 
 func (s *CharacterRenderSystem) renderLayer(
 	char *entity.Character,
+	frameIndex int64,
 	layer *act.ActionFrameLayer,
 	spr *spr.SpriteFile,
 	prevOffset [2]float32,
 ) {
-	frameIndex := int(layer.SpriteFrameIndex)
+	frameIndex = int64(layer.SpriteFrameIndex)
 	if frameIndex < 0 {
 		return
 	}
 
-	frame := spr.Frames[layer.Index]
-	img := spr.ImageAt(frameIndex)
-	texture, err := graphic.NewTextureFromImage(img)
+	texture, err := graphic.NewTextureFromImage(spr.ImageAt(frameIndex))
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	frame := spr.Frames[frameIndex]
 	width, height := float32(frame.Width), float32(frame.Height)
 	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
 	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
@@ -182,13 +185,9 @@ func (s *CharacterRenderSystem) renderLayer(
 	// This is the current API to render a sprite. Commands will
 	// be collected by the lower-level rendering system (OpenGL).
 	s.renderSpriteCommand(rendercmd.SpriteRenderCommand{
-		Scale: layer.Scale,
-		Size:  mgl32.Vec2{width, height},
-		Position: mgl32.Vec3{
-			char.Position().X(),
-			char.Position().Y(),
-			char.Position().Z(),
-		},
+		Scale:           layer.Scale,
+		Size:            mgl32.Vec2{width, height},
+		Position:        mgl32.Vec3{char.Position().X(), char.Position().Y(), char.Position().Z()},
 		Offset:          mgl32.Vec2{offset[0], offset[1]},
 		RotationRadians: 0,
 		Texture:         texture,

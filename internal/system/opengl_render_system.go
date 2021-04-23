@@ -33,20 +33,15 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 	gl.UseProgram(s.gls.Program().ID())
 
-	// Sprites
+	// 2D Sprites
 	{
 		for _, cmd := range s.renderCommands.sprite {
-			w, h := cmd.Size.X(), cmd.Size.Y()
-
 			if cmd.FlipVertically {
-				w = -w
+				cmd.Size = mgl32.Vec2{-cmd.Size.X(), cmd.Size.Y()}
 			}
 
-			size := mgl32.Vec2{w, h}
-
-			sprite := graphic.NewSprite(w, h, cmd.Texture)
+			sprite := graphic.NewSprite(cmd.Size.X(), cmd.Size.Y(), cmd.Texture)
 			sprite.SetPosition(mgl32.Vec3{cmd.Position.X(), cmd.Position.Y(), cmd.Position.Z()})
-
 			sprite.Texture.Bind(0)
 
 			view := s.cam.ViewMatrix()
@@ -62,7 +57,7 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 			gl.UniformMatrix4fv(projectionu, 1, false, &projection[0])
 
 			sizeu := gl.GetUniformLocation(s.gls.Program().ID(), gl.Str("size\x00"))
-			gl.Uniform2fv(sizeu, 1, &size[0])
+			gl.Uniform2fv(sizeu, 1, &cmd.Size[0])
 
 			offsetu := gl.GetUniformLocation(s.gls.Program().ID(), gl.Str("offset\x00"))
 			gl.Uniform2fv(offsetu, 1, &cmd.Offset[0])

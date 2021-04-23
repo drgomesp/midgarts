@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image/color"
 	"io"
-	"time"
 
 	"github.com/project-midgard/midgarts/pkg/common/bytesutil"
 )
@@ -14,7 +13,7 @@ import (
 const (
 	HeaderSignature = "AC"
 
-	ActionDefaultDelay = 100 * time.Millisecond
+	ActionDefaultDelay = 100
 )
 
 type ActionFrameLayer struct {
@@ -37,9 +36,9 @@ type ActionFrame struct {
 }
 
 type Action struct {
-	Frames   []*ActionFrame
-	Delay    time.Duration
-	Duration time.Duration
+	Frames               []*ActionFrame
+	Delay                uint32
+	DurationMilliseconds uint32
 }
 
 type ActionFile struct {
@@ -78,15 +77,15 @@ func Load(buf *bytes.Buffer) (*ActionFile, error) {
 
 			f.Sounds[i] = string(b[:])
 		}
+	}
 
-		for i, count := 0, len(f.Actions); i > count; i++ {
-			var d float32
-			_ = binary.Read(reader, binary.LittleEndian, &d)
+	for i := 0; i < int(f.ActionCount); i++ {
+		var d float32
+		_ = binary.Read(reader, binary.LittleEndian, &d)
 
-			act := f.Actions[i]
-			f.Actions[i].Delay = time.Duration(uint32(d * 25.0))
-			f.Actions[i].Duration = act.Delay * time.Duration(uint32(len(act.Frames)))
-		}
+		act := f.Actions[i]
+		f.Actions[i].Delay = uint32(d * 25.0)
+		f.Actions[i].DurationMilliseconds = act.Delay * uint32(len(act.Frames))
 	}
 
 	return f, nil
@@ -120,16 +119,18 @@ func (f *ActionFile) loadHeader(buf io.ReadSeeker) error {
 	return nil
 }
 
-func (f *ActionFile) loadActions(reader io.ReadSeeker) error {
+func (f *ActionFile) loadActions(buf io.ReadSeeker) error {
 	var (
 		count = int(f.ActionCount)
 	)
 
+	_ = binary.Read(buf, binary.LittleEndian, &count)
+
 	for i := 0; i < count; i++ {
 		f.Actions[i] = &Action{
-			Frames:   f.loadActionFrames(reader),
-			Delay:    ActionDefaultDelay,
-			Duration: 0,
+			Frames:               f.loadActionFrames(buf),
+			Delay:                ActionDefaultDelay,
+			DurationMilliseconds: 0,
 		}
 	}
 

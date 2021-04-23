@@ -33,3 +33,14 @@ func (e AttachmentType) String() (att string) {
 
 	return att
 }
+
+func Attachments() []AttachmentType {
+	return []AttachmentType{
+		AttachmentShadow,
+		AttachmentBody,
+		AttachmentHead,
+		AttachmentTop,
+		AttachmentMid,
+		AttachmentBottom,
+	}
+}
