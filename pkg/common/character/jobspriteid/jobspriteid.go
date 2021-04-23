@@ -38,12 +38,14 @@ func GetJobSpriteID(jid jobid.Type, isMounted bool) (t Type) {
 	switch jid {
 	case jobid.Archer:
 		return Archer
-	//case jobid.Merchant:
-	//	return Merchant
 	case jobid.Monk:
 		return Monk
 	case jobid.Assassin:
 		return Assassin
+	case jobid.Swordsman:
+		return Swordsman
+	case jobid.Alchemist:
+		return Alchemist
 	case jobid.Knight:
 		if isMounted {
 			return Knight2

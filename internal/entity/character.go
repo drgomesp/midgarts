@@ -7,7 +7,7 @@ import (
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
 	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
-	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
+	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/graphic"
 )
@@ -18,13 +18,13 @@ type Character struct {
 	*component.CharacterAttachmentComponent
 	*graphic.Transform
 
-	HeadIndex int
-	Gender    character.GenderType
-	Job       jobid.Type
-	IsMounted bool
+	HeadIndex   int
+	Gender      character.GenderType
+	JobSpriteID jobspriteid.Type
+	IsMounted   bool
 }
 
-func NewCharacter(gender character.GenderType, job jobid.Type, headIndex int) *Character {
+func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int) *Character {
 	b := ecs.NewBasic()
 	return &Character{
 		BasicEntity: &b,
@@ -34,11 +34,11 @@ func NewCharacter(gender character.GenderType, job jobid.Type, headIndex int) *C
 			Direction: directiontype.South,
 			State:     statetype.Idle,
 		},
-		Transform: graphic.NewTransform(graphic.Origin),
-		Gender:    gender,
-		Job:       job,
-		HeadIndex: headIndex,
-		IsMounted: true,
+		Transform:   graphic.NewTransform(graphic.Origin),
+		Gender:      gender,
+		JobSpriteID: jobSpriteID,
+		HeadIndex:   headIndex,
+		IsMounted:   true,
 	}
 }
 

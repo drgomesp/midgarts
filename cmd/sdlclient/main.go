@@ -5,6 +5,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
+
 	"github.com/EngoEngine/ecs"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
@@ -15,7 +17,6 @@ import (
 	"github.com/project-midgard/midgarts/pkg/camera"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
-	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -71,10 +72,18 @@ func main() {
 
 	w := ecs.World{}
 	renderSys := system.NewCharacterRenderSystem(grfFile)
-	c1 := entity.NewCharacter(character.Female, jobid.Knight, 29)
-	c2 := entity.NewCharacter(character.Female, jobid.Crusader, 31)
+
+	c1 := entity.NewCharacter(character.Female, jobspriteid.Assassin, 29)
+	c2 := entity.NewCharacter(character.Female, jobspriteid.Crusader, 31)
+	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 19)
+	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 25)
+	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, 11)
+
 	c1.SetPosition(mgl32.Vec3{0, 38, 0})
 	c2.SetPosition(mgl32.Vec3{4, 38, 0})
+	c3.SetPosition(mgl32.Vec3{8, 38, 0})
+	c4.SetPosition(mgl32.Vec3{0, 34, 0})
+	c5.SetPosition(mgl32.Vec3{4, 34, 0})
 
 	var renderable *system.CharacterRenderable
 	w.AddSystemInterface(renderSys, renderable, nil)
@@ -82,6 +91,9 @@ func main() {
 
 	w.AddEntity(c1)
 	w.AddEntity(c2)
+	w.AddEntity(c3)
+	w.AddEntity(c4)
+	w.AddEntity(c5)
 
 	counter := 0.0
 	shouldStop := false

@@ -63,7 +63,7 @@ func (s *CharacterRenderSystem) AddByInterface(o ecs.Identifier) {
 }
 
 func (s *CharacterRenderSystem) Add(char *entity.Character) {
-	cmp, e := component.NewCharacterAttachmentComponent(s.grfFile, char.Gender, char.Job, char.HeadIndex, char.IsMounted)
+	cmp, e := component.NewCharacterAttachmentComponent(s.grfFile, char.Gender, char.JobSpriteID, char.HeadIndex)
 	if e != nil {
 		log.Fatal(e)
 	}

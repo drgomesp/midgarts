@@ -93,7 +93,7 @@ func (s *CharacterRenderSystem) Update(dt float32) {
 
 		// TODO this only works for character's direction, not action
 		actionIndex := actionindex.GetActionIndex(e.GetState())
-		idx := int(actionIndex) + (int(e.GetDirection())+system.DirectionTable[system.FixedCameraDirection])%8
+		idx := int(actionIndex) + (int(e.GetDirection())+directiontype.DirectionTable[system.FixedCameraDirection])%8
 		action := e.GetCharacterRenderComponent().CharacterSprite.ActionFile.Actions[idx]
 
 		frameCount := len(action.Frames)

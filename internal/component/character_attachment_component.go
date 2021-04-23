@@ -6,7 +6,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/project-midgard/midgarts/pkg/common/character"
-	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
 	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
@@ -30,11 +29,9 @@ type CharacterAttachmentComponent struct {
 func NewCharacterAttachmentComponent(
 	f *grf.File,
 	gender character.GenderType,
-	job jobid.Type,
+	jobSpriteID jobspriteid.Type,
 	headIndex int,
-	isMounted bool,
 ) (*CharacterAttachmentComponent, error) {
-	jobSpriteID := jobspriteid.GetJobSpriteID(job, isMounted)
 	jobFileName := character.JobSpriteNameTable[jobSpriteID]
 	if "" == jobFileName {
 		return nil, fmt.Errorf("unsupported jobSpriteID: %v", jobSpriteID)
