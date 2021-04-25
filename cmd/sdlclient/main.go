@@ -2,16 +2,14 @@ package main
 
 import (
 	"log"
+	"os"
 	"runtime"
 	"time"
-
-	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
-
-	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
 
 	"github.com/EngoEngine/ecs"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/project-midgard/midgarts/internal/entity"
 	"github.com/project-midgard/midgarts/internal/opengl"
 	"github.com/project-midgard/midgarts/internal/system"
@@ -19,6 +17,8 @@ import (
 	"github.com/project-midgard/midgarts/pkg/camera"
 	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
+	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
+	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/veandco/go-sdl2/sdl"
 )
@@ -27,6 +27,10 @@ const (
 	WindowWidth  = 1280
 	WindowHeight = 720
 	AspectRatio  = float32(WindowWidth) / float32(WindowHeight)
+)
+
+var (
+	GrfFilePath = os.Getenv("GRF_FILE_PATH")
 )
 
 func main() {
@@ -62,7 +66,7 @@ func main() {
 	gls := opengl.InitOpenGL()
 
 	var grfFile *grf.File
-	if grfFile, err = grf.Load("/home/drgomesp/grf/data.grf"); err != nil {
+	if grfFile, err = grf.Load(GrfFilePath); err != nil {
 		log.Fatal(err)
 	}
 
