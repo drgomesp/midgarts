@@ -113,15 +113,16 @@ func (s *CharacterRenderSystem) renderAttachment(dt float32, char *entity.Charac
 	realIndex := elapsedTime / timeNeededForOneFrame
 
 	var frameIndex int64
+
+	// Ignore "doridori" animation
+	if elem == character.AttachmentHead && frameCount == 3 {
+		frameIndex = int64(frameCount / 3)
+	}
+
 	switch char.PlayMode {
 	case actionplaymode.Repeat:
 		frameIndex = realIndex % int64(frameCount)
 		break
-	}
-
-	// Ignore "doridori" animation
-	if elem == character.AttachmentHead && frameCount == 3 {
-		frameIndex = 0
 	}
 
 	frame := action.Frames[frameIndex]
@@ -132,9 +133,7 @@ func (s *CharacterRenderSystem) renderAttachment(dt float32, char *entity.Charac
 
 	position := [2]float32{0, 0}
 
-	if len(frame.Positions) > 0 &&
-		elem != character.AttachmentBody &&
-		elem != character.AttachmentHead {
+	if len(frame.Positions) > 0 && elem != character.AttachmentBody {
 		position[0] = offset[0] - float32(frame.Positions[0][0])
 		position[1] = offset[1] - float32(frame.Positions[0][1])
 	}
@@ -145,7 +144,7 @@ func (s *CharacterRenderSystem) renderAttachment(dt float32, char *entity.Charac
 			continue
 		}
 
-		s.renderLayer(char, frameIndex, layer, fileSet.SPR, position)
+		s.renderLayer(char, layer, fileSet.SPR, position)
 	}
 
 	// Save offset reference
@@ -159,12 +158,11 @@ func (s *CharacterRenderSystem) renderAttachment(dt float32, char *entity.Charac
 
 func (s *CharacterRenderSystem) renderLayer(
 	char *entity.Character,
-	frameIndex int64,
 	layer *act.ActionFrameLayer,
 	spr *spr.SpriteFile,
 	prevOffset [2]float32,
 ) {
-	frameIndex = int64(layer.SpriteFrameIndex)
+	frameIndex := int64(layer.SpriteFrameIndex)
 	if frameIndex < 0 {
 		return
 	}

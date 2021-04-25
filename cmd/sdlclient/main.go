@@ -81,7 +81,7 @@ func main() {
 	renderSys := system.NewCharacterRenderSystem(grfFile)
 	actionSystem := system.NewCharacterActionSystem(grfFile)
 
-	c1 := entity.NewCharacter(character.Female, jobspriteid.Crusader, 22)
+	c1 := entity.NewCharacter(character.Female, jobspriteid.Novice, 29)
 	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight, 25)
 	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 31)
 	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 12)
@@ -134,18 +134,18 @@ func main() {
 		if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_RIGHT) {
 			c1.Direction = directiontype.NorthEast
 			c1.SetState(statetype.Walking)
-			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate/2, p1.Y() + MovementRate/2, p1.Z()})
+			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate, p1.Y() + MovementRate, p1.Z()})
 		} else if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_LEFT) {
 			c1.Direction = directiontype.NorthWest
 			c1.SetState(statetype.Walking)
-			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate/2, p1.Y() + MovementRate/2, p1.Z()})
+			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y() + MovementRate, p1.Z()})
 		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_RIGHT) {
 			c1.Direction = directiontype.SouthEast
 			c1.SetState(statetype.Walking)
-			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate/2, p1.Y() - MovementRate/2, p1.Z()})
+			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate, p1.Y() - MovementRate, p1.Z()})
 		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_LEFT) {
 			c1.Direction = directiontype.SouthWest
-			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate/2, p1.Y() - MovementRate/2, p1.Z()})
+			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y() - MovementRate, p1.Z()})
 			c1.SetState(statetype.Walking)
 		} else if ks.Pressed(sdl.K_UP) {
 			c1.Direction = directiontype.North

@@ -70,7 +70,7 @@ func (s CharacterActionSystem) Update(dt float32) {
 			c.ForcedDuration = forcedDuration
 
 			if c.State == statetype.Walking {
-				const ConstantMovementSpeed = 1.0
+				const ConstantMovementSpeed = 2.0
 				c.FPSMultiplier = ConstantMovementSpeed
 			} else {
 				c.FPSMultiplier = 1.0
