@@ -71,6 +71,8 @@ func main() {
 	cam := camera.NewPerspectiveCamera(0.638, AspectRatio, 0.1, 1000.0)
 	cam.ResetAngleAndY(WindowWidth, WindowHeight)
 
+	ks := window.NewKeyState(win)
+
 	w := ecs.World{}
 	renderSys := system.NewCharacterRenderSystem(grfFile)
 	actionSystem := system.NewCharacterActionSystem(grfFile)
@@ -100,8 +102,6 @@ func main() {
 	w.AddEntity(c5)
 
 	shouldStop := false
-
-	ks := window.NewKeyState(win)
 
 	frameStart := time.Now()
 

@@ -88,31 +88,27 @@ func (s *CharacterRenderSystem) renderCharacter(dt float32, char *entity.Charact
 	s.renderAttachment(dt, char, character.AttachmentHead, &offset)
 }
 
-func (s *CharacterRenderSystem) renderAttachment(
-	dt float32,
-	char *entity.Character,
-	elem character.AttachmentType,
-	offset *[2]float32,
-) {
-	if len(char.Files[elem].ACT.Actions) == 0 {
+func (s *CharacterRenderSystem) renderAttachment(dt float32, char *entity.Character, elem character.AttachmentType, offset *[2]float32) {
+	var actions []*act.Action
+	if actions = char.Files[elem].ACT.Actions; len(actions) == 0 {
 		return
 	}
 
 	var idx int
-	if elem == character.AttachmentShadow {
-		idx = 0
-	} else {
+
+	if elem != character.AttachmentShadow {
 		idx = int(char.ActionIndex) + (int(char.Direction)+directiontype.DirectionTable[FixedCameraDirection])%8
 	}
 
-	action := char.Files[elem].ACT.Actions[idx]
+	action := actions[idx]
 	fileSet := char.Files[elem]
-
 	frameCount := len(action.Frames)
 	timeNeededForOneFrame := int64(float64(action.Delay) * (1.0 / char.FPSMultiplier))
+
 	if char.ForcedDuration != 0 {
 		timeNeededForOneFrame = int64(char.ForcedDuration) / int64(frameCount)
 	}
+
 	timeNeededForOneFrame = int64(math.Max(float64(timeNeededForOneFrame), 100))
 	elapsedTime := time.Since(char.AnimationStartedAt).Milliseconds() - int64(dt)
 	realIndex := elapsedTime / timeNeededForOneFrame
@@ -124,6 +120,11 @@ func (s *CharacterRenderSystem) renderAttachment(
 		break
 	}
 
+	// Ignore "doridori" animation
+	if elem == character.AttachmentHead && frameCount == 3 {
+		frameIndex = 0
+	}
+
 	frame := action.Frames[frameIndex]
 
 	if len(frame.Layers) == 0 {
@@ -132,9 +133,11 @@ func (s *CharacterRenderSystem) renderAttachment(
 
 	position := [2]float32{0, 0}
 
-	if len(frame.Positions) > 0 && elem != character.AttachmentBody {
-		position[0] = offset[0] - float32(frame.Positions[frameIndex][0])
-		position[1] = offset[1] - float32(frame.Positions[frameIndex][1])
+	if len(frame.Positions) > 0 &&
+		elem != character.AttachmentBody &&
+		elem != character.AttachmentHead {
+		position[0] = offset[0] - float32(frame.Positions[0][0])
+		position[1] = offset[1] - float32(frame.Positions[0][1])
 	}
 
 	// Render all frames
@@ -149,8 +152,8 @@ func (s *CharacterRenderSystem) renderAttachment(
 	// Save offset reference
 	if len(frame.Positions) > 0 {
 		*offset = [2]float32{
-			float32(frame.Positions[frameIndex][0]),
-			float32(frame.Positions[frameIndex][1]),
+			float32(frame.Positions[0][0]),
+			float32(frame.Positions[0][1]),
 		}
 	}
 }
@@ -167,7 +170,7 @@ func (s *CharacterRenderSystem) renderLayer(
 		return
 	}
 
-	texture, err := graphic.NewTextureFromImage(spr.ImageAt(frameIndex))
+	texture, err := graphic.NewTextureFromImage(spr.ImageAt(int(frameIndex)))
 	if err != nil {
 		log.Fatal(err)
 	}
