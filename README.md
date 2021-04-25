@@ -13,6 +13,7 @@ Current Screenshots:
 - Introduction (coming soon)
 - [TODO](https://github.com/drgomesp/midgarts/blob/master/TODO.md#todo)
 - [Dependencies](https://github.com/drgomesp/midgarts/blob/master/README.md#dependencies)
+- [Building & Running](https://github.com/drgomesp/midgarts/blob/master/README.md#building-and-running)
 - [Tools](https://github.com/drgomesp/midgarts/blob/master/README.md#tools)
     - [GRF Explorer](https://github.com/drgomesp/midgarts/blob/master/README.md#grf-explorer)
 - [Examples](https://github.com/drgomesp/midgarts/blob/master/README.md#examples)
@@ -23,6 +24,28 @@ Current Screenshots:
 
 1. CentOS/Fedora-like Linux Distros:
    `SDL2{,_image,_mixer,_ttf,_gfx}-devel alsa-lib-devel libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel libXi-devel libXxf86vm-devel`
+
+## Building and Running
+
+1. Generate and env file by copying the distributed (.env.dist) file:
+```bash
+    $ cp .env.dist .env 
+```
+
+2. Make sure to alter the `GRF_FILE_PATH` variable on the `.env` file:
+```dotenv
+GRF_FILE_PATH=/path/to/data.grf
+```
+
+3. Build the main binary by running:
+```bash
+    $ go build -o midgarts cmd/sdlclient/main.go 
+```
+
+4. Run the binary:
+```bash
+    $ ./midgarts
+```
 
 ## Tools
 
