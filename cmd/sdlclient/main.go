@@ -77,11 +77,11 @@ func main() {
 	renderSys := system.NewCharacterRenderSystem(grfFile)
 	actionSystem := system.NewCharacterActionSystem(grfFile)
 
-	c1 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 25)
-	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight, 29)
-	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 19)
-	c4 := entity.NewCharacter(character.Female, jobspriteid.Crusader, 31)
-	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, 11)
+	c1 := entity.NewCharacter(character.Female, jobspriteid.Crusader, 22)
+	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight, 25)
+	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 31)
+	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 12)
+	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, 17)
 
 	c1.SetPosition(mgl32.Vec3{0, 38, 0})
 	c2.SetPosition(mgl32.Vec3{4, 38, 0})
@@ -117,31 +117,42 @@ func main() {
 			}
 		}
 
+		const MovementRate = float32(0.075)
+
+		p1 := c1.Position()
 		// char controls
 		if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_RIGHT) {
 			c1.Direction = directiontype.NorthEast
 			c1.SetState(statetype.Walking)
+			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate/2, p1.Y() + MovementRate/2, p1.Z()})
 		} else if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_LEFT) {
 			c1.Direction = directiontype.NorthWest
 			c1.SetState(statetype.Walking)
+			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate/2, p1.Y() + MovementRate/2, p1.Z()})
 		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_RIGHT) {
 			c1.Direction = directiontype.SouthEast
 			c1.SetState(statetype.Walking)
+			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate/2, p1.Y() - MovementRate/2, p1.Z()})
 		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_LEFT) {
 			c1.Direction = directiontype.SouthWest
+			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate/2, p1.Y() - MovementRate/2, p1.Z()})
 			c1.SetState(statetype.Walking)
 		} else if ks.Pressed(sdl.K_UP) {
 			c1.Direction = directiontype.North
 			c1.SetState(statetype.Walking)
+			c1.SetPosition(mgl32.Vec3{p1.X(), p1.Y() + MovementRate, p1.Z()})
 		} else if ks.Pressed(sdl.K_DOWN) {
 			c1.Direction = directiontype.South
 			c1.SetState(statetype.Walking)
+			c1.SetPosition(mgl32.Vec3{p1.X(), p1.Y() - MovementRate, p1.Z()})
 		} else if ks.Pressed(sdl.K_RIGHT) {
 			c1.Direction = directiontype.East
 			c1.SetState(statetype.Walking)
+			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate, p1.Y(), p1.Z()})
 		} else if ks.Pressed(sdl.K_LEFT) {
 			c1.Direction = directiontype.West
 			c1.SetState(statetype.Walking)
+			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y(), p1.Z()})
 		} else {
 			c1.SetState(statetype.Idle)
 		}
