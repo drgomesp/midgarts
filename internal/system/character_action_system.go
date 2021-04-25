@@ -5,18 +5,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
-
-	"github.com/project-midgard/midgarts/pkg/common/character"
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
-
+	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/internal/component"
-
-	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
-
-	"github.com/EngoEngine/ecs"
 	"github.com/project-midgard/midgarts/internal/entity"
+	"github.com/project-midgard/midgarts/pkg/common/character"
+	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
+	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
+	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 )
 
 type CharacterActionable interface {

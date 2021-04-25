@@ -86,12 +86,16 @@ func main() {
 	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 31)
 	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 12)
 	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, 17)
+	c6 := entity.NewCharacter(character.Male, jobspriteid.MonkH, 8)
+	c7 := entity.NewCharacter(character.Male, jobspriteid.Crusader2, 28)
 
 	c1.SetPosition(mgl32.Vec3{0, 38, 0})
 	c2.SetPosition(mgl32.Vec3{4, 38, 0})
 	c3.SetPosition(mgl32.Vec3{8, 38, 0})
 	c4.SetPosition(mgl32.Vec3{0, 34, 0})
 	c5.SetPosition(mgl32.Vec3{4, 34, 0})
+	c6.SetPosition(mgl32.Vec3{8, 34, 0})
+	c7.SetPosition(mgl32.Vec3{0, 30, 0})
 
 	var actionable *system.CharacterActionable
 	var renderable *system.CharacterRenderable
@@ -104,6 +108,8 @@ func main() {
 	w.AddEntity(c3)
 	w.AddEntity(c4)
 	w.AddEntity(c5)
+	w.AddEntity(c6)
+	w.AddEntity(c7)
 
 	shouldStop := false
 

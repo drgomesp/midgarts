@@ -24,7 +24,6 @@ import (
 
 const (
 	SpriteScaleFactor    = float32(1.0)
-	FPSMultiplier        = float64(1.0)
 	FixedCameraDirection = 6
 )
 
