@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	"os"
 	"runtime"
 	"time"
@@ -81,21 +82,27 @@ func main() {
 	renderSys := system.NewCharacterRenderSystem(grfFile)
 	actionSystem := system.NewCharacterActionSystem(grfFile)
 
-	c1 := entity.NewCharacter(character.Female, jobspriteid.Novice, 29)
-	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight, 25)
-	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 31)
-	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 12)
-	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, 17)
-	c6 := entity.NewCharacter(character.Male, jobspriteid.MonkH, 8)
-	c7 := entity.NewCharacter(character.Male, jobspriteid.Crusader2, 28)
+	c1 := entity.NewCharacter(character.Male, jobspriteid.Novice, rand.Intn(31-1)+1)
+	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight, rand.Intn(31-1)+1)
+	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, rand.Intn(31-1)+1)
+	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, rand.Intn(31-1)+1)
+	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, rand.Intn(31-1)+1)
+	c6 := entity.NewCharacter(character.Female, jobspriteid.MonkH, rand.Intn(31-1)+1)
+	c7 := entity.NewCharacter(character.Male, jobspriteid.Crusader2, rand.Intn(31-1)+1)
+	c8 := entity.NewCharacter(character.Male, jobspriteid.Assassin, rand.Intn(31-1)+1)
+	c9 := entity.NewCharacter(character.Male, jobspriteid.Alchemist, rand.Intn(31-1)+1)
+	c10 := entity.NewCharacter(character.Female, jobspriteid.Wizard, rand.Intn(31-1)+1)
 
-	c1.SetPosition(mgl32.Vec3{0, 38, 0})
-	c2.SetPosition(mgl32.Vec3{4, 38, 0})
-	c3.SetPosition(mgl32.Vec3{8, 38, 0})
-	c4.SetPosition(mgl32.Vec3{0, 34, 0})
-	c5.SetPosition(mgl32.Vec3{4, 34, 0})
-	c6.SetPosition(mgl32.Vec3{8, 34, 0})
-	c7.SetPosition(mgl32.Vec3{0, 30, 0})
+	c1.SetPosition(mgl32.Vec3{0, 42, 0})
+	c2.SetPosition(mgl32.Vec3{4, 42, 0})
+	c3.SetPosition(mgl32.Vec3{8, 42, 0})
+	c4.SetPosition(mgl32.Vec3{0, 38, 0})
+	c5.SetPosition(mgl32.Vec3{4, 38, 0})
+	c6.SetPosition(mgl32.Vec3{8, 38, 0})
+	c7.SetPosition(mgl32.Vec3{0, 34, 0})
+	c8.SetPosition(mgl32.Vec3{4, 34, 0})
+	c9.SetPosition(mgl32.Vec3{8, 34, 0})
+	c10.SetPosition(mgl32.Vec3{12, 34, 0})
 
 	var actionable *system.CharacterActionable
 	var renderable *system.CharacterRenderable
@@ -110,6 +117,9 @@ func main() {
 	w.AddEntity(c5)
 	w.AddEntity(c6)
 	w.AddEntity(c7)
+	w.AddEntity(c8)
+	w.AddEntity(c9)
+	w.AddEntity(c10)
 
 	shouldStop := false
 
