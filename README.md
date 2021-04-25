@@ -5,8 +5,7 @@ Midgarts Client is an attempt to write a modern client implementation of the old
 Current Screenshots:
 
 <p align="center"">
-<img src="https://user-images.githubusercontent.com/696982/112054796-c84d4700-8b34-11eb-823b-2dd9ecd93684.gif" width="45%" />
-<img src="https://user-images.githubusercontent.com/696982/112724419-027e6600-8ef2-11eb-903e-c7d4479555e9.gif" width="45%" />
+<img src="https://user-images.githubusercontent.com/696982/115995661-89d2fe00-a5b2-11eb-8801-2eef65d31881.gif" width="100%" />
 
 ## Table of Contents
 
@@ -22,8 +21,8 @@ Current Screenshots:
 ## Dependencies
 
 1. CentOS/Fedora-like Linux Distros:
-`SDL2{,_image,_mixer,_ttf,_gfx}-devel alsa-lib-devel libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel libXi-devel libXxf86vm-devel`
-  
+   `SDL2{,_image,_mixer,_ttf,_gfx}-devel alsa-lib-devel libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel libXi-devel libXxf86vm-devel`
+
 ## Tools
 
 ### GRF Explorer
