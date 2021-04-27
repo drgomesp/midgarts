@@ -76,7 +76,7 @@ func NewCharacterAttachmentComponent(
 		log.Fatal(errors.Wrapf(err, "could not load head act and spr files (%v, %s)", gender, jobSpriteID))
 	}
 
-	return &CharacterAttachmentComponent{[6]struct {
+	return &CharacterAttachmentComponent{[character.NumAttachments]struct {
 		ACT *act.ActionFile
 		SPR *spr.SpriteFile
 	}{

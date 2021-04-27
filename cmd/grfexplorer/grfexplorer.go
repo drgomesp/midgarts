@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image"
 	"log"
 	"os"
 	"strings"
@@ -159,7 +158,7 @@ func loadImage(name string) *g.Texture {
 	}
 
 	sprFile, _ := spr.Load(currentEntry.Data)
-	img := sprFile.ImageAt(0).(*image.RGBA)
+	img := sprFile.ImageAt(0)
 	//mul := int(imageScaleMultiplier)
 	//img = transform.Resize(img, img.Bounds().Max.X*mul, img.Bounds().Max.Y*mul, transform.Linear)
 

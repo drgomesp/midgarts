@@ -6,9 +6,6 @@ const (
 	AttachmentShadow = AttachmentType(iota)
 	AttachmentBody
 	AttachmentHead
-	AttachmentTop
-	AttachmentMid
-	AttachmentBottom
 
 	NumAttachments
 )
@@ -21,12 +18,6 @@ func (e AttachmentType) String() (att string) {
 		att = "AttachmentBody"
 	case AttachmentHead:
 		att = "AttachmentHead"
-	case AttachmentTop:
-		att = "AttachmentTop"
-	case AttachmentMid:
-		att = "AttachmentMid"
-	case AttachmentBottom:
-		att = "AttachmentBottom"
 	default:
 		panic("unsupported attachment type")
 	}
@@ -39,8 +30,5 @@ func Attachments() []AttachmentType {
 		AttachmentShadow,
 		AttachmentBody,
 		AttachmentHead,
-		AttachmentTop,
-		AttachmentMid,
-		AttachmentBottom,
 	}
 }

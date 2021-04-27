@@ -77,7 +77,7 @@ func (s *CharacterRenderSystem) Remove(e ecs.BasicEntity) {
 }
 
 func (s *CharacterRenderSystem) renderCharacter(dt float32, char *entity.Character) {
-	offset := [2]float32{}
+	offset := [2]float32{0, 0}
 
 	if char.ActionIndex != actionindex.Dead && char.ActionIndex != actionindex.Sitting {
 		s.renderAttachment(dt, char, character.AttachmentShadow, &offset)
@@ -87,7 +87,12 @@ func (s *CharacterRenderSystem) renderCharacter(dt float32, char *entity.Charact
 	s.renderAttachment(dt, char, character.AttachmentHead, &offset)
 }
 
-func (s *CharacterRenderSystem) renderAttachment(dt float32, char *entity.Character, elem character.AttachmentType, offset *[2]float32) {
+func (s *CharacterRenderSystem) renderAttachment(
+	dt float32,
+	char *entity.Character,
+	elem character.AttachmentType,
+	offset *[2]float32,
+) {
 	var actions []*act.Action
 	if actions = char.Files[elem].ACT.Actions; len(actions) == 0 {
 		return
@@ -101,11 +106,11 @@ func (s *CharacterRenderSystem) renderAttachment(dt float32, char *entity.Charac
 
 	action := actions[idx]
 	fileSet := char.Files[elem]
-	frameCount := len(action.Frames)
+	frameCount := int64(len(action.Frames))
 	timeNeededForOneFrame := int64(float64(action.Delay) * (1.0 / char.FPSMultiplier))
 
 	if char.ForcedDuration != 0 {
-		timeNeededForOneFrame = int64(char.ForcedDuration) / int64(frameCount)
+		timeNeededForOneFrame = int64(char.ForcedDuration) / frameCount
 	}
 
 	timeNeededForOneFrame = int64(math.Max(float64(timeNeededForOneFrame), 100))
@@ -114,20 +119,18 @@ func (s *CharacterRenderSystem) renderAttachment(dt float32, char *entity.Charac
 
 	var frameIndex int64
 
-	// Ignore "doridori" animation
-	if elem == character.AttachmentHead && frameCount == 3 {
-		frameIndex = int64(frameCount / 3)
-	}
-
 	switch char.PlayMode {
 	case actionplaymode.Repeat:
-		frameIndex = realIndex % int64(frameCount)
+		frameIndex = realIndex % frameCount
 		break
 	}
 
-	frame := action.Frames[frameIndex]
+	if elem == character.AttachmentHead {
+		frameIndex = 0
+	}
 
-	if len(frame.Layers) == 0 {
+	var frame *act.ActionFrame
+	if frame = action.Frames[frameIndex]; len(frame.Layers) == 0 {
 		return
 	}
 
@@ -138,7 +141,7 @@ func (s *CharacterRenderSystem) renderAttachment(dt float32, char *entity.Charac
 		position[1] = offset[1] - float32(frame.Positions[0][1])
 	}
 
-	// Render all frames
+	// Render all layers
 	for _, layer := range frame.Layers {
 		if layer.SpriteFrameIndex < 0 {
 			continue
@@ -160,7 +163,7 @@ func (s *CharacterRenderSystem) renderLayer(
 	char *entity.Character,
 	layer *act.ActionFrameLayer,
 	spr *spr.SpriteFile,
-	prevOffset [2]float32,
+	offset [2]float32,
 ) {
 	frameIndex := int64(layer.SpriteFrameIndex)
 	if frameIndex < 0 {
@@ -177,9 +180,9 @@ func (s *CharacterRenderSystem) renderLayer(
 	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
 	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
 
-	offset := [2]float32{
-		(float32(layer.Position[0]) + prevOffset[0]) * graphic.OnePixelSize,
-		(float32(layer.Position[1]) + prevOffset[1]) * graphic.OnePixelSize,
+	offset = [2]float32{
+		(float32(layer.Position[0]) + offset[0]) * graphic.OnePixelSize,
+		(float32(layer.Position[1]) + offset[1]) * graphic.OnePixelSize,
 	}
 
 	// This is the current API to render a sprite. Commands will
@@ -187,12 +190,16 @@ func (s *CharacterRenderSystem) renderLayer(
 	s.renderSpriteCommand(rendercmd.SpriteRenderCommand{
 		Scale:           layer.Scale,
 		Size:            mgl32.Vec2{width, height},
-		Position:        mgl32.Vec3{char.Position().X(), char.Position().Y(), char.Position().Z()},
+		Position:        char.Position(),
 		Offset:          mgl32.Vec2{offset[0], offset[1]},
 		RotationRadians: 0,
 		Texture:         texture,
 		FlipVertically:  layer.Mirrored,
 	})
+}
+
+func (s *CharacterRenderSystem) getFrameIndex(char *entity.Character, elem character.AttachmentType) int {
+	return 0
 }
 
 func (s *CharacterRenderSystem) renderSpriteCommand(cmd ...rendercmd.SpriteRenderCommand) {

@@ -1,12 +1,19 @@
 package opengl
 
 import (
+	_ "embed"
 	"fmt"
 	"log"
 	"strings"
 
 	"github.com/go-gl/gl/v3.3-core/gl"
 )
+
+//go:embed shaders/default.vert
+var unversionedVertexShader string
+
+//go:embed shaders/default.frag
+var unversionedFragmentShader string
 
 func InitOpenGL() *State {
 	if err := gl.Init(); err != nil {
@@ -15,12 +22,12 @@ func InitOpenGL() *State {
 	version := gl.GoStr(gl.GetString(gl.VERSION))
 	log.Println("OpenGL version", version)
 
-	vertexShader, err := compileShader(vertexShaderSource, gl.VERTEX_SHADER)
+	vertexShader, err := compileShader(unversionedVertexShader, gl.VERTEX_SHADER)
 	if err != nil {
 		panic(err)
 	}
 
-	fragmentShader, err := compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER)
+	fragmentShader, err := compileShader(unversionedFragmentShader, gl.FRAGMENT_SHADER)
 	if err != nil {
 		panic(err)
 	}

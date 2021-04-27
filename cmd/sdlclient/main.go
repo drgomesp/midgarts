@@ -111,15 +111,15 @@ func main() {
 	w.AddSystem(system.NewOpenGLRenderSystem(gls, cam, renderSys.RenderCommands))
 
 	w.AddEntity(c1)
-	w.AddEntity(c2)
-	w.AddEntity(c3)
-	w.AddEntity(c4)
-	w.AddEntity(c5)
-	w.AddEntity(c6)
-	w.AddEntity(c7)
-	w.AddEntity(c8)
-	w.AddEntity(c9)
-	w.AddEntity(c10)
+	//w.AddEntity(c2)
+	//w.AddEntity(c3)
+	//w.AddEntity(c4)
+	//w.AddEntity(c5)
+	//w.AddEntity(c6)
+	//w.AddEntity(c7)
+	//w.AddEntity(c8)
+	//w.AddEntity(c9)
+	//w.AddEntity(c10)
 
 	shouldStop := false
 
@@ -193,12 +193,3 @@ func main() {
 		win.GLSwap()
 	}
 }
-
-//
-//func loadCharOrPanic(grfFile *grf.File, gender character.GenderType, jobspriteid jobspriteid.Type, headIndex int) *entity.CharacterSprite {
-//	c, err := entity.LoadCharacterSprite(grfFile, gender, jobspriteid, int32(headIndex))
-//	if err != nil {
-//		log.Fatal(errors.Wrapf(err, "could not load character (%v, %v)\n", gender, jobspriteid))
-//	}
-//	return c
-//}
