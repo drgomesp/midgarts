@@ -9,7 +9,6 @@ import (
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/internal/component"
 	"github.com/project-midgard/midgarts/internal/entity"
-	"github.com/project-midgard/midgarts/pkg/common/character"
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
@@ -70,14 +69,13 @@ func (s CharacterActionSystem) Update(dt float32) {
 			c.ForcedDuration = forcedDuration
 
 			if c.State == statetype.Walking {
-				const ConstantMovementSpeed = 2.0
-				c.FPSMultiplier = ConstantMovementSpeed
+				c.FPSMultiplier = c.MovementSpeed
 			} else {
 				c.FPSMultiplier = 1.0
 			}
 
 			c.ActionIndex = actionindex.GetActionIndex(c.State)
-			action := c.Files[character.AttachmentBody].ACT.Actions[c.ActionIndex]
+			action := c.Files[c.AttachmentType].ACT.Actions[c.ActionIndex]
 			c.AnimationEndsAt = now.Add(time.Duration(action.DurationMilliseconds) * time.Millisecond)
 		} else {
 			// TODO:

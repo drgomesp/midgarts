@@ -93,6 +93,8 @@ func (s *CharacterRenderSystem) renderAttachment(
 	elem character.AttachmentType,
 	offset *[2]float32,
 ) {
+	char.AttachmentType = elem
+
 	var actions []*act.Action
 	if actions = char.Files[elem].ACT.Actions; len(actions) == 0 {
 		return
@@ -105,7 +107,6 @@ func (s *CharacterRenderSystem) renderAttachment(
 	}
 
 	action := actions[idx]
-	fileSet := char.Files[elem]
 	frameCount := int64(len(action.Frames))
 	timeNeededForOneFrame := int64(float64(action.Delay) * (1.0 / char.FPSMultiplier))
 
@@ -118,19 +119,20 @@ func (s *CharacterRenderSystem) renderAttachment(
 	realIndex := elapsedTime / timeNeededForOneFrame
 
 	var frameIndex int64
-
 	switch char.PlayMode {
 	case actionplaymode.Repeat:
 		frameIndex = realIndex % frameCount
 		break
 	}
 
-	if elem == character.AttachmentHead {
+	// Ignore "doridori" animation
+	if len(action.Frames) == 3 {
 		frameIndex = 0
 	}
 
 	var frame *act.ActionFrame
 	if frame = action.Frames[frameIndex]; len(frame.Layers) == 0 {
+		*offset = [2]float32{0, 0}
 		return
 	}
 
@@ -147,7 +149,7 @@ func (s *CharacterRenderSystem) renderAttachment(
 			continue
 		}
 
-		s.renderLayer(char, layer, fileSet.SPR, position)
+		s.renderLayer(char, layer, char.Files[elem].SPR, position)
 	}
 
 	// Save offset reference
@@ -196,10 +198,6 @@ func (s *CharacterRenderSystem) renderLayer(
 		Texture:         texture,
 		FlipVertically:  layer.Mirrored,
 	})
-}
-
-func (s *CharacterRenderSystem) getFrameIndex(char *entity.Character, elem character.AttachmentType) int {
-	return 0
 }
 
 func (s *CharacterRenderSystem) renderSpriteCommand(cmd ...rendercmd.SpriteRenderCommand) {

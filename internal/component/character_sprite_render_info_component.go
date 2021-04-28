@@ -3,6 +3,8 @@ package component
 import (
 	"time"
 
+	"github.com/project-midgard/midgarts/pkg/common/character"
+
 	"github.com/project-midgard/midgarts/pkg/common/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
 )
@@ -18,6 +20,7 @@ type CharacterSpriteRenderInfoComponent struct {
 	Direction          directiontype.Type
 	ForcedDuration     time.Duration
 	FPSMultiplier      float64
+	AttachmentType     character.AttachmentType
 }
 
 func NewCharacterSpriteRenderInfoComponent() *CharacterSpriteRenderInfoComponent {

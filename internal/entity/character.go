@@ -18,10 +18,11 @@ type Character struct {
 	*component.CharacterStateComponent
 	*component.CharacterSpriteRenderInfoComponent
 
-	HeadIndex   int
-	Gender      character.GenderType
-	JobSpriteID jobspriteid.Type
-	IsMounted   bool
+	HeadIndex     int
+	Gender        character.GenderType
+	JobSpriteID   jobspriteid.Type
+	IsMounted     bool
+	MovementSpeed float64
 }
 
 func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int) *Character {
@@ -38,6 +39,7 @@ func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, hea
 		JobSpriteID:                        jobSpriteID,
 		HeadIndex:                          headIndex,
 		IsMounted:                          true,
+		MovementSpeed:                      1.25,
 	}
 
 	return c
