@@ -2,9 +2,9 @@ package grf
 
 import (
 	"bytes"
+	des2 "github.com/project-midgard/midgarts/pkg/fileformat/grf/des"
 
 	"github.com/pkg/errors"
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf/des"
 )
 
 type entryFlags byte
@@ -36,9 +36,9 @@ type Entry struct {
 // Decode ...
 func (e *Entry) Decode(data []byte) error {
 	if e.Header.Flags&entryTypeEncryptMixed != 0 {
-		des.DecodeFull(data, int(e.Header.CompressedSizeAligned), int(e.Header.CompressedSize))
+		des2.DecodeFull(data, int(e.Header.CompressedSizeAligned), int(e.Header.CompressedSize))
 	} else if e.Header.Flags&entryTypeEncryptHeader != 0 {
-		des.DecodeHeader(data)
+		des2.DecodeHeader(data)
 	}
 
 	if e.Header.CompressedSize == e.Header.UncompressedSize {

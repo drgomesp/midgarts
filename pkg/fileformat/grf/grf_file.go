@@ -11,13 +11,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
-
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
-
-	"golang.org/x/text/encoding/charmap"
-
 	"github.com/pkg/errors"
+	"github.com/project-midgard/midgarts/pkg/fileformat/act"
+	"github.com/project-midgard/midgarts/pkg/fileformat/spr"
+	"golang.org/x/text/encoding/charmap"
 )
 
 const (
@@ -225,13 +222,13 @@ func (f *File) parseEntries(file *os.File) error {
 
 		properFileName := strings.ToLower(strings.ReplaceAll(string(d), `\`, `/`))
 		entry.Name = properFileName
-		dir, file := filepath.Split(properFileName)
+		dir, _ := filepath.Split(properFileName)
 		dir = strings.TrimSuffix(dir, `/`)
 		dirs = append(dirs, dir)
 
-		if strings.HasSuffix(file, ".spr") || strings.HasSuffix(file, ".act") {
-			f.entries[dir] = append(f.entries[dir], entry)
-		}
+		//if strings.HasSuffix(file, ".spr") || strings.HasSuffix(file, ".act") {
+		f.entries[dir] = append(f.entries[dir], entry)
+		//}
 	}
 
 	uniqueDirs := map[string]byte{}

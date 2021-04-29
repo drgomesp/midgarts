@@ -1,9 +1,8 @@
 package jobspriteid
 
 import (
+	jobid2 "github.com/project-midgard/midgarts/pkg/character/jobid"
 	"log"
-
-	"github.com/project-midgard/midgarts/pkg/common/character/jobid"
 )
 
 type Type int
@@ -34,25 +33,25 @@ const (
 	MonkH      = Type(4016)
 )
 
-func GetJobSpriteID(jid jobid.Type, isMounted bool) (t Type) {
+func GetJobSpriteID(jid jobid2.Type, isMounted bool) (t Type) {
 	switch jid {
-	case jobid.Archer:
+	case jobid2.Archer:
 		return Archer
-	case jobid.Monk:
+	case jobid2.Monk:
 		return Monk
-	case jobid.Assassin:
+	case jobid2.Assassin:
 		return Assassin
-	case jobid.Swordsman:
+	case jobid2.Swordsman:
 		return Swordsman
-	case jobid.Alchemist:
+	case jobid2.Alchemist:
 		return Alchemist
-	case jobid.Knight:
+	case jobid2.Knight:
 		if isMounted {
 			return Knight2
 		} else {
 			return Knight
 		}
-	case jobid.Crusader:
+	case jobid2.Crusader:
 		if isMounted {
 			return Crusader2
 		} else {

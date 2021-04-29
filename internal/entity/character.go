@@ -3,10 +3,10 @@ package entity
 import (
 	"github.com/EngoEngine/ecs"
 	"github.com/project-midgard/midgarts/internal/component"
-	"github.com/project-midgard/midgarts/pkg/common/character"
-	"github.com/project-midgard/midgarts/pkg/common/character/actionplaymode"
-	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
-	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
+	character2 "github.com/project-midgard/midgarts/pkg/character"
+	actionplaymode2 "github.com/project-midgard/midgarts/pkg/character/actionplaymode"
+	jobspriteid2 "github.com/project-midgard/midgarts/pkg/character/jobspriteid"
+	statetype2 "github.com/project-midgard/midgarts/pkg/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/graphic"
 )
 
@@ -19,19 +19,19 @@ type Character struct {
 	*component.CharacterSpriteRenderInfoComponent
 
 	HeadIndex     int
-	Gender        character.GenderType
-	JobSpriteID   jobspriteid.Type
+	Gender        character2.GenderType
+	JobSpriteID   jobspriteid2.Type
 	IsMounted     bool
 	MovementSpeed float64
 }
 
-func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int) *Character {
+func NewCharacter(gender character2.GenderType, jobSpriteID jobspriteid2.Type, headIndex int) *Character {
 	b := ecs.NewBasic()
 	c := &Character{
 		BasicEntity: &b,
 		CharacterStateComponent: &component.CharacterStateComponent{
-			PlayMode: actionplaymode.Repeat,
-			State:    statetype.Idle,
+			PlayMode: actionplaymode2.Repeat,
+			State:    statetype2.Idle,
 		},
 		CharacterSpriteRenderInfoComponent: component.NewCharacterSpriteRenderInfoComponent(),
 		Transform:                          graphic.NewTransform(graphic.Origin),
@@ -65,7 +65,7 @@ func (c *Character) GetCharacterSpriteRenderInfoComponent() *component.Character
 	return c.CharacterSpriteRenderInfoComponent
 }
 
-func (c *Character) SetState(state statetype.Type) {
+func (c *Character) SetState(state statetype2.Type) {
 	c.PreviousState = c.State
 	c.State = state
 }

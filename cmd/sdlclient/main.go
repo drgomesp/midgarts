@@ -1,6 +1,11 @@
 package main
 
 import (
+	character2 "github.com/project-midgard/midgarts/pkg/character"
+	directiontype2 "github.com/project-midgard/midgarts/pkg/character/directiontype"
+	jobspriteid2 "github.com/project-midgard/midgarts/pkg/character/jobspriteid"
+	statetype2 "github.com/project-midgard/midgarts/pkg/character/statetype"
+	grf2 "github.com/project-midgard/midgarts/pkg/fileformat/grf"
 	"log"
 	"math/rand"
 	"os"
@@ -16,11 +21,6 @@ import (
 	"github.com/project-midgard/midgarts/internal/system"
 	"github.com/project-midgard/midgarts/internal/window"
 	"github.com/project-midgard/midgarts/pkg/camera"
-	"github.com/project-midgard/midgarts/pkg/common/character"
-	"github.com/project-midgard/midgarts/pkg/common/character/directiontype"
-	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
-	"github.com/project-midgard/midgarts/pkg/common/character/statetype"
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -66,8 +66,8 @@ func main() {
 
 	gls := opengl.InitOpenGL()
 
-	var grfFile *grf.File
-	if grfFile, err = grf.Load(GrfFilePath); err != nil {
+	var grfFile *grf2.File
+	if grfFile, err = grf2.Load(GrfFilePath); err != nil {
 		log.Fatal(err)
 	}
 
@@ -83,16 +83,16 @@ func main() {
 	actionSystem := system.NewCharacterActionSystem(grfFile)
 
 	max, min := 32, 1
-	c1 := entity.NewCharacter(character.Male, jobspriteid.Assassin, rand.Intn(max-min)+min)
-	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight2, rand.Intn(max-min)+min)
-	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, rand.Intn(max-min)+min)
-	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, rand.Intn(max-min)+min)
-	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, rand.Intn(max-min)+min)
-	c6 := entity.NewCharacter(character.Female, jobspriteid.MonkH, rand.Intn(max-min)+min)
-	c7 := entity.NewCharacter(character.Male, jobspriteid.Crusader2, rand.Intn(max-min)+min)
-	c8 := entity.NewCharacter(character.Male, jobspriteid.Assassin, rand.Intn(max-min)+min)
-	c9 := entity.NewCharacter(character.Male, jobspriteid.Alchemist, rand.Intn(max-min)+min)
-	c10 := entity.NewCharacter(character.Female, jobspriteid.Wizard, rand.Intn(max-min)+min)
+	c1 := entity.NewCharacter(character2.Male, jobspriteid2.Assassin, rand.Intn(max-min)+min)
+	c2 := entity.NewCharacter(character2.Female, jobspriteid2.Knight2, rand.Intn(max-min)+min)
+	c3 := entity.NewCharacter(character2.Male, jobspriteid2.Swordsman, rand.Intn(max-min)+min)
+	c4 := entity.NewCharacter(character2.Female, jobspriteid2.Alchemist, rand.Intn(max-min)+min)
+	c5 := entity.NewCharacter(character2.Male, jobspriteid2.Alcolyte, rand.Intn(max-min)+min)
+	c6 := entity.NewCharacter(character2.Female, jobspriteid2.MonkH, rand.Intn(max-min)+min)
+	c7 := entity.NewCharacter(character2.Male, jobspriteid2.Crusader2, rand.Intn(max-min)+min)
+	c8 := entity.NewCharacter(character2.Male, jobspriteid2.Assassin, rand.Intn(max-min)+min)
+	c9 := entity.NewCharacter(character2.Male, jobspriteid2.Alchemist, rand.Intn(max-min)+min)
+	c10 := entity.NewCharacter(character2.Female, jobspriteid2.Wizard, rand.Intn(max-min)+min)
 
 	c1.SetPosition(mgl32.Vec3{0, 42, 0})
 	c2.SetPosition(mgl32.Vec3{4, 42, 0})
@@ -143,39 +143,39 @@ func main() {
 		p1 := c1.Position()
 		// char controls
 		if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_RIGHT) {
-			c1.Direction = directiontype.NorthEast
-			c1.SetState(statetype.Walking)
+			c1.Direction = directiontype2.NorthEast
+			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate, p1.Y() + MovementRate, p1.Z()})
 		} else if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_LEFT) {
-			c1.Direction = directiontype.NorthWest
-			c1.SetState(statetype.Walking)
+			c1.Direction = directiontype2.NorthWest
+			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y() + MovementRate, p1.Z()})
 		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_RIGHT) {
-			c1.Direction = directiontype.SouthEast
-			c1.SetState(statetype.Walking)
+			c1.Direction = directiontype2.SouthEast
+			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate, p1.Y() - MovementRate, p1.Z()})
 		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_LEFT) {
-			c1.Direction = directiontype.SouthWest
+			c1.Direction = directiontype2.SouthWest
 			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y() - MovementRate, p1.Z()})
-			c1.SetState(statetype.Walking)
+			c1.SetState(statetype2.Walking)
 		} else if ks.Pressed(sdl.K_UP) {
-			c1.Direction = directiontype.North
-			c1.SetState(statetype.Walking)
+			c1.Direction = directiontype2.North
+			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X(), p1.Y() + MovementRate, p1.Z()})
 		} else if ks.Pressed(sdl.K_DOWN) {
-			c1.Direction = directiontype.South
-			c1.SetState(statetype.Walking)
+			c1.Direction = directiontype2.South
+			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X(), p1.Y() - MovementRate, p1.Z()})
 		} else if ks.Pressed(sdl.K_RIGHT) {
-			c1.Direction = directiontype.East
-			c1.SetState(statetype.Walking)
+			c1.Direction = directiontype2.East
+			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate, p1.Y(), p1.Z()})
 		} else if ks.Pressed(sdl.K_LEFT) {
-			c1.Direction = directiontype.West
-			c1.SetState(statetype.Walking)
+			c1.Direction = directiontype2.West
+			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y(), p1.Z()})
 		} else {
-			c1.SetState(statetype.Idle)
+			c1.SetState(statetype2.Idle)
 		}
 
 		// camera controls

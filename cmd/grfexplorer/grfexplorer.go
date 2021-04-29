@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	act2 "github.com/project-midgard/midgarts/pkg/fileformat/act"
+	grf2 "github.com/project-midgard/midgarts/pkg/fileformat/grf"
+	spr2 "github.com/project-midgard/midgarts/pkg/fileformat/spr"
 	"log"
 	"os"
 	"strings"
@@ -9,17 +12,14 @@ import (
 	"golang.org/x/text/encoding/charmap"
 
 	g "github.com/AllenDang/giu"
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/spr"
 )
 
-var grfFile *grf.File
+var grfFile *grf2.File
 var imageWidget = &g.ImageWidget{}
 var fileInfoWidget g.Widget
 var imageScaleMultiplier int32 = 1
 var loadedImageName string
-var currentEntry *grf.Entry
+var currentEntry *grf2.Entry
 
 // Run implements the main program loop of the demo. It returns when the platform signals to stop.
 // This demo application shows some basic features of ImGui, as well as exposing the standard demo window.
@@ -57,7 +57,7 @@ func onOpenFile() {
 	log.Println("loading GRF file...")
 
 	var err error
-	grfFile, err = grf.Load(os.Args[1])
+	grfFile, err = grf2.Load(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,7 +70,7 @@ func onClickEntry(entryName string) {
 			panic("kurwa!")
 		}
 
-		actFile, err := act.Load(currentEntry.Data)
+		actFile, err := act2.Load(currentEntry.Data)
 		log.Printf("actFile = %+v\n", actFile)
 	}
 
@@ -86,7 +86,7 @@ func onClickEntry(entryName string) {
 }
 
 func loadFileInfo() {
-	sprFile, _ := spr.Load(currentEntry.Data)
+	sprFile, _ := spr2.Load(currentEntry.Data)
 
 	fileInfoWidget = g.Layout{
 		g.Line(
@@ -112,7 +112,7 @@ func buildEntryTreeNodes() g.Layout {
 	}
 
 	var nodes []interface{}
-	grfFile.GetEntryTree().Traverse(grfFile.GetEntryTree().Root, func(n *grf.EntryTreeNode) {
+	grfFile.GetEntryTree().Traverse(grfFile.GetEntryTree().Root, func(n *grf2.EntryTreeNode) {
 		selectableNodes := make([]g.Widget, 0)
 		var nodeEntries []interface{}
 
@@ -157,7 +157,7 @@ func loadImage(name string) *g.Texture {
 		return nil
 	}
 
-	sprFile, _ := spr.Load(currentEntry.Data)
+	sprFile, _ := spr2.Load(currentEntry.Data)
 	img := sprFile.ImageAt(0)
 	//mul := int(imageScaleMultiplier)
 	//img = transform.Resize(img, img.Bounds().Max.X*mul, img.Bounds().Max.Y*mul, transform.Linear)

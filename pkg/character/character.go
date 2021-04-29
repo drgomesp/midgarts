@@ -2,11 +2,11 @@ package character
 
 import (
 	"fmt"
+	jobspriteid2 "github.com/project-midgard/midgarts/pkg/character/jobspriteid"
+	act2 "github.com/project-midgard/midgarts/pkg/fileformat/act"
+	grf2 "github.com/project-midgard/midgarts/pkg/fileformat/grf"
 	"log"
 
-	"github.com/project-midgard/midgarts/pkg/common/character/jobspriteid"
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/act"
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -18,15 +18,15 @@ var (
 	FemaleFilePathf = "data/sprite/%s/%s/¿©/%s_¿©"
 )
 
-func LoadCharacterActionFile(f *grf.File, gender GenderType, jobSpriteID jobspriteid.Type) *act.ActionFile {
+func LoadCharacterActionFile(f *grf2.File, gender GenderType, jobSpriteID jobspriteid2.Type) *act2.ActionFile {
 	var err error
 	path := BuildSpriteFilePath(gender, jobSpriteID)
-	var entry *grf.Entry
+	var entry *grf2.Entry
 	if entry, err = f.GetEntry(fmt.Sprintf("%s.act", path)); err != nil {
 		log.Fatal(err)
 	}
 
-	actFile, err := act.Load(entry.Data)
+	actFile, err := act2.Load(entry.Data)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,7 +34,7 @@ func LoadCharacterActionFile(f *grf.File, gender GenderType, jobSpriteID jobspri
 	return actFile
 }
 
-func BuildSpriteFilePath(gender GenderType, jobSpriteID jobspriteid.Type) string {
+func BuildSpriteFilePath(gender GenderType, jobSpriteID jobspriteid2.Type) string {
 	var err error
 	jobFileName := JobSpriteNameTable[jobSpriteID]
 

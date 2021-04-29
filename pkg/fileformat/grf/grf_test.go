@@ -3,9 +3,9 @@ package grf_test
 import (
 	"bytes"
 	"fmt"
+	grf2 "github.com/project-midgard/midgarts/pkg/fileformat/grf"
 	"testing"
 
-	"github.com/project-midgard/midgarts/pkg/common/fileformat/grf"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,14 +17,14 @@ func TestEntryHeaders(t *testing.T) {
 	var tests = []struct {
 		Name             string
 		ExpectedFileName string
-		ExpectedEntries  map[string]*grf.Entry
+		ExpectedEntries  map[string]*grf2.Entry
 	}{
 		{
 			Name:             "load file with raw data",
 			ExpectedFileName: "raw",
-			ExpectedEntries: map[string]*grf.Entry{
+			ExpectedEntries: map[string]*grf2.Entry{
 				"raw": {
-					Header: grf.EntryHeader{
+					Header: grf2.EntryHeader{
 						CompressedSize:        74,
 						CompressedSizeAligned: 74,
 						UncompressedSize:      74,
@@ -34,7 +34,7 @@ func TestEntryHeaders(t *testing.T) {
 					Data: bytes.NewBuffer(nil),
 				},
 				"corrupted": {
-					Header: grf.EntryHeader{
+					Header: grf2.EntryHeader{
 						CompressedSize:        132,
 						CompressedSizeAligned: 123,
 						UncompressedSize:      20,
@@ -44,7 +44,7 @@ func TestEntryHeaders(t *testing.T) {
 					Data: bytes.NewBuffer(nil),
 				},
 				"compressed": {
-					Header: grf.EntryHeader{
+					Header: grf2.EntryHeader{
 						CompressedSize:        16,
 						CompressedSizeAligned: 16,
 						UncompressedSize:      74,
@@ -54,7 +54,7 @@ func TestEntryHeaders(t *testing.T) {
 					Data: bytes.NewBuffer(nil),
 				},
 				"compressed-des-header": {
-					Header: grf.EntryHeader{
+					Header: grf2.EntryHeader{
 						CompressedSize:        16,
 						CompressedSizeAligned: 16,
 						UncompressedSize:      74,
@@ -64,7 +64,7 @@ func TestEntryHeaders(t *testing.T) {
 					Data: bytes.NewBuffer(nil),
 				},
 				"compressed-des-full": {
-					Header: grf.EntryHeader{
+					Header: grf2.EntryHeader{
 						CompressedSize:        16,
 						CompressedSizeAligned: 16,
 						UncompressedSize:      74,
@@ -74,7 +74,7 @@ func TestEntryHeaders(t *testing.T) {
 					Data: bytes.NewBuffer(nil),
 				},
 				"big-compressed-des-full": {
-					Header: grf.EntryHeader{
+					Header: grf2.EntryHeader{
 						CompressedSize:        361,
 						CompressedSizeAligned: 368,
 						UncompressedSize:      658,
@@ -89,7 +89,7 @@ func TestEntryHeaders(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.Name, func(t *testing.T) {
-			grfFile, err := grf.Load(fmt.Sprintf("%s/%s", dataPath, "with-files.grf"))
+			grfFile, err := grf2.Load(fmt.Sprintf("%s/%s", dataPath, "with-files.grf"))
 			assert.NoError(t, err)
 			assert.Equal(t, tt.ExpectedEntries, grfFile.GetEntries("/"))
 		})
@@ -136,7 +136,7 @@ func TestEntryContents(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		grfFile, err := grf.Load(tt.FilePath)
+		grfFile, err := grf2.Load(tt.FilePath)
 		assert.NoError(t, err)
 
 		t.Run(tt.Name, func(t *testing.T) {
