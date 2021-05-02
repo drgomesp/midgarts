@@ -5,7 +5,7 @@ Midgarts Client is an attempt to write a modern client implementation of the old
 Current Screenshots:
 
 <p align="center"">
-<img src="https://user-images.githubusercontent.com/696982/115995661-89d2fe00-a5b2-11eb-8801-2eef65d31881.gif" width="44%" />
+<img src="https://user-images.githubusercontent.com/696982/116827693-c2557780-ab70-11eb-90cd-b093004361db.gif" width="44%" />
 <img src="https://user-images.githubusercontent.com/696982/115995910-96a42180-a5b3-11eb-8200-1cfae06bf5bc.gif" width="44%" />
 
 ## Table of Contents
