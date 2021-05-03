@@ -1,16 +1,19 @@
 package main
 
 import (
-	character2 "github.com/project-midgard/midgarts/pkg/character"
-	directiontype2 "github.com/project-midgard/midgarts/pkg/character/directiontype"
-	jobspriteid2 "github.com/project-midgard/midgarts/pkg/character/jobspriteid"
-	statetype2 "github.com/project-midgard/midgarts/pkg/character/statetype"
-	grf2 "github.com/project-midgard/midgarts/pkg/fileformat/grf"
 	"log"
 	"math/rand"
 	"os"
 	"runtime"
 	"time"
+
+	gnd "github.com/project-midgard/midgarts/pkg/fileformat/gnd"
+
+	character2 "github.com/project-midgard/midgarts/pkg/character"
+	directiontype2 "github.com/project-midgard/midgarts/pkg/character/directiontype"
+	jobspriteid2 "github.com/project-midgard/midgarts/pkg/character/jobspriteid"
+	statetype2 "github.com/project-midgard/midgarts/pkg/character/statetype"
+	grf2 "github.com/project-midgard/midgarts/pkg/fileformat/grf"
 
 	"github.com/EngoEngine/ecs"
 	"github.com/go-gl/gl/v3.3-core/gl"
@@ -70,6 +73,16 @@ func main() {
 	if grfFile, err = grf2.Load(GrfFilePath); err != nil {
 		log.Fatal(err)
 	}
+
+	e, err := grfFile.GetEntry("data/prontera.gnd")
+	if err != nil {
+		log.Fatal(err)
+	}
+	groundFile, err := gnd.Load(e.Data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_ = groundFile
 
 	gl.Viewport(0, 0, WindowWidth, WindowHeight)
 

@@ -1,8 +1,10 @@
 package bytesutil
 
 import (
+	"encoding/binary"
 	"io"
 	"io/ioutil"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -13,4 +15,11 @@ func SkipBytes(buf io.ReadSeeker, n int64) error {
 	}
 
 	return nil
+}
+
+func ReadString(buf io.ReadSeeker, length int) (string, error) {
+	str := make([]byte, length)
+	_ = binary.Read(buf, binary.LittleEndian, &str)
+
+	return strings.Split(string(str), string('\x00'))[0], nil
 }
