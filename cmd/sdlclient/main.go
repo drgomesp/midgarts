@@ -155,35 +155,35 @@ func main() {
 
 		p1 := c1.Position()
 		// char controls
-		if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_RIGHT) {
+		if ks.Pressed(sdl.K_w) && ks.Pressed(sdl.K_d) {
 			c1.Direction = directiontype2.NorthEast
 			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate, p1.Y() + MovementRate, p1.Z()})
-		} else if ks.Pressed(sdl.K_UP) && ks.Pressed(sdl.K_LEFT) {
+		} else if ks.Pressed(sdl.K_w) && ks.Pressed(sdl.K_a) {
 			c1.Direction = directiontype2.NorthWest
 			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y() + MovementRate, p1.Z()})
-		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_RIGHT) {
+		} else if ks.Pressed(sdl.K_s) && ks.Pressed(sdl.K_d) {
 			c1.Direction = directiontype2.SouthEast
 			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate, p1.Y() - MovementRate, p1.Z()})
-		} else if ks.Pressed(sdl.K_DOWN) && ks.Pressed(sdl.K_LEFT) {
+		} else if ks.Pressed(sdl.K_s) && ks.Pressed(sdl.K_a) {
 			c1.Direction = directiontype2.SouthWest
 			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y() - MovementRate, p1.Z()})
 			c1.SetState(statetype2.Walking)
-		} else if ks.Pressed(sdl.K_UP) {
+		} else if ks.Pressed(sdl.K_w) {
 			c1.Direction = directiontype2.North
 			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X(), p1.Y() + MovementRate, p1.Z()})
-		} else if ks.Pressed(sdl.K_DOWN) {
+		} else if ks.Pressed(sdl.K_s) {
 			c1.Direction = directiontype2.South
 			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X(), p1.Y() - MovementRate, p1.Z()})
-		} else if ks.Pressed(sdl.K_RIGHT) {
+		} else if ks.Pressed(sdl.K_d) {
 			c1.Direction = directiontype2.East
 			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() - MovementRate, p1.Y(), p1.Z()})
-		} else if ks.Pressed(sdl.K_LEFT) {
+		} else if ks.Pressed(sdl.K_a) {
 			c1.Direction = directiontype2.West
 			c1.SetState(statetype2.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y(), p1.Z()})
@@ -192,9 +192,9 @@ func main() {
 		}
 
 		// camera controls
-		if ks.Pressed(sdl.K_w) {
+		if ks.Pressed(sdl.K_z) {
 			cam.SetPosition(mgl32.Vec3{cam.Position().X(), cam.Position().Y(), cam.Position().Z() + 0.2})
-		} else if ks.Pressed(sdl.K_s) {
+		} else if ks.Pressed(sdl.K_x) {
 			cam.SetPosition(mgl32.Vec3{cam.Position().X(), cam.Position().Y(), cam.Position().Z() - 0.2})
 		}
 
