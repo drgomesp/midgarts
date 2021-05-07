@@ -2,7 +2,8 @@ package actionindex
 
 import (
 	"fmt"
-	statetype2 "github.com/project-midgard/midgarts/pkg/character/statetype"
+
+	"github.com/project-midgard/midgarts/pkg/character/statetype"
 )
 
 type Type int
@@ -23,11 +24,11 @@ const (
 	CastingSpell    Type = 96
 )
 
-func GetActionIndex(s statetype2.Type) (t Type) {
+func GetActionIndex(s statetype.Type) (t Type) {
 	switch s {
-	case statetype2.Walking:
+	case statetype.Walking:
 		return Walking
-	case statetype2.Idle:
+	case statetype.Idle:
 		return Idle
 	default:
 		panic(fmt.Sprintf("state type '%v' not supported\n", s))
@@ -36,12 +37,12 @@ func GetActionIndex(s statetype2.Type) (t Type) {
 	return
 }
 
-func GetStateType(s Type) (t statetype2.Type) {
+func GetStateType(s Type) (t statetype.Type) {
 	switch s {
 	case Idle:
-		return statetype2.Idle
+		return statetype.Idle
 	case Walking:
-		return statetype2.Walking
+		return statetype.Walking
 	default:
 		panic(fmt.Sprintf("state type '%v' not supported\n", s))
 	}

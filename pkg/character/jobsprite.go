@@ -1,81 +1,81 @@
 package character
 
 import (
-	jobspriteid2 "github.com/project-midgard/midgarts/pkg/character/jobspriteid"
+	"github.com/project-midgard/midgarts/pkg/character/jobspriteid"
 	"golang.org/x/text/encoding/charmap"
 )
 
-var JobSpriteNameTable = map[jobspriteid2.Type]string{}
+var JobSpriteNameTable = map[jobspriteid.Type]string{}
 
 func init() {
 	var dst []byte
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC3, 0xCA, 0xBA, 0xB8, 0xC0, 0xDA})
-	JobSpriteNameTable[jobspriteid2.Novice] = string(dst)
+	JobSpriteNameTable[jobspriteid.Novice] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB0, 0xCB, 0xBB, 0xE7})
-	JobSpriteNameTable[jobspriteid2.Swordsman] = string(dst)
+	JobSpriteNameTable[jobspriteid.Swordsman] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB8, 0xB6, 0xB9, 0xDD, 0xBB, 0xC7})
-	JobSpriteNameTable[jobspriteid2.Magician] = string(dst)
+	JobSpriteNameTable[jobspriteid.Magician] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB1, 0xC3, 0xBC, 0xF6})
-	JobSpriteNameTable[jobspriteid2.Archer] = string(dst)
+	JobSpriteNameTable[jobspriteid.Archer] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xBC, 0xBA, 0xC1, 0xF7, 0xC0, 0xDA})
-	JobSpriteNameTable[jobspriteid2.Alcolyte] = string(dst)
+	JobSpriteNameTable[jobspriteid.Alcolyte] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xBB, 0xF3, 0xC0, 0xCE})
-	JobSpriteNameTable[jobspriteid2.Merchant] = string(dst)
+	JobSpriteNameTable[jobspriteid.Merchant] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB5, 0xB5, 0xB5, 0xCF})
-	JobSpriteNameTable[jobspriteid2.Thief] = string(dst)
+	JobSpriteNameTable[jobspriteid.Thief] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB8, 0xF9, 0xC5, 0xA9})
-	JobSpriteNameTable[jobspriteid2.Monk] = string(dst)
+	JobSpriteNameTable[jobspriteid.Monk] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB1, 0xE2, 0xBB, 0xE7})
-	JobSpriteNameTable[jobspriteid2.Knight] = string(dst)
+	JobSpriteNameTable[jobspriteid.Knight] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC6, 0xE4, 0xC4, 0xDA, 0xC6, 0xE4, 0xC4, 0xDA, 0x5f, 0xB1, 0xE2, 0xBB, 0xE7})
-	JobSpriteNameTable[jobspriteid2.Knight2] = string(dst)
+	JobSpriteNameTable[jobspriteid.Knight2] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC7, 0xC1, 0xB8, 0xAE, 0xBD, 0xBA, 0xC6, 0xAE})
-	JobSpriteNameTable[jobspriteid2.Priest] = string(dst)
+	JobSpriteNameTable[jobspriteid.Priest] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC0, 0xA7, 0xC0, 0xFA, 0xB5, 0xE5})
-	JobSpriteNameTable[jobspriteid2.Wizard] = string(dst)
+	JobSpriteNameTable[jobspriteid.Wizard] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC1, 0xA6, 0xC3, 0xB6, 0xB0, 0xF8})
-	JobSpriteNameTable[jobspriteid2.Blacksmith] = string(dst)
+	JobSpriteNameTable[jobspriteid.Blacksmith] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC7, 0xE5, 0xC5, 0xCD})
-	JobSpriteNameTable[jobspriteid2.Hunter] = string(dst)
+	JobSpriteNameTable[jobspriteid.Hunter] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC5, 0xA9, 0xB7, 0xE7, 0xBC, 0xBC, 0xC0, 0xCC, 0xB4, 0xF5})
-	JobSpriteNameTable[jobspriteid2.Crusader] = string(dst)
+	JobSpriteNameTable[jobspriteid.Crusader] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xBD, 0xC5, 0xC6, 0xE4, 0xC4, 0xDA, 0xC5, 0xA9, 0xB7, 0xE7, 0xBC, 0xBC, 0xC0, 0xCC, 0xB4, 0xF5})
-	JobSpriteNameTable[jobspriteid2.Crusader2] = string(dst)
+	JobSpriteNameTable[jobspriteid.Crusader2] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xBC, 0xBC, 0xC0, 0xCC, 0xC1, 0xF6})
-	JobSpriteNameTable[jobspriteid2.Sage] = string(dst)
+	JobSpriteNameTable[jobspriteid.Sage] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB7, 0xCE, 0xB1, 0xD7})
-	JobSpriteNameTable[jobspriteid2.Rogue] = string(dst)
+	JobSpriteNameTable[jobspriteid.Rogue] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xBF, 0xAC, 0xB1, 0xDD, 0xBC, 0xFA, 0xBB, 0xE7})
-	JobSpriteNameTable[jobspriteid2.Alchemist] = string(dst)
+	JobSpriteNameTable[jobspriteid.Alchemist] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xBE, 0xEE, 0xBC, 0xBC, 0xBD, 0xC5})
-	JobSpriteNameTable[jobspriteid2.Assassin] = string(dst)
+	JobSpriteNameTable[jobspriteid.Assassin] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB9, 0xD9, 0xB5, 0xE5})
-	JobSpriteNameTable[jobspriteid2.Bard] = string(dst)
+	JobSpriteNameTable[jobspriteid.Bard] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xB9, 0xAB, 0xC8, 0xF1})
-	JobSpriteNameTable[jobspriteid2.Dancer] = string(dst)
+	JobSpriteNameTable[jobspriteid.Dancer] = string(dst)
 
 	dst, _ = charmap.Windows1252.NewDecoder().Bytes([]byte{0xC3, 0xA8, 0xC7, 0xC7, 0xBF, 0xC2})
-	JobSpriteNameTable[jobspriteid2.MonkH] = string(dst)
+	JobSpriteNameTable[jobspriteid.MonkH] = string(dst)
 }

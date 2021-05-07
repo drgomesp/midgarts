@@ -2,14 +2,14 @@ package component
 
 import (
 	"fmt"
-	character2 "github.com/project-midgard/midgarts/pkg/character"
-	jobspriteid2 "github.com/project-midgard/midgarts/pkg/character/jobspriteid"
-	act2 "github.com/project-midgard/midgarts/pkg/fileformat/act"
-	grf2 "github.com/project-midgard/midgarts/pkg/fileformat/grf"
-	spr2 "github.com/project-midgard/midgarts/pkg/fileformat/spr"
 	"log"
 
 	"github.com/pkg/errors"
+	"github.com/project-midgard/midgarts/pkg/character"
+	"github.com/project-midgard/midgarts/pkg/character/jobspriteid"
+	"github.com/project-midgard/midgarts/pkg/fileformat/act"
+	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
+	"github.com/project-midgard/midgarts/pkg/fileformat/spr"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -20,19 +20,19 @@ type CharacterAttachmentComponentFace interface {
 // CharacterAttachmentComponent defines a component that holds state about character
 // character attachments (shadow, body, head...).
 type CharacterAttachmentComponent struct {
-	Files [character2.NumAttachments]struct {
-		ACT *act2.ActionFile
-		SPR *spr2.SpriteFile
+	Files [character.NumAttachments]struct {
+		ACT *act.ActionFile
+		SPR *spr.SpriteFile
 	}
 }
 
 func NewCharacterAttachmentComponent(
-	f *grf2.File,
-	gender character2.GenderType,
-	jobSpriteID jobspriteid2.Type,
+	f *grf.File,
+	gender character.GenderType,
+	jobSpriteID jobspriteid.Type,
 	headIndex int,
 ) (*CharacterAttachmentComponent, error) {
-	jobFileName := character2.JobSpriteNameTable[jobSpriteID]
+	jobFileName := character.JobSpriteNameTable[jobSpriteID]
 	if "" == jobFileName {
 		return nil, fmt.Errorf("unsupported jobSpriteID: %v", jobSpriteID)
 	}
@@ -53,11 +53,11 @@ func NewCharacterAttachmentComponent(
 		headFilePathf  = "data/sprite/ÀÎ°£Á·/¸Ó¸®Åë/%s/%d_%s"
 	)
 
-	if character2.Male == gender {
-		bodyFilePath = fmt.Sprintf(character2.MaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
+	if character.Male == gender {
+		bodyFilePath = fmt.Sprintf(character.MaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
 		headFilePathf = fmt.Sprintf(headFilePathf, "³²", headIndex, "³²")
 	} else {
-		bodyFilePath = fmt.Sprintf(character2.FemaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
+		bodyFilePath = fmt.Sprintf(character.FemaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
 		headFilePathf = fmt.Sprintf(headFilePathf, "¿©", headIndex, "¿©")
 	}
 
@@ -76,19 +76,19 @@ func NewCharacterAttachmentComponent(
 		log.Fatal(errors.Wrapf(err, "could not load head act and spr files (%v, %s)", gender, jobSpriteID))
 	}
 
-	return &CharacterAttachmentComponent{[character2.NumAttachments]struct {
-		ACT *act2.ActionFile
-		SPR *spr2.SpriteFile
+	return &CharacterAttachmentComponent{[character.NumAttachments]struct {
+		ACT *act.ActionFile
+		SPR *spr.SpriteFile
 	}{
-		character2.AttachmentShadow: {
+		character.AttachmentShadow: {
 			ACT: shadowActFile,
 			SPR: shadowSprFile,
 		},
-		character2.AttachmentBody: {
+		character.AttachmentBody: {
 			ACT: bodyActFile,
 			SPR: bodySprFile,
 		},
-		character2.AttachmentHead: {
+		character.AttachmentHead: {
 			ACT: headActFile,
 			SPR: headSprFile,
 		},

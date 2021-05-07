@@ -3,35 +3,34 @@ package entity
 import (
 	"github.com/EngoEngine/ecs"
 	"github.com/project-midgard/midgarts/internal/component"
-	character2 "github.com/project-midgard/midgarts/pkg/character"
-	actionplaymode2 "github.com/project-midgard/midgarts/pkg/character/actionplaymode"
-	jobspriteid2 "github.com/project-midgard/midgarts/pkg/character/jobspriteid"
-	statetype2 "github.com/project-midgard/midgarts/pkg/character/statetype"
+	"github.com/project-midgard/midgarts/pkg/character"
+	"github.com/project-midgard/midgarts/pkg/character/actionplaymode"
+	"github.com/project-midgard/midgarts/pkg/character/jobspriteid"
+	"github.com/project-midgard/midgarts/pkg/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/graphic"
 )
 
 type Character struct {
 	*graphic.Transform
-
 	*ecs.BasicEntity
 	*component.CharacterAttachmentComponent
 	*component.CharacterStateComponent
 	*component.CharacterSpriteRenderInfoComponent
 
 	HeadIndex     int
-	Gender        character2.GenderType
-	JobSpriteID   jobspriteid2.Type
+	Gender        character.GenderType
+	JobSpriteID   jobspriteid.Type
 	IsMounted     bool
 	MovementSpeed float64
 }
 
-func NewCharacter(gender character2.GenderType, jobSpriteID jobspriteid2.Type, headIndex int) *Character {
+func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int) *Character {
 	b := ecs.NewBasic()
 	c := &Character{
 		BasicEntity: &b,
 		CharacterStateComponent: &component.CharacterStateComponent{
-			PlayMode: actionplaymode2.Repeat,
-			State:    statetype2.Idle,
+			PlayMode: actionplaymode.Repeat,
+			State:    statetype.Idle,
 		},
 		CharacterSpriteRenderInfoComponent: component.NewCharacterSpriteRenderInfoComponent(),
 		Transform:                          graphic.NewTransform(graphic.Origin),
@@ -65,7 +64,7 @@ func (c *Character) GetCharacterSpriteRenderInfoComponent() *component.Character
 	return c.CharacterSpriteRenderInfoComponent
 }
 
-func (c *Character) SetState(state statetype2.Type) {
+func (c *Character) SetState(state statetype.Type) {
 	c.PreviousState = c.State
 	c.State = state
 }

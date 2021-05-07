@@ -1,9 +1,6 @@
 package system
 
 import (
-	actionindex2 "github.com/project-midgard/midgarts/pkg/character/actionindex"
-	statetype2 "github.com/project-midgard/midgarts/pkg/character/statetype"
-	grf2 "github.com/project-midgard/midgarts/pkg/fileformat/grf"
 	"log"
 	"strconv"
 	"time"
@@ -12,6 +9,9 @@ import (
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/internal/component"
 	"github.com/project-midgard/midgarts/internal/entity"
+	"github.com/project-midgard/midgarts/pkg/character/actionindex"
+	"github.com/project-midgard/midgarts/pkg/character/statetype"
+	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
 )
 
 type CharacterActionable interface {
@@ -21,12 +21,12 @@ type CharacterActionable interface {
 }
 
 type CharacterActionSystem struct {
-	grfFile *grf2.File
+	grfFile *grf.File
 
 	characters map[string]*entity.Character
 }
 
-func NewCharacterActionSystem(grfFile *grf2.File) *CharacterActionSystem {
+func NewCharacterActionSystem(grfFile *grf.File) *CharacterActionSystem {
 	return &CharacterActionSystem{
 		grfFile,
 		map[string]*entity.Character{},
@@ -55,26 +55,26 @@ func (s CharacterActionSystem) Update(dt float32) {
 		previousAnimationHasEnded := now.After(c.AnimationEndsAt)
 		var previousAnimationMustStopAtEnd bool
 
-		if c.PreviousState == statetype2.Walking {
+		if c.PreviousState == statetype.Walking {
 			previousAnimationMustStopAtEnd = true
 		}
 
-		if (c.State != c.PreviousState && c.State != statetype2.Idle) ||
-			(c.State == statetype2.Idle && previousAnimationHasEnded) ||
-			(c.State == statetype2.Idle && previousAnimationMustStopAtEnd) {
+		if (c.State != c.PreviousState && c.State != statetype.Idle) ||
+			(c.State == statetype.Idle && previousAnimationHasEnded) ||
+			(c.State == statetype.Idle && previousAnimationMustStopAtEnd) {
 			c.AnimationStartedAt = now
 
 			// TODO: treat special case when attacking
 			var forcedDuration time.Duration
 			c.ForcedDuration = forcedDuration
 
-			if c.State == statetype2.Walking {
+			if c.State == statetype.Walking {
 				c.FPSMultiplier = c.MovementSpeed
 			} else {
 				c.FPSMultiplier = 1.0
 			}
 
-			c.ActionIndex = actionindex2.GetActionIndex(c.State)
+			c.ActionIndex = actionindex.GetActionIndex(c.State)
 			action := c.Files[c.AttachmentType].ACT.Actions[c.ActionIndex]
 			c.AnimationEndsAt = now.Add(time.Duration(action.DurationMilliseconds) * time.Millisecond)
 		} else {

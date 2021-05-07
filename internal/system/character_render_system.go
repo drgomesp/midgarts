@@ -1,13 +1,6 @@
 package system
 
 import (
-	character2 "github.com/project-midgard/midgarts/pkg/character"
-	actionindex2 "github.com/project-midgard/midgarts/pkg/character/actionindex"
-	actionplaymode2 "github.com/project-midgard/midgarts/pkg/character/actionplaymode"
-	directiontype2 "github.com/project-midgard/midgarts/pkg/character/directiontype"
-	act2 "github.com/project-midgard/midgarts/pkg/fileformat/act"
-	grf2 "github.com/project-midgard/midgarts/pkg/fileformat/grf"
-	spr2 "github.com/project-midgard/midgarts/pkg/fileformat/spr"
 	"log"
 	"math"
 	"strconv"
@@ -19,6 +12,13 @@ import (
 	"github.com/project-midgard/midgarts/internal/component"
 	"github.com/project-midgard/midgarts/internal/entity"
 	"github.com/project-midgard/midgarts/internal/system/rendercmd"
+	"github.com/project-midgard/midgarts/pkg/character"
+	"github.com/project-midgard/midgarts/pkg/character/actionindex"
+	"github.com/project-midgard/midgarts/pkg/character/actionplaymode"
+	"github.com/project-midgard/midgarts/pkg/character/directiontype"
+	"github.com/project-midgard/midgarts/pkg/fileformat/act"
+	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
+	"github.com/project-midgard/midgarts/pkg/fileformat/spr"
 	"github.com/project-midgard/midgarts/pkg/graphic"
 )
 
@@ -34,12 +34,12 @@ type CharacterRenderable interface {
 }
 
 type CharacterRenderSystem struct {
-	grfFile        *grf2.File
+	grfFile        *grf.File
 	characters     map[string]*entity.Character
 	RenderCommands *RenderCommands
 }
 
-func NewCharacterRenderSystem(grfFile *grf2.File) *CharacterRenderSystem {
+func NewCharacterRenderSystem(grfFile *grf.File) *CharacterRenderSystem {
 	return &CharacterRenderSystem{
 		grfFile:    grfFile,
 		characters: map[string]*entity.Character{},
@@ -79,31 +79,31 @@ func (s *CharacterRenderSystem) Remove(e ecs.BasicEntity) {
 func (s *CharacterRenderSystem) renderCharacter(dt float32, char *entity.Character) {
 	offset := [2]float32{0, 0}
 
-	if char.ActionIndex != actionindex2.Dead && char.ActionIndex != actionindex2.Sitting {
-		s.renderAttachment(dt, char, character2.AttachmentShadow, &offset)
+	if char.ActionIndex != actionindex.Dead && char.ActionIndex != actionindex.Sitting {
+		s.renderAttachment(dt, char, character.AttachmentShadow, &offset)
 	}
 
-	s.renderAttachment(dt, char, character2.AttachmentBody, &offset)
-	s.renderAttachment(dt, char, character2.AttachmentHead, &offset)
+	s.renderAttachment(dt, char, character.AttachmentBody, &offset)
+	s.renderAttachment(dt, char, character.AttachmentHead, &offset)
 }
 
 func (s *CharacterRenderSystem) renderAttachment(
 	dt float32,
 	char *entity.Character,
-	elem character2.AttachmentType,
+	elem character.AttachmentType,
 	offset *[2]float32,
 ) {
 	char.AttachmentType = elem
 
-	var actions []*act2.Action
+	var actions []*act.Action
 	if actions = char.Files[elem].ACT.Actions; len(actions) == 0 {
 		return
 	}
 
 	var idx int
 
-	if elem != character2.AttachmentShadow {
-		idx = int(char.ActionIndex) + (int(char.Direction)+directiontype2.DirectionTable[FixedCameraDirection])%8
+	if elem != character.AttachmentShadow {
+		idx = int(char.ActionIndex) + (int(char.Direction)+directiontype.DirectionTable[FixedCameraDirection])%8
 	}
 
 	action := actions[idx]
@@ -120,7 +120,7 @@ func (s *CharacterRenderSystem) renderAttachment(
 
 	var frameIndex int64
 	switch char.PlayMode {
-	case actionplaymode2.Repeat:
+	case actionplaymode.Repeat:
 		frameIndex = realIndex % frameCount
 		break
 	}
@@ -130,7 +130,7 @@ func (s *CharacterRenderSystem) renderAttachment(
 		frameIndex = 0
 	}
 
-	var frame *act2.ActionFrame
+	var frame *act.ActionFrame
 	if frame = action.Frames[frameIndex]; len(frame.Layers) == 0 {
 		*offset = [2]float32{0, 0}
 		return
@@ -138,7 +138,7 @@ func (s *CharacterRenderSystem) renderAttachment(
 
 	position := [2]float32{0, 0}
 
-	if len(frame.Positions) > 0 && elem != character2.AttachmentBody {
+	if len(frame.Positions) > 0 && elem != character.AttachmentBody {
 		position[0] = offset[0] - float32(frame.Positions[0][0])
 		position[1] = offset[1] - float32(frame.Positions[0][1])
 	}
@@ -163,8 +163,8 @@ func (s *CharacterRenderSystem) renderAttachment(
 
 func (s *CharacterRenderSystem) renderLayer(
 	char *entity.Character,
-	layer *act2.ActionFrameLayer,
-	spr *spr2.SpriteFile,
+	layer *act.ActionFrameLayer,
+	spr *spr.SpriteFile,
 	offset [2]float32,
 ) {
 	frameIndex := int64(layer.SpriteFrameIndex)

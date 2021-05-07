@@ -8,7 +8,7 @@ import (
 	"image/color"
 	"io"
 
-	bytesutil2 "github.com/project-midgard/midgarts/pkg/bytesutil"
+	"github.com/project-midgard/midgarts/pkg/bytesutil"
 )
 
 type FileType uint32
@@ -76,7 +76,7 @@ func Load(buf *bytes.Buffer) (f *SpriteFile, err error) {
 }
 
 func (f *SpriteFile) parsePalette(skip int64, buf io.ReadSeeker) error {
-	_ = bytesutil2.SkipBytes(buf, skip)
+	_ = bytesutil.SkipBytes(buf, skip)
 	return binary.Read(buf, binary.LittleEndian, &f.Palette)
 }
 

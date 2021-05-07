@@ -7,7 +7,7 @@ import (
 	"image/color"
 	"io"
 
-	bytesutil2 "github.com/project-midgard/midgarts/pkg/bytesutil"
+	"github.com/project-midgard/midgarts/pkg/bytesutil"
 )
 
 const (
@@ -112,7 +112,7 @@ func (f *ActionFile) loadHeader(buf io.ReadSeeker) error {
 	f.ActionCount = actionCount
 	f.Actions = make([]*Action, f.ActionCount)
 
-	if err := bytesutil2.SkipBytes(buf, 10); err != nil {
+	if err := bytesutil.SkipBytes(buf, 10); err != nil {
 		return err
 	}
 
@@ -149,7 +149,7 @@ func (f *ActionFile) loadActionFrames(buf io.ReadSeeker) []*ActionFrame {
 	frames = make([]*ActionFrame, int(frameCount))
 
 	for i := 0; i < int(frameCount); i++ {
-		_ = bytesutil2.SkipBytes(buf, 32)
+		_ = bytesutil.SkipBytes(buf, 32)
 
 		positions := make([][2]int32, frameCount)
 		layers := f.loadActionFrameLayers(buf)
@@ -164,7 +164,7 @@ func (f *ActionFile) loadActionFrames(buf io.ReadSeeker) []*ActionFrame {
 			_ = binary.Read(buf, binary.LittleEndian, &posCount)
 
 			for i := 0; i < int(posCount); i++ {
-				_ = bytesutil2.SkipBytes(buf, 4)
+				_ = bytesutil.SkipBytes(buf, 4)
 
 				var a, b int32
 				_ = binary.Read(buf, binary.LittleEndian, &a)
@@ -173,7 +173,7 @@ func (f *ActionFile) loadActionFrames(buf io.ReadSeeker) []*ActionFrame {
 				positions[i][0] = a
 				positions[i][1] = b
 
-				_ = bytesutil2.SkipBytes(buf, 4)
+				_ = bytesutil.SkipBytes(buf, 4)
 			}
 		}
 

@@ -1,13 +1,13 @@
 package graphic
 
 import (
-	opengl2 "github.com/project-midgard/midgarts/internal/opengl"
+	opengl "github.com/project-midgard/midgarts/internal/opengl"
 )
 
 type Geometry struct {
-	gls                 *opengl2.State
+	gls                 *opengl.State
 	handleVAO           uint32
-	vbos                []*opengl2.VBO
+	vbos                []*opengl.VBO
 	indices             []uint32
 	handleIndices       uint32
 	shouldUpdateIndices bool
@@ -22,7 +22,7 @@ func NewGeometry() *Geometry {
 	return geometry
 }
 
-func (g *Geometry) AddVBO(vbo *opengl2.VBO) *Geometry {
+func (g *Geometry) AddVBO(vbo *opengl.VBO) *Geometry {
 	g.vbos = append(g.vbos, vbo)
 	return g
 }

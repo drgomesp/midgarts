@@ -7,7 +7,6 @@ import (
 	"log"
 
 	"github.com/project-midgard/midgarts/pkg/bytesutil"
-
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -19,8 +18,14 @@ type GroundFile struct {
 	TextureIndices []int64
 }
 
-func Load(buf *bytes.Buffer) (*GroundFile, error) {
-	f := new(GroundFile)
+type LightMapData struct {
+	PerCell uint32
+	Count   uint32
+	Data    []byte
+}
+
+func Load(buf *bytes.Buffer) (f *GroundFile, err error) {
+	f = new(GroundFile)
 	reader := bytes.NewReader(buf.Bytes())
 
 	var signature [4]byte
@@ -42,7 +47,12 @@ func Load(buf *bytes.Buffer) (*GroundFile, error) {
 	f.Height = h
 	f.Zoom = zoom
 
-	err := f.LoadTextures(reader)
+	err = f.loadTextures(reader)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = f.loadLightMaps(reader)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,7 +62,7 @@ func Load(buf *bytes.Buffer) (*GroundFile, error) {
 	return f, nil
 }
 
-func (f *GroundFile) LoadTextures(buf io.ReadSeeker) (err error) {
+func (f *GroundFile) loadTextures(buf io.Reader) error {
 	var textureCount, texturePathLength uint32
 	_ = binary.Read(buf, binary.LittleEndian, &textureCount)
 	_ = binary.Read(buf, binary.LittleEndian, &texturePathLength)
@@ -91,6 +101,24 @@ func (f *GroundFile) LoadTextures(buf io.ReadSeeker) (err error) {
 
 	f.Textures = textures
 	f.TextureIndices = lookUpList
+
+	return nil
+}
+
+func (f *GroundFile) loadLightMaps(buf io.Reader) error {
+	var count uint32
+	_ = binary.Read(buf, binary.LittleEndian, &count)
+
+	var perCellX, perCellY uint32
+	_ = binary.Read(buf, binary.LittleEndian, &perCellX)
+	_ = binary.Read(buf, binary.LittleEndian, &perCellY)
+
+	var sizeCell uint32
+	_ = binary.Read(buf, binary.LittleEndian, &sizeCell)
+
+	perCell := perCellX * perCellY * sizeCell
+
+	_ = perCell
 
 	return nil
 }
