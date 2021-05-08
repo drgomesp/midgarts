@@ -86,19 +86,20 @@ func (s *CharacterRenderSystem) renderCharacter(dt float32, char *entity.Charact
 
 	direction := int(char.Direction) + directiontype.DirectionTable[FixedCameraDirection]%8
 	behind := direction > 1 && direction < 6
+	renderShield := char.HasShield && char.ActionIndex == actionindex.StandBy && char.ActionIndex == actionindex.Attacking1
 
 	if char.ActionIndex != actionindex.Dead && char.ActionIndex != actionindex.Sitting {
 		s.renderAttachment(dt, char, character.AttachmentShadow, &offset)
 	}
 
-	if behind && char.HasShield {
+	if behind && renderShield {
 		s.renderAttachment(dt, char, character.AttachmentShield, &offset)
 	}
 
 	s.renderAttachment(dt, char, character.AttachmentBody, &offset)
 	s.renderAttachment(dt, char, character.AttachmentHead, &offset)
 
-	if !behind && char.HasShield {
+	if !behind && renderShield {
 		s.renderAttachment(dt, char, character.AttachmentShield, &offset)
 	}
 }
