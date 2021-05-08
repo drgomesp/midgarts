@@ -24,9 +24,9 @@ Current Screenshots:
 
 Please have a look at the open milestones:
 
-Milestone |
------------- |
-[Character Graphics](https://github.com/drgomesp/midgarts/milestone/1) |
+Milestone | Description |
+--------- | ----------- |
+[Character Graphics](https://github.com/drgomesp/midgarts/milestone/1) | Everything related to rendering character sprites, including character attachments, sprite animations and such.
 
 ## Dependencies
 
