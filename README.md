@@ -20,6 +20,14 @@ Current Screenshots:
 
 ## Introduction
 
+## TODO
+
+Please have a look at the open milestones:
+
+Milestone |
+------------ |
+[Character Graphics](https://github.com/drgomesp/midgarts/milestone/1) |
+
 ## Dependencies
 
 1. CentOS/Fedora-like Linux Distros:
