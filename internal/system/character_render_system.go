@@ -102,9 +102,7 @@ func (s *CharacterRenderSystem) renderAttachment(
 
 	var idx int
 
-	if elem != character.AttachmentShadow {
-		idx = int(char.ActionIndex) + (int(char.Direction)+directiontype.DirectionTable[FixedCameraDirection])%8
-	}
+	idx = (int(char.ActionIndex) + (int(char.Direction)+directiontype.DirectionTable[FixedCameraDirection])%8) % len(actions)
 
 	action := actions[idx]
 	frameCount := int64(len(action.Frames))
@@ -181,6 +179,7 @@ func (s *CharacterRenderSystem) renderLayer(
 	width, height := float32(frame.Width), float32(frame.Height)
 	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
 	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
+	rot := float64(layer.Angle) * (math.Pi / 180)
 
 	offset = [2]float32{
 		(float32(layer.Position[0]) + offset[0]) * graphic.OnePixelSize,
@@ -194,7 +193,7 @@ func (s *CharacterRenderSystem) renderLayer(
 		Size:            mgl32.Vec2{width, height},
 		Position:        char.Position(),
 		Offset:          mgl32.Vec2{offset[0], offset[1]},
-		RotationRadians: 0,
+		RotationRadians: float32(rot),
 		Texture:         texture,
 		FlipVertically:  layer.Mirrored,
 	})

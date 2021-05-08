@@ -16,6 +16,7 @@ out vec2 texCoords;
 
 void main() {
     vec4 pos = vec4(VertexPosition.x, VertexPosition.y, 0.0, 1.0);
+    pos = rotation * pos;
     pos.x += offset.x;
     pos.y -= offset.y;
 
@@ -25,7 +26,7 @@ void main() {
     modelView[1].xyz = vec3( 0.0, 1.0, 0.0 );
     modelView[2].xyz = vec3( 0.0, 0.0, 1.0 );
 
-    gl_Position = projection * modelView * (rotation * pos);
+    gl_Position = projection * modelView * pos;
 
     fragColor = VertexColor;
     texCoords = VertexTexCoord;

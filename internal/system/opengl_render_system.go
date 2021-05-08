@@ -63,7 +63,7 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 			gl.Uniform2fv(offsetu, 1, &cmd.Offset[0])
 
 			iden := mgl32.Ident4()
-			rotation := iden.Mul4(mgl32.HomogRotate3D(0, graphic.Forward))
+			rotation := iden.Mul4(mgl32.HomogRotate3D(cmd.RotationRadians, graphic.Backwards))
 			rotationu := gl.GetUniformLocation(s.gls.Program().ID(), gl.Str("rotation\x00"))
 			gl.UniformMatrix4fv(rotationu, 1, false, &rotation[0])
 

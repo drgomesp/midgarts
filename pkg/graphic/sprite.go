@@ -16,10 +16,10 @@ func NewSprite(width, height float32, texture *Texture) *Sprite {
 	h := height / 2
 
 	positions := []float32{
-		+w, +h, 0, // top-left
-		-w, -h, 0, // bottom-right
-		+w, -h, 0, // bottom-left
-		-w, +h, 0, // top-right
+		-w, +h, 0, // top-left
+		+w, -h, 0, // bottom-right
+		-w, -h, 0, // bottom-left
+		+w, +h, 0, // top-right
 	}
 	colors := []float32{
 		1, 1, 1,

@@ -242,7 +242,7 @@ func (f *ActionFile) loadActionFrameLayers(buf io.ReadSeeker) []*ActionFrameLaye
 			Index:            int32(i),
 			Position:         pos,
 			SpriteFrameIndex: spriteFrameIndex,
-			Mirrored:         mirrored != 1,
+			Mirrored:         mirrored != 0,
 			Scale:            scale,
 			Color:            &color.RGBA{R: r, G: g, B: b, A: a},
 			Angle:            angle,

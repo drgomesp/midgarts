@@ -5,9 +5,10 @@ import (
 )
 
 var (
-	Origin  = mgl32.Vec3{0, 0, 0}
-	Up      = mgl32.Vec3{0, 1, 0}
-	Forward = mgl32.Vec3{0, 0, 1}
+	Origin    = mgl32.Vec3{0, 0, 0}
+	Up        = mgl32.Vec3{0, 1, 0}
+	Forward   = mgl32.Vec3{0, 0, 1}
+	Backwards = mgl32.Vec3{0, 0, -1}
 )
 
 type Transform struct {
