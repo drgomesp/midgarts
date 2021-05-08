@@ -30,6 +30,8 @@ func GetActionIndex(s statetype.Type) (t Type) {
 		return Walking
 	case statetype.Idle:
 		return Idle
+	case statetype.StandBy:
+		return StandBy
 	default:
 		panic(fmt.Sprintf("state type '%v' not supported\n", s))
 	}
@@ -43,6 +45,8 @@ func GetStateType(s Type) (t statetype.Type) {
 		return statetype.Idle
 	case Walking:
 		return statetype.Walking
+	case StandBy:
+		return statetype.StandBy
 	default:
 		panic(fmt.Sprintf("state type '%v' not supported\n", s))
 	}

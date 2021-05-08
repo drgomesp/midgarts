@@ -95,6 +95,7 @@ func main() {
 
 	max, min := 32, 1
 	c1 := entity.NewCharacter(character.Male, jobspriteid.Bard, rand.Intn(max-min)+min)
+	c1.HasShield = true
 	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight2, rand.Intn(max-min)+min)
 	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, rand.Intn(max-min)+min)
 	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, rand.Intn(max-min)+min)
@@ -186,7 +187,7 @@ func main() {
 			c1.SetState(statetype.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y(), p1.Z()})
 		} else {
-			c1.SetState(statetype.Idle)
+			c1.SetState(statetype.StandBy)
 		}
 
 		// camera controls

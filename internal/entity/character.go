@@ -17,11 +17,13 @@ type Character struct {
 	*component.CharacterStateComponent
 	*component.CharacterSpriteRenderInfoComponent
 
-	HeadIndex     int
-	Gender        character.GenderType
-	JobSpriteID   jobspriteid.Type
-	IsMounted     bool
-	MovementSpeed float64
+	HeadIndex        int
+	Gender           character.GenderType
+	JobSpriteID      jobspriteid.Type
+	IsMounted        bool
+	MovementSpeed    float64
+	HasShield        bool
+	ShieldSpriteName string
 }
 
 func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int) *Character {
