@@ -27,6 +27,7 @@ Please have a look at the open milestones:
 Milestone | Description |
 --------- | ----------- |
 [Character Graphics](https://github.com/drgomesp/midgarts/milestone/1) | Everything related to rendering character sprites, including character attachments, sprite animations and such.
+[World Graphics](https://github.com/drgomesp/midgarts/milestone/2) | Everything related to world graphics, including 3D objects, terrain, water and lights.
 
 ## Dependencies
 
