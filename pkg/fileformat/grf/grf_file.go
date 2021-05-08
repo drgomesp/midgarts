@@ -112,28 +112,36 @@ func (f *File) GetEntry(name string) (entry *Entry, err error) {
 	return
 }
 
-func (f *File) GetActionAndSpriteFiles(name string) (*act.ActionFile, *spr.SpriteFile, error) {
+type ActionSpriteFilePair struct {
+	ACT *act.ActionFile
+	SPR *spr.SpriteFile
+}
+
+func (f *File) GetActionAndSpriteFiles(name string) (ActionSpriteFilePair, error) {
 	e, err := f.GetEntry(fmt.Sprintf("%s.act", name))
 	if err != nil {
-		return nil, nil, err
+		return ActionSpriteFilePair{}, err
 	}
 
 	actFile, err := act.Load(e.Data)
 	if err != nil {
-		return nil, nil, err
+		return ActionSpriteFilePair{}, err
 	}
 
 	e, err = f.GetEntry(fmt.Sprintf("%s.spr", name))
 	if err != nil {
-		return nil, nil, err
+		return ActionSpriteFilePair{}, err
 	}
 
 	sprFile, err := spr.Load(e.Data)
 	if err != nil {
-		return nil, nil, err
+		return ActionSpriteFilePair{}, err
 	}
 
-	return actFile, sprFile, nil
+	return ActionSpriteFilePair{
+		ACT: actFile,
+		SPR: sprFile,
+	}, nil
 }
 
 func (f *File) Close() error {

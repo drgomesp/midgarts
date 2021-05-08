@@ -2,14 +2,12 @@ package component
 
 import (
 	"fmt"
-	"log"
+	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/project-midgard/midgarts/pkg/character"
 	"github.com/project-midgard/midgarts/pkg/character/jobspriteid"
-	"github.com/project-midgard/midgarts/pkg/fileformat/act"
 	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
-	"github.com/project-midgard/midgarts/pkg/fileformat/spr"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -20,85 +18,77 @@ type CharacterAttachmentComponentFace interface {
 // CharacterAttachmentComponent defines a component that holds state about character
 // character attachments (shadow, body, head...).
 type CharacterAttachmentComponent struct {
-	Files [character.NumAttachments]struct {
-		ACT *act.ActionFile
-		SPR *spr.SpriteFile
-	}
+	Files [character.NumAttachments]grf.ActionSpriteFilePair
+}
+
+type CharacterAttachmentComponentConfig struct {
+	Gender           character.GenderType
+	JobSpriteID      jobspriteid.Type
+	HeadIndex        int
+	EnableShield     bool
+	ShieldSpriteName string //Loaded from GRF
 }
 
 func NewCharacterAttachmentComponent(
 	f *grf.File,
-	gender character.GenderType,
-	jobSpriteID jobspriteid.Type,
-	headIndex int,
+	conf CharacterAttachmentComponentConfig,
 ) (*CharacterAttachmentComponent, error) {
-	jobFileName := character.JobSpriteNameTable[jobSpriteID]
+	cmp := &CharacterAttachmentComponent{
+		Files: [character.NumAttachments]grf.ActionSpriteFilePair{},
+	}
+
+	jobFileName := character.JobSpriteNameTable[conf.JobSpriteID]
 	if "" == jobFileName {
-		return nil, fmt.Errorf("unsupported jobSpriteID: %v", jobSpriteID)
+		return cmp, fmt.Errorf("unsupported jobSpriteID: %v", conf.JobSpriteID)
 	}
 
 	decodedFolderA, err := getDecodedFolder([]byte{0xC0, 0xCE, 0xB0, 0xA3, 0xC1, 0xB7})
 	if err != nil {
-		return nil, err
+		return cmp, errors.Wrap(err, "unable to decode folder name")
 	}
 
 	decodedFolderB, err := getDecodedFolder([]byte{0xB8, 0xF6, 0xC5, 0xEB})
 	if err != nil {
-		return nil, err
+		return cmp, errors.Wrap(err, "unable to decode folder name")
 	}
 
-	var (
-		bodyFilePath   string
-		shadowFilePath = "data/sprite/shadow"
-		headFilePathf  = "data/sprite/ÀÎ°£Á·/¸Ó¸®Åë/%s/%d_%s"
-	)
-
-	if character.Male == gender {
-		bodyFilePath = fmt.Sprintf(character.MaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
-		headFilePathf = fmt.Sprintf(headFilePathf, "³²", headIndex, "³²")
-	} else {
-		bodyFilePath = fmt.Sprintf(character.FemaleFilePathf, decodedFolderA, decodedFolderB, jobFileName)
-		headFilePathf = fmt.Sprintf(headFilePathf, "¿©", headIndex, "¿©")
+	genderPath := "³²"
+	if conf.Gender == character.Female {
+		genderPath = "¿©"
 	}
 
-	shadowActFile, shadowSprFile, err := f.GetActionAndSpriteFiles(shadowFilePath)
+	cmp.Files[character.AttachmentShadow], err = f.GetActionAndSpriteFiles("data/sprite/shadow")
 	if err != nil {
-		log.Fatal(errors.Wrapf(err, "could not load shadow act and spr files (%v, %s)", gender, jobSpriteID))
+		return cmp, errors.Wrapf(err, "could not load shadow act and spr files (%v, %s)", conf.Gender, conf.JobSpriteID)
 	}
 
-	bodyActFile, bodySprFile, err := f.GetActionAndSpriteFiles(bodyFilePath)
+	bodyFilePath := "data/sprite/" + decodedFolderA + "/" + decodedFolderB + "/" + genderPath + "/" + jobFileName + "_" + genderPath
+	cmp.Files[character.AttachmentBody], err = f.GetActionAndSpriteFiles(bodyFilePath)
 	if err != nil {
-		log.Fatal(errors.Wrapf(err, "could not load body act and spr files (%v, %s)", gender, jobSpriteID))
+		return cmp, errors.Wrapf(err, "could not load body act and spr files (%v, %s)", conf.Gender, conf.JobSpriteID)
 	}
 
-	headActFile, headSprFile, err := f.GetActionAndSpriteFiles(headFilePathf)
+	headFilePath := "data/sprite/ÀÎ°£Á·/¸Ó¸®Åë/" + genderPath + "/" + strconv.Itoa(conf.HeadIndex) + "_" + genderPath
+	cmp.Files[character.AttachmentHead], err = f.GetActionAndSpriteFiles(headFilePath)
 	if err != nil {
-		log.Fatal(errors.Wrapf(err, "could not load head act and spr files (%v, %s)", gender, jobSpriteID))
+		return cmp, errors.Wrapf(err, "could not load head act and spr files (%v, %s)", conf.Gender, conf.JobSpriteID)
 	}
 
-	return &CharacterAttachmentComponent{[character.NumAttachments]struct {
-		ACT *act.ActionFile
-		SPR *spr.SpriteFile
-	}{
-		character.AttachmentShadow: {
-			ACT: shadowActFile,
-			SPR: shadowSprFile,
-		},
-		character.AttachmentBody: {
-			ACT: bodyActFile,
-			SPR: bodySprFile,
-		},
-		character.AttachmentHead: {
-			ACT: headActFile,
-			SPR: headSprFile,
-		},
-	}}, nil
+	if conf.EnableShield {
+		if conf.ShieldSpriteName == "" {
+			conf.ShieldSpriteName = "°¡µå"
+		}
+		shieldFilePath := "data/sprite/¹æÆÐ/" + jobFileName + "/" + jobFileName + "_" + genderPath + "_" + conf.ShieldSpriteName
+		cmp.Files[character.AttachmentShield], err = f.GetActionAndSpriteFiles(shieldFilePath)
+		if err != nil {
+			return cmp, errors.Wrapf(err, "could not load shield act and spr files (%v, %s, %s)", conf.Gender, conf.JobSpriteID, conf.ShieldSpriteName)
+		}
+	}
+
+	return cmp, nil
 }
 
-func getDecodedFolder(buf []byte) (folder []byte, err error) {
-	if folder, err = charmap.Windows1252.NewDecoder().Bytes(buf); err != nil {
-		return nil, err
-	}
-
-	return folder, nil
+func getDecodedFolder(buf []byte) (string, error) {
+	folderNameBytes, err := charmap.Windows1252.NewDecoder().Bytes(buf)
+	return string(folderNameBytes), err
 }

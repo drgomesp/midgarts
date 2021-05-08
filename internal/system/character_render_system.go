@@ -63,11 +63,16 @@ func (s *CharacterRenderSystem) AddByInterface(o ecs.Identifier) {
 }
 
 func (s *CharacterRenderSystem) Add(char *entity.Character) {
-	cmp, e := component.NewCharacterAttachmentComponent(s.grfFile, char.Gender, char.JobSpriteID, char.HeadIndex)
+	cmp, e := component.NewCharacterAttachmentComponent(s.grfFile, component.CharacterAttachmentComponentConfig{
+		Gender:           char.Gender,
+		JobSpriteID:      char.JobSpriteID,
+		HeadIndex:        char.HeadIndex,
+		EnableShield:     char.HasShield,
+		ShieldSpriteName: char.ShieldSpriteName,
+	})
 	if e != nil {
 		log.Fatal(e)
 	}
-
 	char.SetCharacterAttachmentComponent(cmp)
 	s.characters[strconv.Itoa(int(char.ID()))] = char
 }
@@ -79,12 +84,23 @@ func (s *CharacterRenderSystem) Remove(e ecs.BasicEntity) {
 func (s *CharacterRenderSystem) renderCharacter(dt float32, char *entity.Character) {
 	offset := [2]float32{0, 0}
 
+	direction := int(char.Direction) + directiontype.DirectionTable[FixedCameraDirection]%8
+	behind := direction > 1 && direction < 6
+
 	if char.ActionIndex != actionindex.Dead && char.ActionIndex != actionindex.Sitting {
 		s.renderAttachment(dt, char, character.AttachmentShadow, &offset)
 	}
 
+	if behind && char.HasShield {
+		s.renderAttachment(dt, char, character.AttachmentShield, &offset)
+	}
+
 	s.renderAttachment(dt, char, character.AttachmentBody, &offset)
 	s.renderAttachment(dt, char, character.AttachmentHead, &offset)
+
+	if !behind && char.HasShield {
+		s.renderAttachment(dt, char, character.AttachmentShield, &offset)
+	}
 }
 
 func (s *CharacterRenderSystem) renderAttachment(
@@ -136,7 +152,9 @@ func (s *CharacterRenderSystem) renderAttachment(
 
 	position := [2]float32{0, 0}
 
-	if len(frame.Positions) > 0 && elem != character.AttachmentBody {
+	if len(frame.Positions) > 0 &&
+		elem != character.AttachmentBody &&
+		elem != character.AttachmentShield {
 		position[0] = offset[0] - float32(frame.Positions[0][0])
 		position[1] = offset[1] - float32(frame.Positions[0][1])
 	}

@@ -1,6 +1,7 @@
 package system
 
 import (
+	"github.com/project-midgard/midgarts/pkg/character"
 	"log"
 	"strconv"
 	"time"
@@ -34,11 +35,14 @@ func NewCharacterActionSystem(grfFile *grf.File) *CharacterActionSystem {
 }
 
 func (s *CharacterActionSystem) Add(char *entity.Character) {
-	cmp, e := component.NewCharacterAttachmentComponent(s.grfFile, char.Gender, char.JobSpriteID, char.HeadIndex)
+	cmp, e := component.NewCharacterAttachmentComponent(s.grfFile, component.CharacterAttachmentComponentConfig{
+		Gender:      char.Gender,
+		JobSpriteID: char.JobSpriteID,
+		HeadIndex:   char.HeadIndex,
+	})
 	if e != nil {
 		log.Fatal(e)
 	}
-
 	char.SetCharacterAttachmentComponent(cmp)
 	s.characters[strconv.Itoa(int(char.ID()))] = char
 }
@@ -74,7 +78,11 @@ func (s CharacterActionSystem) Update(dt float32) {
 				c.FPSMultiplier = 1.0
 			}
 
-			c.ActionIndex = actionindex.GetActionIndex(c.State)
+			c.ActionIndex = 0
+			if c.AttachmentType != character.AttachmentShadow {
+				c.ActionIndex = actionindex.GetActionIndex(c.State)
+			}
+
 			action := c.Files[c.AttachmentType].ACT.Actions[c.ActionIndex]
 			c.AnimationEndsAt = now.Add(time.Duration(action.DurationMilliseconds) * time.Millisecond)
 		} else {

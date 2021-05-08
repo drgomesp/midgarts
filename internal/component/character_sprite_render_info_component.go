@@ -20,6 +20,7 @@ type CharacterSpriteRenderInfoComponent struct {
 	ForcedDuration     time.Duration
 	FPSMultiplier      float64
 	AttachmentType     character.AttachmentType
+	IsStandingBy       bool
 }
 
 func NewCharacterSpriteRenderInfoComponent() *CharacterSpriteRenderInfoComponent {
