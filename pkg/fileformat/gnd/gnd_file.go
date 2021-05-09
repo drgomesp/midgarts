@@ -24,9 +24,9 @@ type LightMapData struct {
 	Data    []byte
 }
 
-func Load(buf *bytes.Buffer) (f *GroundFile, err error) {
+func Load(data []byte) (f *GroundFile, err error) {
 	f = new(GroundFile)
-	reader := bytes.NewReader(buf.Bytes())
+	reader := bytes.NewReader(data)
 
 	var signature [4]byte
 	_ = binary.Read(reader, binary.LittleEndian, &signature)

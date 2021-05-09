@@ -53,10 +53,10 @@ type ActionFile struct {
 	Sounds []string
 }
 
-func Load(buf *bytes.Buffer) (*ActionFile, error) {
+func Load(data []byte) (*ActionFile, error) {
 	f := new(ActionFile)
 
-	reader := bytes.NewReader(buf.Bytes())
+	reader := bytes.NewReader(data)
 	if err := f.loadHeader(reader); err != nil {
 		return nil, err
 	}

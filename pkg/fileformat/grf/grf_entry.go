@@ -1,8 +1,6 @@
 package grf
 
 import (
-	"bytes"
-
 	"github.com/pkg/errors"
 	"github.com/project-midgard/midgarts/pkg/fileformat/grf/des"
 )
@@ -30,7 +28,7 @@ type EntryHeader struct {
 type Entry struct {
 	Name   string
 	Header EntryHeader
-	Data   *bytes.Buffer
+	Data   []byte
 }
 
 // Decode ...
@@ -42,7 +40,7 @@ func (e *Entry) Decode(data []byte) error {
 	}
 
 	if e.Header.CompressedSize == e.Header.UncompressedSize {
-		e.Data.Write(data)
+		e.Data = data
 		return nil
 	}
 
@@ -50,8 +48,7 @@ func (e *Entry) Decode(data []byte) error {
 	if err != nil {
 		return errors.Wrap(err, "could not decompress entry data")
 	}
-
-	e.Data.Write(data)
+	e.Data = data
 
 	return nil
 }
