@@ -28,6 +28,7 @@ const (
 	WindowWidth  = 1280
 	WindowHeight = 720
 	AspectRatio  = float32(WindowWidth) / float32(WindowHeight)
+	FPS          = 120
 )
 
 var (
@@ -143,9 +144,11 @@ func main() {
 	//c1.SetState(statetype.StandBy)
 
 	shouldStop := false
-	frameStart := time.Now()
+
+	var refreshPeriod = time.Second / FPS
 
 	for !shouldStop {
+		frameStart := time.Now()
 		gl.ClearColor(0, 0.5, 0.8, 1.0)
 
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -214,10 +217,10 @@ func main() {
 
 		now := time.Now()
 		frameDelta := now.Sub(frameStart)
-		frameStart = now
-
 		w.Update(float32(frameDelta.Seconds()))
 
 		win.GLSwap()
+
+		time.Sleep(refreshPeriod)
 	}
 }
