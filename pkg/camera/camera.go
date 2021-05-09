@@ -81,7 +81,7 @@ func (c *Camera) ResetAngleAndY(windowWidth, windowHeight uint32) {
 }
 
 func (c *Camera) SetY(y float32) {
-	c.SetPosition(mgl32.Vec3{c.Position().X(), y, c.Position().Z() - 29})
+	c.SetPosition(mgl32.Vec3{c.Position().X(), y, c.Position().Z() - 32})
 }
 
 func (c *Camera) Rotate(yaw float32, pitch float32) {
