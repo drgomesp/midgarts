@@ -73,6 +73,7 @@ func (s *CharacterRenderSystem) Add(char *entity.Character) {
 	if e != nil {
 		log.Fatal(e)
 	}
+
 	char.SetCharacterAttachmentComponent(cmp)
 	s.characters[strconv.Itoa(int(char.ID()))] = char
 }
@@ -86,7 +87,7 @@ func (s *CharacterRenderSystem) renderCharacter(dt float32, char *entity.Charact
 
 	direction := int(char.Direction) + directiontype.DirectionTable[FixedCameraDirection]%8
 	behind := direction > 1 && direction < 6
-	renderShield := char.HasShield && char.ActionIndex == actionindex.StandBy && char.ActionIndex == actionindex.Attacking1
+	renderShield := char.HasShield && char.ActionIndex == actionindex.StandBy
 
 	if char.ActionIndex != actionindex.Dead && char.ActionIndex != actionindex.Sitting {
 		s.renderAttachment(dt, char, character.AttachmentShadow, &offset)
@@ -117,10 +118,7 @@ func (s *CharacterRenderSystem) renderAttachment(
 		return
 	}
 
-	var idx int
-
-	idx = (int(char.ActionIndex) + (int(char.Direction)+directiontype.DirectionTable[FixedCameraDirection])%8) % len(actions)
-
+	idx := (int(char.ActionIndex) + (int(char.Direction)+directiontype.DirectionTable[FixedCameraDirection])%8) % len(actions)
 	action := actions[idx]
 	frameCount := int64(len(action.Frames))
 	timeNeededForOneFrame := int64(float64(action.Delay) * (1.0 / char.FPSMultiplier))

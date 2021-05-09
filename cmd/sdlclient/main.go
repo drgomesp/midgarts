@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"math/rand"
 	"os"
 	"runtime"
 	"time"
@@ -93,18 +92,17 @@ func main() {
 	renderSys := system.NewCharacterRenderSystem(grfFile)
 	actionSystem := system.NewCharacterActionSystem(grfFile)
 
-	max, min := 32, 1
-	c1 := entity.NewCharacter(character.Male, jobspriteid.Bard, rand.Intn(max-min)+min)
+	c1 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, 23)
 	c1.HasShield = true
-	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight2, rand.Intn(max-min)+min)
-	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, rand.Intn(max-min)+min)
-	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, rand.Intn(max-min)+min)
-	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, rand.Intn(max-min)+min)
-	c6 := entity.NewCharacter(character.Female, jobspriteid.MonkH, rand.Intn(max-min)+min)
-	c7 := entity.NewCharacter(character.Male, jobspriteid.Crusader2, rand.Intn(max-min)+min)
-	c8 := entity.NewCharacter(character.Male, jobspriteid.Assassin, rand.Intn(max-min)+min)
-	c9 := entity.NewCharacter(character.Male, jobspriteid.Alchemist, rand.Intn(max-min)+min)
-	c10 := entity.NewCharacter(character.Female, jobspriteid.Wizard, rand.Intn(max-min)+min)
+	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight, 22)
+	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 14)
+	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 16)
+	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, 19)
+	c6 := entity.NewCharacter(character.Female, jobspriteid.MonkH, 27)
+	c7 := entity.NewCharacter(character.Male, jobspriteid.Crusader2, 30)
+	c8 := entity.NewCharacter(character.Male, jobspriteid.Assassin, 1)
+	c9 := entity.NewCharacter(character.Male, jobspriteid.Alchemist, 5)
+	c10 := entity.NewCharacter(character.Female, jobspriteid.Wizard, 12)
 
 	c1.SetPosition(mgl32.Vec3{0, 42, 0})
 	c2.SetPosition(mgl32.Vec3{4, 42, 0})
@@ -124,18 +122,17 @@ func main() {
 	w.AddSystem(system.NewOpenGLRenderSystem(gls, cam, renderSys.RenderCommands))
 
 	w.AddEntity(c1)
-	//w.AddEntity(c2)
-	//w.AddEntity(c3)
-	//w.AddEntity(c4)
-	//w.AddEntity(c5)
-	//w.AddEntity(c6)
-	//w.AddEntity(c7)
-	//w.AddEntity(c8)
-	//w.AddEntity(c9)
-	//w.AddEntity(c10)
+	w.AddEntity(c2)
+	w.AddEntity(c3)
+	w.AddEntity(c4)
+	w.AddEntity(c5)
+	w.AddEntity(c6)
+	w.AddEntity(c7)
+	w.AddEntity(c8)
+	w.AddEntity(c9)
+	w.AddEntity(c10)
 
 	shouldStop := false
-
 	frameStart := time.Now()
 
 	for !shouldStop {
@@ -153,6 +150,7 @@ func main() {
 		const MovementRate = float32(0.065)
 
 		p1 := c1.Position()
+
 		// char controls
 		if ks.Pressed(sdl.K_w) && ks.Pressed(sdl.K_d) {
 			c1.Direction = directiontype.NorthEast

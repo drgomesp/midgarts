@@ -31,6 +31,7 @@ const (
 	Bard       = Type(19)
 	Dancer     = Type(20)
 	Crusader2  = Type(21)
+	KnightH    = Type(4008)
 	MonkH      = Type(4016)
 )
 
@@ -116,6 +117,8 @@ func (j Type) String() string {
 		return "Dancer"
 	case Crusader2:
 		return "Crusader2"
+	case KnightH:
+		return "KnightH"
 	case MonkH:
 		return "MonkH"
 	default:
@@ -147,6 +150,7 @@ func All() []Type {
 		Rogue,
 		Alchemist,
 		Crusader2,
+		KnightH,
 		MonkH,
 	}
 }

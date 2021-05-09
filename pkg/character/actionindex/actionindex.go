@@ -2,6 +2,7 @@ package actionindex
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/project-midgard/midgarts/pkg/character/statetype"
 )
@@ -26,6 +27,8 @@ const (
 
 func GetActionIndex(s statetype.Type) (t Type) {
 	switch s {
+	case statetype.Attacking:
+		return Attacking3
 	case statetype.Walking:
 		return Walking
 	case statetype.Idle:
@@ -33,7 +36,7 @@ func GetActionIndex(s statetype.Type) (t Type) {
 	case statetype.StandBy:
 		return StandBy
 	default:
-		panic(fmt.Sprintf("state type '%v' not supported\n", s))
+		log.Fatal(fmt.Sprintf("state type '%v' not supported\n", s))
 	}
 
 	return

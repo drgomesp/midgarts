@@ -26,7 +26,7 @@ type CharacterAttachmentComponentConfig struct {
 	JobSpriteID      jobspriteid.Type
 	HeadIndex        int
 	EnableShield     bool
-	ShieldSpriteName string //Loaded from GRF
+	ShieldSpriteName string // Loaded from GRF
 }
 
 func NewCharacterAttachmentComponent(

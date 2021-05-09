@@ -1,10 +1,11 @@
 package system
 
 import (
-	"github.com/project-midgard/midgarts/pkg/character"
 	"log"
 	"strconv"
 	"time"
+
+	"github.com/project-midgard/midgarts/pkg/character"
 
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo/common"
