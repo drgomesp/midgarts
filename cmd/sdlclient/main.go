@@ -109,7 +109,7 @@ func main() {
 	c11 := entity.NewCharacter(character.Female, jobspriteid.Sage, 4)
 	c12 := entity.NewCharacter(character.Female, jobspriteid.Dancer, 16)
 
-	c1.SetPosition(mgl32.Vec3{0, 44, 0})
+	c1.SetPosition(mgl32.Vec3{0, 44, -1})
 	c2.SetPosition(mgl32.Vec3{4, 44, 0})
 	c3.SetPosition(mgl32.Vec3{8, 44, 0})
 	c4.SetPosition(mgl32.Vec3{0, 40, 0})
@@ -128,7 +128,6 @@ func main() {
 	w.AddSystemInterface(renderSys, renderable, nil)
 	w.AddSystem(system.NewOpenGLRenderSystem(gls, cam, renderSys.RenderCommands))
 
-	w.AddEntity(c1)
 	w.AddEntity(c2)
 	w.AddEntity(c3)
 	w.AddEntity(c4)
@@ -140,6 +139,7 @@ func main() {
 	w.AddEntity(c10)
 	w.AddEntity(c11)
 	w.AddEntity(c12)
+	w.AddEntity(c1)
 
 	//c1.SetState(statetype.StandBy)
 
@@ -215,8 +215,9 @@ func main() {
 
 		//c2.SetState(statetype.StandBy)
 
-		now := time.Now()
-		frameDelta := now.Sub(frameStart)
+		frameStart = time.Now()
+		frameDelta := frameStart.Sub(frameStart)
+
 		w.Update(float32(frameDelta.Seconds()))
 
 		win.GLSwap()
