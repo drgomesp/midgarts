@@ -39,10 +39,13 @@ func InitOpenGL() *State {
 
 	gl.Enable(gl.BLEND)
 	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+	gl.LineWidth(2.0)
+	gl.PointSize(2.0)
 
 	gl.Enable(gl.DEPTH_TEST)
-	gl.ClearDepth(1)
 	gl.DepthFunc(gl.LEQUAL)
+
+	gl.ClearColor(0.3, 0.3, 0.5, 1.0)
 
 	return &State{
 		program: &Program{id: prog}, bufferCount: 0,
