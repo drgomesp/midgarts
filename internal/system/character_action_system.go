@@ -54,15 +54,20 @@ func (s CharacterActionSystem) AddByInterface(o ecs.Identifier) {
 }
 
 func (s CharacterActionSystem) Update(dt float32) {
-	now := time.Now()
-
-	for _, c := range s.characters {
+	for id, c := range s.characters {
+		now := time.Now()
 		previousAnimationHasEnded := now.After(c.AnimationEndsAt)
 		var previousAnimationMustStopAtEnd bool
 
-		if c.PreviousState == statetype.Walking {
+		if c.PreviousState != statetype.Walking {
 			previousAnimationMustStopAtEnd = true
 		}
+
+		log.Printf(`
+	[%v] c.State=(%v), c.PreviousState=(%v), previousAnimationHasEnded=(%v), previousAnimationMustStopAtEnd=(%v)
+	 	 c.AnimationStartedAt(%v) 
+	
+`, id, c.State, c.PreviousState, previousAnimationHasEnded, previousAnimationMustStopAtEnd, c.AnimationStartedAt)
 
 		if (c.State != c.PreviousState && c.State != statetype.Idle) ||
 			(c.State == statetype.Idle && previousAnimationHasEnded) ||
@@ -79,7 +84,6 @@ func (s CharacterActionSystem) Update(dt float32) {
 				c.FPSMultiplier = 1.0
 			}
 
-			c.ActionIndex = 0
 			if c.AttachmentType != character.AttachmentShadow {
 				c.ActionIndex = actionindex.GetActionIndex(c.State)
 			}
@@ -87,7 +91,12 @@ func (s CharacterActionSystem) Update(dt float32) {
 			action := c.Files[c.AttachmentType].ACT.Actions[c.ActionIndex]
 			c.AnimationEndsAt = now.Add(time.Duration(action.DurationMilliseconds) * time.Millisecond)
 		} else {
-			// TODO:
+			if c.AttachmentType != character.AttachmentShadow {
+				c.ActionIndex = actionindex.GetActionIndex(c.State)
+			}
+
+			action := c.Files[c.AttachmentType].ACT.Actions[c.ActionIndex]
+			c.AnimationEndsAt = now.Add(time.Duration(action.DurationMilliseconds) * time.Millisecond)
 		}
 	}
 }

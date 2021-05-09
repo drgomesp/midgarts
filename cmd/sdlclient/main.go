@@ -95,6 +95,7 @@ func main() {
 	c1 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, 23)
 	c1.HasShield = true
 	c2 := entity.NewCharacter(character.Female, jobspriteid.Knight, 22)
+	c2.HasShield = true
 	c3 := entity.NewCharacter(character.Male, jobspriteid.Swordsman, 14)
 	c4 := entity.NewCharacter(character.Female, jobspriteid.Alchemist, 16)
 	c5 := entity.NewCharacter(character.Male, jobspriteid.Alcolyte, 19)
@@ -122,15 +123,17 @@ func main() {
 	w.AddSystem(system.NewOpenGLRenderSystem(gls, cam, renderSys.RenderCommands))
 
 	w.AddEntity(c1)
-	w.AddEntity(c2)
-	w.AddEntity(c3)
-	w.AddEntity(c4)
-	w.AddEntity(c5)
-	w.AddEntity(c6)
-	w.AddEntity(c7)
-	w.AddEntity(c8)
-	w.AddEntity(c9)
-	w.AddEntity(c10)
+	//w.AddEntity(c2)
+	//w.AddEntity(c3)
+	//w.AddEntity(c4)
+	//w.AddEntity(c5)
+	//w.AddEntity(c6)
+	//w.AddEntity(c7)
+	//w.AddEntity(c8)
+	//w.AddEntity(c9)
+	//w.AddEntity(c10)
+
+	//c1.SetState(statetype.StandBy)
 
 	shouldStop := false
 	frameStart := time.Now()
@@ -184,6 +187,11 @@ func main() {
 			c1.Direction = directiontype.West
 			c1.SetState(statetype.Walking)
 			c1.SetPosition(mgl32.Vec3{p1.X() + MovementRate, p1.Y(), p1.Z()})
+			//
+			//p2 := c2.Position()
+			//c2.Direction = directiontype.West
+			//c2.SetState(statetype.Walking)
+			//c2.SetPosition(mgl32.Vec3{p2.X() + MovementRate, p2.Y(), p2.Z()})
 		} else {
 			c1.SetState(statetype.StandBy)
 		}
@@ -194,6 +202,8 @@ func main() {
 		} else if ks.Pressed(sdl.K_x) {
 			cam.SetPosition(mgl32.Vec3{cam.Position().X(), cam.Position().Y(), cam.Position().Z() - 0.2})
 		}
+
+		//c2.SetState(statetype.StandBy)
 
 		now := time.Now()
 		frameDelta := now.Sub(frameStart)

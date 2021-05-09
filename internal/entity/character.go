@@ -31,8 +31,9 @@ func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, hea
 	c := &Character{
 		BasicEntity: &b,
 		CharacterStateComponent: &component.CharacterStateComponent{
-			PlayMode: actionplaymode.Repeat,
-			State:    statetype.Idle,
+			PlayMode:      actionplaymode.Repeat,
+			State:         statetype.StandBy,
+			PreviousState: statetype.StandBy,
 		},
 		CharacterSpriteRenderInfoComponent: component.NewCharacterSpriteRenderInfoComponent(),
 		Transform:                          graphic.NewTransform(graphic.Origin),
