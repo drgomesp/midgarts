@@ -54,7 +54,7 @@ func (s CharacterActionSystem) AddByInterface(o ecs.Identifier) {
 }
 
 func (s CharacterActionSystem) Update(dt float32) {
-	for id, c := range s.characters {
+	for _, c := range s.characters {
 		now := time.Now()
 		previousAnimationHasEnded := now.After(c.AnimationEndsAt)
 		var previousAnimationMustStopAtEnd bool
@@ -62,12 +62,6 @@ func (s CharacterActionSystem) Update(dt float32) {
 		if c.PreviousState != statetype.Walking {
 			previousAnimationMustStopAtEnd = true
 		}
-
-		log.Printf(`
-	[%v] c.State=(%v), c.PreviousState=(%v), previousAnimationHasEnded=(%v), previousAnimationMustStopAtEnd=(%v)
-	 	 c.AnimationStartedAt(%v) 
-	
-`, id, c.State, c.PreviousState, previousAnimationHasEnded, previousAnimationMustStopAtEnd, c.AnimationStartedAt)
 
 		if (c.State != c.PreviousState && c.State != statetype.Idle) ||
 			(c.State == statetype.Idle && previousAnimationHasEnded) ||
