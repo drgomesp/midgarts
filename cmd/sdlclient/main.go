@@ -149,8 +149,6 @@ func main() {
 
 	for !shouldStop {
 		frameStart := time.Now()
-		gl.ClearColor(0, 0.5, 0.8, 1.0)
-
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
 			case *sdl.QuitEvent:
