@@ -42,9 +42,9 @@ type SpriteFile struct {
 	Palette [PaletteSize]byte
 }
 
-func Load(buf *bytes.Buffer) (f *SpriteFile, err error) {
+func Load(data []byte) (f *SpriteFile, err error) {
 	f = new(SpriteFile)
-	reader := bytes.NewReader(buf.Bytes())
+	reader := bytes.NewReader(data)
 
 	if err := f.parseHeader(reader); err != nil {
 		return nil, err
@@ -65,9 +65,9 @@ func Load(buf *bytes.Buffer) (f *SpriteFile, err error) {
 	}
 
 	if f.Header.Version > 1.0 {
-		reader = bytes.NewReader(buf.Bytes())
+		reader = bytes.NewReader(data)
 
-		if err = f.parsePalette(int64(buf.Len()-PaletteSize), reader); err != nil {
+		if err = f.parsePalette(int64(len(data)-PaletteSize), reader); err != nil {
 			return nil, err
 		}
 	}

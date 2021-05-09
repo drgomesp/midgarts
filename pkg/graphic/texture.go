@@ -2,12 +2,10 @@ package graphic
 
 import (
 	"fmt"
+	"github.com/go-gl/gl/v3.3-core/gl"
 	"image"
 	"image/draw"
 	_ "image/png"
-	"os"
-
-	"github.com/go-gl/gl/v3.3-core/gl"
 )
 
 type Texture struct {
@@ -20,29 +18,12 @@ type Texture struct {
 	wrapS, wrapT                  int32
 }
 
-func NewTextureFromFile(path string) (tex *Texture, err error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer func() { _ = file.Close() }()
-
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return nil, err
-	}
-
-	return NewTextureFromImage(img)
-}
-
-func NewTextureFromImage(img image.Image) (tex *Texture, err error) {
-	rgba := image.NewRGBA(img.Bounds())
-
+func NewTextureFromRGBA(rgba *image.RGBA) (tex *Texture, err error) {
 	if rgba.Stride != rgba.Rect.Size().X*4 {
 		return nil, fmt.Errorf("unsupported stride")
 	}
 
-	draw.Draw(rgba, rgba.Bounds(), img, image.Point{}, draw.Src)
+	draw.Draw(rgba, rgba.Bounds(), rgba, image.Point{}, draw.Src)
 
 	tex = &Texture{
 		width:          int32(rgba.Rect.Size().X),

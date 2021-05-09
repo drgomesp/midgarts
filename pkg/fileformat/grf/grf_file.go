@@ -1,7 +1,8 @@
 package grf
 
 import (
-	"bytes"
+	"bufio"
+	"compress/zlib"
 	"encoding/binary"
 	"fmt"
 	"io"
@@ -99,12 +100,20 @@ func (f *File) GetEntry(name string) (entry *Entry, err error) {
 		return nil, fmt.Errorf("could not find entry '%s'", name)
 	}
 
-	_, err = f.file.Seek(int64(entry.Header.Offset)+fileHeaderLength, io.SeekStart)
-	if err != nil {
+	if len(entry.Data) != 0 {
 		return entry, nil
 	}
 
-	data := readNextBytes(f.file, int(entry.Header.CompressedSizeAligned))
+	_, err = f.file.Seek(int64(entry.Header.Offset)+fileHeaderLength, io.SeekStart)
+	if err != nil {
+		return entry, err
+	}
+
+	data, err := readNextBytes(f.file, int(entry.Header.CompressedSizeAligned))
+	if err != nil {
+		return entry, err
+	}
+
 	if err = entry.Decode(data); err != nil {
 		return entry, err
 	}
@@ -183,46 +192,32 @@ func (f *File) parseEntries(file *os.File) error {
 	_ = binary.Read(file, binary.LittleEndian, &compressedSize)
 	_ = binary.Read(file, binary.LittleEndian, &uncompressedSize)
 
-	data, err := decompress(readNextBytes(file, int(compressedSize)))
+	zlibReader, err := zlib.NewReader(file)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could instantiate zlib reader")
 	}
+	var (
+		reader          = bufio.NewReader(zlibReader)
+		uniqueDirs      = make(map[string]bool)
+		fileNameDecoder = charmap.Windows1252.NewDecoder()
+	)
 
-	var dirs []string
-	for i, offset := 0, 0; i < int(f.Header.EntryCount); i++ {
-		var (
-			fileName    string
-			currentChar byte
-			buf         = bytes.NewBufferString(fileName)
-		)
-
-		for {
-			currentChar = data[offset]
-			offset++
-
-			if currentChar == 0 {
-				break
-			}
-
-			buf.WriteByte(currentChar)
+	for i := 0; i < int(f.Header.EntryCount); i++ {
+		fileNameBytes, err := reader.ReadBytes(0)
+		if err != nil {
+			return errors.Wrap(err, "could not parse entry file name")
 		}
 
-		fileName = buf.String()
 		var d []byte
-		if d, err = charmap.Windows1252.NewDecoder().Bytes([]byte(fileName)); err != nil {
-			panic(err)
+		if d, err = fileNameDecoder.Bytes(fileNameBytes[0 : len(fileNameBytes)-1]); err != nil {
+			return errors.Wrap(err, "could not decode entry file name")
 		}
 
-		entry := &Entry{Data: new(bytes.Buffer)}
+		entry := &Entry{Data: []byte{}}
 
-		if err = binary.Read(
-			bytes.NewReader(data[offset:offset+entryHeaderLength]),
-			binary.LittleEndian, &entry.Header,
-		); err != nil {
+		if err = binary.Read(reader, binary.LittleEndian, &entry.Header); err != nil {
 			return errors.Wrap(err, "could not read file entry header")
 		}
-
-		offset += entryHeaderLength
 
 		if entry.Header.Flags&entryType == 0 {
 			continue
@@ -232,22 +227,12 @@ func (f *File) parseEntries(file *os.File) error {
 		entry.Name = properFileName
 		dir, _ := filepath.Split(properFileName)
 		dir = strings.TrimSuffix(dir, `/`)
-		dirs = append(dirs, dir)
+		uniqueDirs[dir] = true
 
-		//if strings.HasSuffix(file, ".spr") || strings.HasSuffix(file, ".act") {
 		f.entries[dir] = append(f.entries[dir], entry)
-		//}
 	}
 
-	uniqueDirs := map[string]byte{}
-
-	for _, dir := range dirs {
-		if _, exists := uniqueDirs[dir]; !exists {
-			uniqueDirs[dir] = 0
-		}
-	}
-
-	dirs = []string{}
+	var dirs []string
 	for dir := range uniqueDirs {
 		dirs = append(dirs, dir)
 	}
@@ -266,12 +251,12 @@ func (f *File) parseEntries(file *os.File) error {
 
 			if len(toInsert) > 0 {
 				if err = f.entriesTree.Insert(dir, toInsert); err != nil {
-					log.Fatalf("could not insert tree nodes: %v", err)
+					return errors.Wrap(err, "could not insert tree nodes")
 				}
 			}
 		} else {
 			if err = f.entriesTree.Insert(dir, f.entries[dir]); err != nil {
-				log.Fatalf("could not insert tree nodes: %v", err)
+				return errors.Wrap(err, "could not insert tree nodes")
 			}
 		}
 	}
@@ -279,13 +264,15 @@ func (f *File) parseEntries(file *os.File) error {
 	return nil
 }
 
-func readNextBytes(reader io.Reader, number int) []byte {
+func readNextBytes(reader io.Reader, number int) ([]byte, error) {
 	bytesRead := make([]byte, number)
 
-	_, err := reader.Read(bytesRead)
+	n, err := reader.Read(bytesRead)
 	if err != nil {
-		log.Fatal(errors.Wrap(err, "could not read next bytes"))
+		return nil, errors.Wrap(err, "could not read next bytes")
 	}
-
-	return bytesRead
+	if n != number {
+		return nil, errors.Wrapf(err, "could not read next bytes: want %d, got %d", number, n)
+	}
+	return bytesRead, nil
 }
