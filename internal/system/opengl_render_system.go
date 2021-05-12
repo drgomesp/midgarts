@@ -19,6 +19,9 @@ type OpenGLRenderSystem struct {
 	gls            *opengl.State
 	cam            *camera.Camera
 	renderCommands *RenderCommands
+
+	// Buffer of reusable sprites
+	spritesBuf []*graphic.Sprite
 }
 
 func NewOpenGLRenderSystem(gls *opengl.State, cam *camera.Camera, commands *RenderCommands) *OpenGLRenderSystem {
@@ -26,6 +29,7 @@ func NewOpenGLRenderSystem(gls *opengl.State, cam *camera.Camera, commands *Rend
 		gls:            gls,
 		cam:            cam,
 		renderCommands: commands,
+		spritesBuf:     []*graphic.Sprite{},
 	}
 }
 
@@ -35,12 +39,15 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 
 	// 2D Sprites
 	{
-		for _, cmd := range s.renderCommands.sprite {
+		s.EnsureSpritesBufLen(len(s.renderCommands.sprite))
+		for i, cmd := range s.renderCommands.sprite {
 			if cmd.FlipVertically {
 				cmd.Size = mgl32.Vec2{-cmd.Size.X(), cmd.Size.Y()}
 			}
 
-			sprite := graphic.NewSprite(cmd.Size.X(), cmd.Size.Y(), cmd.Texture)
+			sprite := s.spritesBuf[i]
+			sprite.SetBounds(cmd.Size.X(), cmd.Size.Y())
+			sprite.SetTexture(cmd.Texture)
 			sprite.SetPosition(mgl32.Vec3{cmd.Position.X(), cmd.Position.Y(), cmd.Position.Z()})
 			sprite.Texture.Bind(0)
 
@@ -74,4 +81,30 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 
 func (s *OpenGLRenderSystem) Remove(e ecs.BasicEntity) {
 	panic("implement me")
+}
+
+func (s *OpenGLRenderSystem) EnsureSpritesBufLen(minLen int) {
+	s.spritesBuf = ensureSpritesBufferLength(s.spritesBuf, minLen)
+}
+
+func ensureSpritesBufferLength(slice []*graphic.Sprite, minLen int) []*graphic.Sprite {
+	oldLen := len(slice)
+
+	if cacheOverflow := minLen - oldLen; cacheOverflow <= 0 {
+		// no need to resize
+		return slice
+	}
+
+	if minLen > cap(slice) {
+		newSlice := make([]*graphic.Sprite, oldLen, minLen)
+		copy(newSlice, slice)
+		slice = newSlice
+	}
+
+	slice = slice[0:minLen]
+
+	for i := oldLen; i < minLen; i++ {
+		slice[i] = graphic.NewSprite(0, 0, nil)
+	}
+	return slice
 }

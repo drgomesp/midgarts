@@ -11,14 +11,22 @@ import (
 type Texture struct {
 	handle                        uint32
 	path                          string
-	img                           *image.RGBA
 	width, height, internalFormat int32
 	format, formatType            uint32
 	magFilter, minFilter          int32
 	wrapS, wrapT                  int32
 }
 
-func NewTextureFromRGBA(rgba *image.RGBA) (tex *Texture, err error) {
+func (t *Texture) Bind(unit uint32) {
+	gl.ActiveTexture(gl.TEXTURE0 + unit)
+	gl.BindTexture(gl.TEXTURE_2D, t.handle)
+}
+
+type TextureProvider interface {
+	NewTextureFromRGBA(rgba *UniqueRGBA) (tex *Texture, err error)
+}
+
+func NewTextureFromRGBA(rgba *UniqueRGBA) (tex *Texture, err error) {
 	if rgba.Stride != rgba.Rect.Size().X*4 {
 		return nil, fmt.Errorf("unsupported stride")
 	}
@@ -31,7 +39,6 @@ func NewTextureFromRGBA(rgba *image.RGBA) (tex *Texture, err error) {
 		internalFormat: gl.RGBA8,
 		format:         gl.RGBA,
 		formatType:     gl.UNSIGNED_BYTE,
-		img:            rgba,
 		magFilter:      gl.NEAREST,
 		minFilter:      gl.NEAREST,
 		wrapS:          gl.CLAMP_TO_BORDER,
@@ -61,9 +68,4 @@ func NewTextureFromRGBA(rgba *image.RGBA) (tex *Texture, err error) {
 	)
 
 	return
-}
-
-func (t *Texture) Bind(unit uint32) {
-	gl.ActiveTexture(gl.TEXTURE0 + unit)
-	gl.BindTexture(gl.TEXTURE_2D, t.handle)
 }

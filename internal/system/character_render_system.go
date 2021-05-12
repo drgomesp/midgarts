@@ -34,19 +34,20 @@ type CharacterRenderable interface {
 }
 
 type CharacterRenderSystem struct {
-	grfFile        *grf.File
-	characters     map[string]*entity.Character
-	RenderCommands *RenderCommands
+	grfFile         *grf.File
+	characters      map[string]*entity.Character
+	RenderCommands  *RenderCommands
+	textureProvider graphic.TextureProvider
 }
 
-func NewCharacterRenderSystem(grfFile *grf.File) *CharacterRenderSystem {
-
+func NewCharacterRenderSystem(grfFile *grf.File, textureProvider graphic.TextureProvider) *CharacterRenderSystem {
 	return &CharacterRenderSystem{
 		grfFile:    grfFile,
 		characters: map[string]*entity.Character{},
 		RenderCommands: &RenderCommands{
 			sprite: []rendercmd.SpriteRenderCommand{},
 		},
+		textureProvider: textureProvider,
 	}
 }
 
@@ -189,7 +190,7 @@ func (s *CharacterRenderSystem) renderLayer(
 		return
 	}
 
-	texture, err := graphic.NewTextureFromRGBA(spr.ImageAt(int(frameIndex)))
+	texture, err := s.textureProvider.NewTextureFromRGBA(spr.ImageAt(int(frameIndex)))
 	if err != nil {
 		log.Fatal(err)
 	}

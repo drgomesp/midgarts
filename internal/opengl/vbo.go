@@ -29,13 +29,14 @@ var attributeTypeSizes = map[VBOAttributeType]int{
 }
 
 type VBO struct {
-	gls          *State
-	initialized  bool
-	buffers      [NumVertexAttributes][]float32
-	usage        uint32
-	attributes   []VBOAttribute
-	handles      [NumVertexAttributes]uint32
-	shouldUpdate bool
+	gls           *State
+	initialized   bool
+	buffers       [NumVertexAttributes][]float32
+	usage         uint32
+	attributes    []VBOAttribute
+	handles       [NumVertexAttributes]uint32
+	shouldUpdate  bool
+	buffAllocated bool
 }
 
 type VBOAttribute struct {
@@ -75,26 +76,29 @@ func (vbo *VBO) Load(gls *State) {
 		return
 	}
 
-	if vbo.gls == nil {
-		for loc, attrib := range vbo.attributes {
+	if !vbo.buffAllocated {
+		for loc, _ := range vbo.attributes {
 			gl.GenBuffers(int32(NumVertexAttributes), &vbo.handles[loc])
-			gl.BindBuffer(gl.ARRAY_BUFFER, vbo.handles[loc])
-			gl.BufferData(gl.ARRAY_BUFFER, len(vbo.buffers[loc])*4, gl.Ptr(vbo.buffers[loc]), vbo.usage)
-
-			gl.EnableVertexAttribArray(uint32(loc))
-			gl.VertexAttribPointer(
-				uint32(loc),
-				attrib.NumElements,
-				attrib.ElementType,
-				false,
-				0,
-				unsafe.Pointer(uintptr(attrib.ByteOffset)),
-			)
 		}
-
-		vbo.gls = gls
+		vbo.buffAllocated = true
 	}
 
+	for loc, attrib := range vbo.attributes {
+		gl.BindBuffer(gl.ARRAY_BUFFER, vbo.handles[loc])
+		gl.BufferData(gl.ARRAY_BUFFER, len(vbo.buffers[loc])*4, gl.Ptr(vbo.buffers[loc]), vbo.usage)
+
+		gl.EnableVertexAttribArray(uint32(loc))
+		gl.VertexAttribPointer(
+			uint32(loc),
+			attrib.NumElements,
+			attrib.ElementType,
+			false,
+			0,
+			unsafe.Pointer(uintptr(attrib.ByteOffset)),
+		)
+	}
+
+	vbo.gls = gls
 	if !vbo.shouldUpdate {
 		return
 	}
