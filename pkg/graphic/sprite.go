@@ -6,21 +6,40 @@ import (
 )
 
 type Sprite struct {
+	positions []float32
 	*Graphic
 	Texture *Texture
 }
 
-func NewSprite(width, height float32, texture *Texture) *Sprite {
-	geom := NewGeometry()
+func (s *Sprite) SetBounds(width, height float32) {
 	w := width / 2
 	h := height / 2
 
-	positions := []float32{
-		-w, +h, 0, // top-left
-		+w, -h, 0, // bottom-right
-		-w, -h, 0, // bottom-left
-		+w, +h, 0, // top-right
+	s.positions[0] = -w
+	s.positions[3] = w
+	s.positions[6] = -w
+	s.positions[9] = w
+
+	s.positions[1] = h
+	s.positions[4] = -h
+	s.positions[7] = -h
+	s.positions[10] = h
+}
+
+func (s *Sprite) SetTexture(text *Texture) {
+	s.Texture = text
+}
+
+func NewSprite(width, height float32, texture *Texture) *Sprite {
+	s := &Sprite{
+		positions: make([]float32, 12),
+		Texture:   texture,
 	}
+
+	s.SetBounds(width, height)
+
+	geom := NewGeometry()
+
 	colors := []float32{
 		1, 1, 1,
 		1, 1, 1,
@@ -35,7 +54,7 @@ func NewSprite(width, height float32, texture *Texture) *Sprite {
 	}
 
 	geom.AddVBO(opengl.NewVBO([opengl.NumVertexAttributes][]float32{
-		positions,
+		s.positions,
 		colors,
 		texCoords,
 	}).AddAttribute(opengl.VertexPosition).
@@ -43,8 +62,6 @@ func NewSprite(width, height float32, texture *Texture) *Sprite {
 		AddAttribute(opengl.VertexTexCoord),
 	).SetIndices(0, 1, 2, 3, 1, 0)
 
-	return &Sprite{
-		Graphic: NewGraphic(geom, gl.TRIANGLES),
-		Texture: texture,
-	}
+	s.Graphic = NewGraphic(geom, gl.TRIANGLES)
+	return s
 }

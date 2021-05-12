@@ -21,6 +21,7 @@ import (
 	"github.com/project-midgard/midgarts/pkg/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/fileformat/gnd"
 	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
+	"github.com/project-midgard/midgarts/pkg/graphic/caching"
 	"github.com/veandco/go-sdl2/sdl"
 )
 
@@ -90,7 +91,7 @@ func main() {
 	ks := window.NewKeyState(win)
 
 	w := ecs.World{}
-	renderSys := system.NewCharacterRenderSystem(grfFile)
+	renderSys := system.NewCharacterRenderSystem(grfFile, caching.NewCachedTextureProvider())
 	actionSystem := system.NewCharacterActionSystem(grfFile)
 
 	c1 := entity.NewCharacter(character.Male, jobspriteid.Blacksmith, 23)

@@ -1,17 +1,15 @@
 package system
 
 import (
+	"github.com/project-midgard/midgarts/pkg/character/actionindex"
 	"log"
 	"strconv"
 	"time"
-
-	"github.com/project-midgard/midgarts/pkg/character"
 
 	"github.com/EngoEngine/ecs"
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/internal/component"
 	"github.com/project-midgard/midgarts/internal/entity"
-	"github.com/project-midgard/midgarts/pkg/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
 )
@@ -57,41 +55,28 @@ func (s CharacterActionSystem) Update(dt float32) {
 	for _, c := range s.characters {
 		now := time.Now()
 		previousAnimationHasEnded := now.After(c.AnimationEndsAt)
-		var previousAnimationMustStopAtEnd bool
 
+		stopPreviousAnimation := previousAnimationHasEnded
 		if c.PreviousState != statetype.Walking {
-			previousAnimationMustStopAtEnd = true
+			stopPreviousAnimation = true
 		}
 
+		c.ActionIndex = actionindex.GetActionIndex(c.State)
+
 		if (c.State != c.PreviousState && c.State != statetype.Idle) ||
-			(c.State == statetype.Idle && previousAnimationHasEnded) ||
-			(c.State == statetype.Idle && previousAnimationMustStopAtEnd) {
+			(c.State == statetype.Idle && stopPreviousAnimation) {
 			c.AnimationStartedAt = now
 
 			// TODO: treat special case when attacking
 			var forcedDuration time.Duration
 			c.ForcedDuration = forcedDuration
 
+			c.FPSMultiplier = 1.0
 			if c.State == statetype.Walking {
 				c.FPSMultiplier = c.MovementSpeed
-			} else {
-				c.FPSMultiplier = 1.0
 			}
-
-			if c.AttachmentType != character.AttachmentShadow {
-				c.ActionIndex = actionindex.GetActionIndex(c.State)
-			}
-
-			action := c.Files[c.AttachmentType].ACT.Actions[c.ActionIndex]
-			c.AnimationEndsAt = now.Add(time.Duration(action.DurationMilliseconds) * time.Millisecond)
-		} else {
-			if c.AttachmentType != character.AttachmentShadow {
-				c.ActionIndex = actionindex.GetActionIndex(c.State)
-			}
-
-			action := c.Files[c.AttachmentType].ACT.Actions[c.ActionIndex]
-			c.AnimationEndsAt = now.Add(time.Duration(action.DurationMilliseconds) * time.Millisecond)
 		}
+		c.AnimationEndsAt = now.Add(c.AnimationDelay)
 	}
 }
 

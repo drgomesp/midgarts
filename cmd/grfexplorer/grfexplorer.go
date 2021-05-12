@@ -162,7 +162,7 @@ func loadImage(name string) *g.Texture {
 	//img = transform.Resize(img, img.Bounds().Max.X*mul, img.Bounds().Max.Y*mul, transform.Linear)
 
 	go func() {
-		spriteTexture, _ = g.NewTextureFromRgba(img)
+		spriteTexture, _ = g.NewTextureFromRgba(img.RGBA)
 		imageWidget = g.Image(spriteTexture).Size(float32(img.Bounds().Max.X), float32(img.Bounds().Max.Y))
 		loadedImageName = name
 	}()

@@ -9,6 +9,7 @@ import (
 	"io"
 
 	"github.com/project-midgard/midgarts/pkg/bytesutil"
+	"github.com/project-midgard/midgarts/pkg/graphic"
 )
 
 type FileType uint32
@@ -40,6 +41,7 @@ type SpriteFile struct {
 
 	Frames  []*SpriteFrame
 	Palette [PaletteSize]byte
+	Images  []*graphic.UniqueRGBA
 }
 
 func Load(data []byte) (f *SpriteFile, err error) {
@@ -107,6 +109,7 @@ func (f *SpriteFile) parseHeader(buf io.ReadSeeker) error {
 	f.Header.RGBAFrameCount = rgbaFrameCount
 	f.Header.RGBAIndex = palettedFrameCount
 	f.Frames = make([]*SpriteFrame, palettedFrameCount+rgbaFrameCount)
+	f.Images = make([]*graphic.UniqueRGBA, palettedFrameCount+rgbaFrameCount)
 
 	return nil
 }
@@ -227,7 +230,11 @@ func (f *SpriteFile) readRGBAFrames(buf io.ReadSeeker) error {
 	return nil
 }
 
-func (f *SpriteFile) ImageAt(index int) *image.RGBA {
+func (f *SpriteFile) ImageAt(index int) *graphic.UniqueRGBA {
+	if f.Images[index] != nil {
+		return f.Images[index]
+	}
+
 	var (
 		frame  = f.Frames[index]
 		width  = int(frame.Width)
@@ -239,7 +246,7 @@ func (f *SpriteFile) ImageAt(index int) *image.RGBA {
 		return nil
 	}
 
-	img := image.NewRGBA(image.Rect(0, 0, width, height))
+	img := graphic.NewUniqueRGBA(image.Rect(0, 0, width, height))
 
 	if frame.SpriteType == FileTypeRGBA {
 		for y := 0; y < height; y++ {
@@ -274,5 +281,6 @@ func (f *SpriteFile) ImageAt(index int) *image.RGBA {
 		}
 	}
 
+	f.Images[index] = img
 	return img
 }
