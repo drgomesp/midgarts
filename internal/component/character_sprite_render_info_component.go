@@ -1,10 +1,9 @@
 package component
 
 import (
+	"github.com/project-midgard/midgarts/pkg/character/actionindex"
 	"time"
 
-	"github.com/project-midgard/midgarts/pkg/character"
-	"github.com/project-midgard/midgarts/pkg/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/character/directiontype"
 )
 
@@ -14,12 +13,12 @@ type CharacterSpriteRenderInfoComponentFace interface {
 
 type CharacterSpriteRenderInfoComponent struct {
 	ActionIndex        actionindex.Type
+	AnimationDelay     time.Duration
 	AnimationEndsAt    time.Time
 	AnimationStartedAt time.Time
 	Direction          directiontype.Type
 	ForcedDuration     time.Duration
 	FPSMultiplier      float64
-	AttachmentType     character.AttachmentType
 	IsStandingBy       bool
 }
 

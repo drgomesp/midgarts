@@ -40,6 +40,7 @@ type CharacterRenderSystem struct {
 }
 
 func NewCharacterRenderSystem(grfFile *grf.File) *CharacterRenderSystem {
+
 	return &CharacterRenderSystem{
 		grfFile:    grfFile,
 		characters: map[string]*entity.Character{},
@@ -111,7 +112,6 @@ func (s *CharacterRenderSystem) renderAttachment(
 	elem character.AttachmentType,
 	offset *[2]float32,
 ) {
-	char.AttachmentType = elem
 
 	var actions []*act.Action
 	if actions = char.Files[elem].ACT.Actions; len(actions) == 0 {
@@ -174,6 +174,8 @@ func (s *CharacterRenderSystem) renderAttachment(
 			float32(frame.Positions[0][1]),
 		}
 	}
+
+	char.AnimationDelay = time.Duration(action.DurationMilliseconds) * time.Millisecond
 }
 
 func (s *CharacterRenderSystem) renderLayer(
@@ -187,7 +189,7 @@ func (s *CharacterRenderSystem) renderLayer(
 		return
 	}
 
-	texture, err := graphic.NewTextureFromRGBA(spr.ImageAt(int(frameIndex)))
+	texture, err := graphic.NewTextureFromImage(spr.ImageAt(int(frameIndex)))
 	if err != nil {
 		log.Fatal(err)
 	}
