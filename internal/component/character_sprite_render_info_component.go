@@ -1,9 +1,9 @@
 package component
 
 import (
-	"github.com/project-midgard/midgarts/pkg/character/actionindex"
 	"time"
 
+	"github.com/project-midgard/midgarts/pkg/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/character/directiontype"
 )
 

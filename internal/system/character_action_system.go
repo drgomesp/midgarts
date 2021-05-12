@@ -1,7 +1,6 @@
 package system
 
 import (
-	"github.com/project-midgard/midgarts/pkg/character/actionindex"
 	"log"
 	"strconv"
 	"time"
@@ -10,6 +9,7 @@ import (
 	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/internal/component"
 	"github.com/project-midgard/midgarts/internal/entity"
+	"github.com/project-midgard/midgarts/pkg/character/actionindex"
 	"github.com/project-midgard/midgarts/pkg/character/statetype"
 	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
 )
