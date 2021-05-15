@@ -6,6 +6,8 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/project-midgard/midgarts/pkg/fileformat/gat"
+
 	"github.com/EngoEngine/ecs"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
@@ -19,7 +21,6 @@ import (
 	"github.com/project-midgard/midgarts/pkg/character/directiontype"
 	"github.com/project-midgard/midgarts/pkg/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/character/statetype"
-	"github.com/project-midgard/midgarts/pkg/fileformat/gnd"
 	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
 	"github.com/project-midgard/midgarts/pkg/graphic/caching"
 	"github.com/veandco/go-sdl2/sdl"
@@ -73,15 +74,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	e, err := grfFile.GetEntry("data/prontera.gnd")
+	e, err := grfFile.GetEntry("data/izlude.gat")
 	if err != nil {
 		log.Fatal(err)
 	}
-	groundFile, err := gnd.Load(e.Data)
+	groundAltitude, err := gat.Load(e.Data)
 	if err != nil {
 		log.Fatal(err)
 	}
-	_ = groundFile
+	_ = groundAltitude
 
 	gl.Viewport(0, 0, WindowWidth, WindowHeight)
 
