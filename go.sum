@@ -69,6 +69,8 @@ github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/
 github.com/veandco/go-sdl2 v0.4.4/go.mod h1:FB+kTpX9YTE+urhYiClnRzpOXbiWgaU3+5F2AB78DPg=
 github.com/veandco/go-sdl2 v0.4.5 h1:GFIjMabK7y2XWpr9sGvN7RDKHt7vrA7XPTUW60eOw+Y=
 github.com/veandco/go-sdl2 v0.4.5/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
+github.com/veandco/go-sdl2 v0.4.10 h1:8QoD2bhWl7SbQDflIAUYWfl9Vq+mT8/boJFAUzAScgY=
+github.com/veandco/go-sdl2 v0.4.10/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
 github.com/vulkan-go/glfw v0.0.0-20190520160600-32f33e359ff2 h1:jPnSXM1EM+6J1MbKbUZvQWkuS6Z9lPWRxTHn1NPsyNY=
 github.com/vulkan-go/glfw v0.0.0-20190520160600-32f33e359ff2/go.mod h1:qui9jo5J26j9fXv2x3bySGThxYkQZt4SgsPIZRtZAbQ=
 github.com/vulkan-go/vulkan v0.0.0-20200123094538-aa511c71e200 h1:Gd8JCplUKwEoAx/9s/zL9DQzNdxmWidxd2uM4zVpURw=
