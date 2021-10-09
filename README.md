@@ -38,6 +38,11 @@ Milestone | Description |
 1. CentOS/Fedora-like Linux Distros:
    `SDL2{,_image,_mixer,_ttf,_gfx}-devel alsa-lib-devel libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel libXi-devel libXxf86vm-devel`
 
+2. Arch Linux:
+    `pacman -S sdl2{,_image,_mixer,_ttf,_gfx}`
+
+On Gentoo, type:
+
 ## Building and Running
 
 1. Generate and env file by copying the distributed (.env.dist) file:
