@@ -61,6 +61,21 @@ func main() {
 		_ = win.Destroy()
 	}()
 
+	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 3)
+	if err != nil {
+		panic(err)
+	}
+
+	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 3)
+	if err != nil {
+		panic(err)
+	}
+
+	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_PROFILE_MASK, sdl.GL_CONTEXT_PROFILE_CORE)
+	if err != nil {
+		panic(err)
+	}
+
 	context, err := win.GLCreateContext()
 	if err != nil {
 		panic(err)
@@ -158,6 +173,8 @@ func main() {
 				shouldStop = true
 				break
 			}
+
+			ks.Update(event)
 		}
 
 		const MovementRate = float32(0.065)

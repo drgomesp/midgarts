@@ -250,13 +250,32 @@ func NewKeyState(window *sdl.Window) *KeyState {
 		sdl.K_SLEEP:              false,
 	}
 
-	go ks.pollEventKeys()
+	// it's not work for OSX. Runtime Error: Terminating app due to uncaught exception
+	// 'NSInternalInconsistencyException',
+	// reason: 'Modifications to the layout engine must not be performed from a background thread after it has been
+	// accessed from the main thread.'
+	//go ks.pollEventKeys()
 
 	return ks
 }
 
 func (ks *KeyState) Pressed(keyCode sdl.Keycode) bool {
 	return ks.states[keyCode]
+}
+
+func(ks *KeyState) Update(event sdl.Event) {
+	if event == nil {
+		return
+	}
+
+	switch event := event.(type) {
+	case *sdl.KeyboardEvent:
+		if event.State == sdl.PRESSED {
+			ks.states[event.Keysym.Sym] = true
+		} else if event.State == sdl.RELEASED {
+			ks.states[event.Keysym.Sym] = false
+		}
+	}
 }
 
 func (ks *KeyState) pollEventKeys() {
