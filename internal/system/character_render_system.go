@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/EngoEngine/ecs"
-	"github.com/EngoEngine/engo/common"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/project-midgard/midgarts/internal/component"
 	"github.com/project-midgard/midgarts/internal/entity"
@@ -28,7 +27,6 @@ const (
 )
 
 type CharacterRenderable interface {
-	common.BasicFace
 	component.CharacterStateComponentFace
 	component.CharacterAttachmentComponentFace
 }

@@ -6,7 +6,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -43,7 +42,7 @@ type File struct {
 func Load(path string) (*File, error) {
 	f, err := os.Open(path)
 	if err != nil {
-		log.Fatal("error while opening file: ", err)
+		return nil, err
 	}
 
 	fi, err := f.Stat()

@@ -3,10 +3,9 @@ package opengl
 import (
 	_ "embed"
 	"fmt"
-	"log"
-	"strings"
-
 	"github.com/go-gl/gl/v3.3-core/gl"
+	"github.com/rs/zerolog/log"
+	"strings"
 )
 
 //go:embed shaders/default.vert
@@ -20,7 +19,7 @@ func InitOpenGL() *State {
 		panic(err)
 	}
 	version := gl.GoStr(gl.GetString(gl.VERSION))
-	log.Println("OpenGL version", version)
+	log.Info().Msgf("OpenGL version: %s", version)
 
 	vertexShader, err := compileShader(unversionedVertexShader, gl.VERTEX_SHADER)
 	if err != nil {

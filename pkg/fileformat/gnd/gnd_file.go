@@ -57,7 +57,7 @@ func Load(data []byte) (f *GroundFile, err error) {
 		log.Fatal(err)
 	}
 
-	log.Printf("%#v\n", f)
+	//log.Printf("%#v\n", f)
 
 	return f, nil
 }

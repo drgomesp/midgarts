@@ -41,13 +41,11 @@ Milestone | Description |
 2. Arch Linux:
     `pacman -S sdl2{,_image,_mixer,_ttf,_gfx}`
 
-On Gentoo, type:
-
 ## Building and Running
 
 1. Generate and env file by copying the distributed (.env.dist) file:
 ```bash
-    $ cp .env.dist .env 
+cp .env.dist .env 
 ```
 
 2. Make sure to alter the `GRF_FILE_PATH` variable on the `.env` file:
@@ -57,12 +55,12 @@ GRF_FILE_PATH=/path/to/data.grf
 
 3. Build the main binary by running:
 ```bash
-    $ go build -o midgarts cmd/sdlclient/main.go 
+go build -o midgarts ./cmd/sdlclient/main.go 
 ```
 
 4. Run the binary:
 ```bash
-    $ ./midgarts
+./midgarts
 ```
 
 ## Tools

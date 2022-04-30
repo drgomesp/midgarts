@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/EngoEngine/ecs"
-	"github.com/EngoEngine/engo/common"
 	"github.com/project-midgard/midgarts/internal/component"
 	"github.com/project-midgard/midgarts/internal/entity"
 	"github.com/project-midgard/midgarts/pkg/character/statetype"
@@ -15,7 +14,6 @@ import (
 )
 
 type CharacterActionable interface {
-	common.BasicFace
 	component.CharacterStateComponentFace
 	component.CharacterSpriteRenderInfoComponentFace
 }

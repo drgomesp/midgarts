@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"log"
-
 	"github.com/project-midgard/midgarts/pkg/romap"
 )
 
@@ -83,7 +81,7 @@ func Load(data []byte) (f *GroundAltitudeFile, err error) {
 		}
 	}
 
-	log.Printf("gat.GroundAltitudeFile(%v)", f)
+	//log.Printf("gat.GroundAltitudeFile(%v)", f)
 
 	return nil, nil
 }

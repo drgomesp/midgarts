@@ -1,13 +1,6 @@
 package main
 
 import (
-	"log"
-	"os"
-	"runtime"
-	"time"
-
-	"github.com/project-midgard/midgarts/pkg/fileformat/gat"
-
 	"github.com/EngoEngine/ecs"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
@@ -21,9 +14,15 @@ import (
 	"github.com/project-midgard/midgarts/pkg/character/directiontype"
 	"github.com/project-midgard/midgarts/pkg/character/jobspriteid"
 	"github.com/project-midgard/midgarts/pkg/character/statetype"
+	"github.com/project-midgard/midgarts/pkg/fileformat/gat"
 	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
 	"github.com/project-midgard/midgarts/pkg/graphic/caching"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/veandco/go-sdl2/sdl"
+	"os"
+	"runtime"
+	"time"
 )
 
 const (
@@ -37,12 +36,17 @@ var (
 	GrfFilePath = os.Getenv("GRF_FILE_PATH")
 )
 
+func init() {
+	zerolog.SetGlobalLevel(zerolog.TraceLevel)
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
+}
+
 func main() {
 	runtime.LockOSThread()
 
 	var err error
 	if err = sdl.Init(sdl.INIT_EVERYTHING); err != nil {
-		panic(err)
+		log.Fatal().Err(err).Msg("failed to load sdl")
 	}
 	defer sdl.Quit()
 
@@ -86,16 +90,16 @@ func main() {
 
 	var grfFile *grf.File
 	if grfFile, err = grf.Load(GrfFilePath); err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("failed to load grf file")
 	}
 
 	e, err := grfFile.GetEntry("data/izlude.gat")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("failed to get gat entry")
 	}
 	groundAltitude, err := gat.Load(e.Data)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Msg("failed to load gat")
 	}
 	_ = groundAltitude
 
