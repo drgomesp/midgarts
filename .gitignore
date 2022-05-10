@@ -1,3 +1,2 @@
 .env
-assets/out/
-assets/build/
+assets/*
