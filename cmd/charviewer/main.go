@@ -26,7 +26,7 @@ import (
 const (
 	H   = 300
 	W   = 300
-	FPS = 10ww
+	FPS = 15
 )
 
 func init() {
@@ -75,7 +75,7 @@ func main() {
 	w := ecs.World{}
 	renderSys := system.NewCharacterRenderSystem(grfFile, caching.NewCachedTextureProvider())
 
-	c1 := entity.NewCharacter(character.Male, jobspriteid.Blacksmith, 23)
+	c1 := entity.NewCharacter(character.Male, jobspriteid.Novice, 23)
 
 	var renderable *system.CharacterRenderable
 	w.AddSystemInterface(renderSys, renderable, nil)
@@ -86,6 +86,7 @@ func main() {
 	var refreshPeriod = time.Second / FPS
 	w.AddEntity(c1)
 	headIndex := 23
+	job := jobspriteid.Novice
 	for !shouldStop {
 		frameStart := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -101,21 +102,36 @@ func main() {
 		if ks.Pressed(sdl.K_w) {
 			headIndex++
 			w.RemoveEntity(c1.BasicEntity)
-			c1 = entity.NewCharacter(character.Male, jobspriteid.Blacksmith, headIndex)
+			c1 = entity.NewCharacter(character.Male, job, headIndex)
 			w.AddEntity(c1)
 		} else if ks.Pressed(sdl.K_s) {
 			if headIndex > 0 {
 				headIndex--
 				w.RemoveEntity(c1.BasicEntity)
-				c1 = entity.NewCharacter(character.Male, jobspriteid.Blacksmith, headIndex)
+				c1 = entity.NewCharacter(character.Male, job, headIndex)
 				w.AddEntity(c1)
 			}
 
 			log.Info().Msgf("c1 index = %v", headIndex)
 		} else if ks.Pressed(sdl.K_d) {
+			jobs := jobspriteid.All()
+			if int(job) <= len(jobs) {
+				job++
 
+				w.RemoveEntity(c1.BasicEntity)
+				c1 = entity.NewCharacter(character.Male, jobs[job], headIndex)
+				w.AddEntity(c1)
+			}
 		} else if ks.Pressed(sdl.K_a) {
+			jobs := jobspriteid.All()
 
+			if job > 0 {
+				job--
+			}
+
+			w.RemoveEntity(c1.BasicEntity)
+			c1 = entity.NewCharacter(character.Male, jobs[job], headIndex)
+			w.AddEntity(c1)
 		} else {
 
 		}
