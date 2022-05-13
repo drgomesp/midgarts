@@ -84,7 +84,7 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 }
 
 func (s *OpenGLRenderSystem) Remove(e ecs.BasicEntity) {
-	panic("implement me")
+
 }
 
 func (s *OpenGLRenderSystem) EnsureSpritesBufLen(minLen int) {

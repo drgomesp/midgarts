@@ -12,7 +12,7 @@ import (
 
 type Character struct {
 	*graphic.Transform
-	*ecs.BasicEntity
+	ecs.BasicEntity
 	*component.CharacterAttachmentComponent
 	*component.CharacterStateComponent
 	*component.CharacterSpriteRenderInfoComponent
@@ -29,7 +29,7 @@ type Character struct {
 func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int) *Character {
 	b := ecs.NewBasic()
 	c := &Character{
-		BasicEntity: &b,
+		BasicEntity: b,
 		CharacterStateComponent: &component.CharacterStateComponent{
 			PlayMode:      actionplaymode.Repeat,
 			State:         statetype.StandBy,

@@ -26,11 +26,11 @@ import (
 const (
 	H   = 300
 	W   = 300
-	FPS = 1
+	FPS = 10ww
 )
 
 func init() {
-	zerolog.SetGlobalLevel(zerolog.TraceLevel)
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 }
 
@@ -72,24 +72,20 @@ func main() {
 	cam := camera.NewOrthographicCamera(0, 500, 500, 0)
 
 	ks := window.NewKeyState(win)
-
 	w := ecs.World{}
 	renderSys := system.NewCharacterRenderSystem(grfFile, caching.NewCachedTextureProvider())
 
 	c1 := entity.NewCharacter(character.Male, jobspriteid.Blacksmith, 23)
-	c1.SetPosition(mgl32.Vec3{250, 350, 0})
 
 	var renderable *system.CharacterRenderable
 	w.AddSystemInterface(renderSys, renderable, nil)
 	w.AddSystem(system.NewOpenGLRenderSystem(gls, cam, renderSys.RenderCommands))
 
-	w.AddEntity(c1)
-	c1.SetState(statetype.StandBy)
-
 	shouldStop := false
 
 	var refreshPeriod = time.Second / FPS
-
+	w.AddEntity(c1)
+	headIndex := 23
 	for !shouldStop {
 		frameStart := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
@@ -101,6 +97,31 @@ func main() {
 
 			ks.Update(event)
 		}
+
+		if ks.Pressed(sdl.K_w) {
+			headIndex++
+			w.RemoveEntity(c1.BasicEntity)
+			c1 = entity.NewCharacter(character.Male, jobspriteid.Blacksmith, headIndex)
+			w.AddEntity(c1)
+		} else if ks.Pressed(sdl.K_s) {
+			if headIndex > 0 {
+				headIndex--
+				w.RemoveEntity(c1.BasicEntity)
+				c1 = entity.NewCharacter(character.Male, jobspriteid.Blacksmith, headIndex)
+				w.AddEntity(c1)
+			}
+
+			log.Info().Msgf("c1 index = %v", headIndex)
+		} else if ks.Pressed(sdl.K_d) {
+
+		} else if ks.Pressed(sdl.K_a) {
+
+		} else {
+
+		}
+
+		c1.SetPosition(mgl32.Vec3{250, 350, 0})
+		c1.SetState(statetype.StandBy)
 
 		if ks.Pressed(sdl.K_z) {
 			cam.SetPosition(mgl32.Vec3{cam.Position().X(), cam.Position().Y(), cam.Position().Z() + 0.2})
