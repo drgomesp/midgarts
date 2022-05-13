@@ -16,11 +16,12 @@ out vec2 texCoords;
 
 void main() {
     vec4 pos = vec4(VertexPosition.x, VertexPosition.y, 0.0, 1.0);
-    pos = rotation * pos;
+//     pos = rotation * pos;
     pos.x += offset.x;
-    pos.y -= offset.y;
+    pos.y += offset.y;
 
-    mat4 modelView = view * model;
+//     mat4 modelView = view * model;
+    mat4 modelView = model;
 
     modelView[0].xyz = vec3( 1.0, 0.0, 0.0 );
     modelView[1].xyz = vec3( 0.0, 1.0, 0.0 );

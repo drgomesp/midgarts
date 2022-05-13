@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	SpriteScaleFactor    = float32(1.0)
+	SpriteScaleFactor    = float32(100.0)
 	FixedCameraDirection = 6
 )
 
@@ -194,14 +194,14 @@ func (s *CharacterRenderSystem) renderLayer(
 	}
 
 	frame := spr.Frames[frameIndex]
-	width, height := float32(frame.Width), float32(frame.Height)
-	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
-	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
+	width, height := float32(frame.Width)*SpriteScaleFactor, float32(frame.Height)*SpriteScaleFactor
+	width *= layer.Scale[0] * graphic.OnePixelSize
+	height *= layer.Scale[1] * graphic.OnePixelSize
 	rot := float64(layer.Angle) * (math.Pi / 180)
 
 	offset = [2]float32{
-		(float32(layer.Position[0]) + offset[0]) * graphic.OnePixelSize,
-		(float32(layer.Position[1]) + offset[1]) * graphic.OnePixelSize,
+		(float32(layer.Position[0]) + offset[0]) * graphic.OnePixelSize * SpriteScaleFactor,
+		(float32(layer.Position[1]) + offset[1]) * graphic.OnePixelSize * SpriteScaleFactor,
 	}
 
 	// This is the current API to render a sprite. Commands will

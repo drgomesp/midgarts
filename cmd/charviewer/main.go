@@ -24,10 +24,9 @@ import (
 )
 
 const (
-	H           = 480
-	W           = 600
-	AspectRatio = float32(W) / float32(H)
-	FPS         = 120
+	H   = 300
+	W   = 300
+	FPS = 1
 )
 
 func init() {
@@ -70,8 +69,7 @@ func main() {
 
 	gl.Viewport(0, 0, W, H)
 
-	cam := camera.NewPerspectiveCamera(0.638, AspectRatio, 0.1, 1000.0)
-	cam.ResetAngleAndY(W, H)
+	cam := camera.NewOrthographicCamera(0, 500, 500, 0)
 
 	ks := window.NewKeyState(win)
 
@@ -79,7 +77,7 @@ func main() {
 	renderSys := system.NewCharacterRenderSystem(grfFile, caching.NewCachedTextureProvider())
 
 	c1 := entity.NewCharacter(character.Male, jobspriteid.Blacksmith, 23)
-	c1.SetPosition(mgl32.Vec3{0, 44, -1})
+	c1.SetPosition(mgl32.Vec3{250, 350, 0})
 
 	var renderable *system.CharacterRenderable
 	w.AddSystemInterface(renderSys, renderable, nil)
@@ -97,7 +95,6 @@ func main() {
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
 			switch event.(type) {
 			case *sdl.QuitEvent:
-				println("Quit")
 				shouldStop = true
 				break
 			}

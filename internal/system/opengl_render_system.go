@@ -2,12 +2,13 @@ package system
 
 import (
 	"github.com/EngoEngine/ecs"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/drgomesp/midgarts/internal/opengl"
 	"github.com/drgomesp/midgarts/internal/system/rendercmd"
-	"github.com/drgomesp/midgarts/pkg/camera"
 	"github.com/drgomesp/midgarts/pkg/graphic"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/rs/zerolog/log"
 )
 
 type RenderCommands struct {
@@ -17,17 +18,17 @@ type RenderCommands struct {
 // OpenGLRenderSystem defines an OpenGL-based rendering system.
 type OpenGLRenderSystem struct {
 	gls            *opengl.State
-	cam            *camera.Camera
+	renderInfo     graphic.RenderInfo
 	renderCommands *RenderCommands
 
 	// Buffer of reusable sprites
 	spritesBuf []*graphic.Sprite
 }
 
-func NewOpenGLRenderSystem(gls *opengl.State, cam *camera.Camera, commands *RenderCommands) *OpenGLRenderSystem {
+func NewOpenGLRenderSystem(gls *opengl.State, renderInfo graphic.RenderInfo, commands *RenderCommands) *OpenGLRenderSystem {
 	return &OpenGLRenderSystem{
 		gls:            gls,
-		cam:            cam,
+		renderInfo:     renderInfo,
 		renderCommands: commands,
 		spritesBuf:     []*graphic.Sprite{},
 	}
@@ -40,10 +41,13 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 	// 2D Sprites
 	{
 		s.EnsureSpritesBufLen(len(s.renderCommands.sprite))
+
 		for i, cmd := range s.renderCommands.sprite {
-			if cmd.FlipVertically {
-				cmd.Size = mgl32.Vec2{-cmd.Size.X(), cmd.Size.Y()}
-			}
+			log.Trace().Msgf("OpenGLRenderSystem::Update(%v) cmd=(%v)", dt, spew.Sdump(cmd))
+
+			//if cmd.FlipVertically {
+			cmd.Size = mgl32.Vec2{cmd.Size.X(), -cmd.Size.Y()}
+			//}
 
 			sprite := s.spritesBuf[i]
 			sprite.SetBounds(cmd.Size.X(), cmd.Size.Y())
@@ -51,15 +55,15 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 			sprite.SetPosition(mgl32.Vec3{cmd.Position.X(), cmd.Position.Y(), cmd.Position.Z()})
 			sprite.Texture.Bind(0)
 
-			view := s.cam.ViewMatrix()
-			viewu := gl.GetUniformLocation(s.gls.Program().ID(), gl.Str("view\x00"))
-			gl.UniformMatrix4fv(viewu, 1, false, &view[0])
+			//view := s.renderInfo.ViewMatrix()
+			//viewu := gl.GetUniformLocation(s.gls.Program().ID(), gl.Str("view\x00"))
+			//gl.UniformMatrix4fv(viewu, 1, false, &view[0])
 
 			model := sprite.Model()
 			modelu := gl.GetUniformLocation(s.gls.Program().ID(), gl.Str("model\x00"))
 			gl.UniformMatrix4fv(modelu, 1, false, &model[0])
 
-			projection := s.cam.ProjectionMatrix()
+			projection := s.renderInfo.ProjectionMatrix()
 			projectionu := gl.GetUniformLocation(s.gls.Program().ID(), gl.Str("projection\x00"))
 			gl.UniformMatrix4fv(projectionu, 1, false, &projection[0])
 
