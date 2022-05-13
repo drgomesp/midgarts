@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/project-midgard/midgarts/pkg/romap"
+	"github.com/drgomesp/midgarts/pkg/romap"
 )
 
 const HeaderSignature = "GRAT"

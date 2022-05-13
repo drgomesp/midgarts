@@ -1,8 +1,8 @@
 package grf
 
 import (
+	"github.com/drgomesp/midgarts/pkg/fileformat/grf/des"
 	"github.com/pkg/errors"
-	"github.com/project-midgard/midgarts/pkg/fileformat/grf/des"
 )
 
 type entryFlags byte

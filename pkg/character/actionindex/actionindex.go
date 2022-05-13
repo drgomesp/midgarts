@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/project-midgard/midgarts/pkg/character/statetype"
+	"github.com/drgomesp/midgarts/pkg/character/statetype"
 )
 
 type Type int

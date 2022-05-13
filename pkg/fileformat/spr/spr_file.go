@@ -8,8 +8,8 @@ import (
 	"image/color"
 	"io"
 
-	"github.com/project-midgard/midgarts/pkg/bytesutil"
-	"github.com/project-midgard/midgarts/pkg/graphic"
+	"github.com/drgomesp/midgarts/pkg/bytesutil"
+	"github.com/drgomesp/midgarts/pkg/graphic"
 )
 
 type FileType uint32

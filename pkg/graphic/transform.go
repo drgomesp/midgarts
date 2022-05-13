@@ -1,6 +1,7 @@
 package graphic
 
 import (
+	"fmt"
 	"github.com/go-gl/mathgl/mgl32"
 )
 
@@ -64,4 +65,13 @@ func (t *Transform) Rotation() mgl32.Quat {
 
 func (t *Transform) SetRotation(rotation mgl32.Quat) {
 	t.rotation = rotation
+}
+
+func (t *Transform) String() string {
+	return fmt.Sprintf(
+		"\n	%s\n	%s\n	%s\n",
+		fmt.Sprintf("scale = [%.f %.f %.f]", t.scale.X(), t.scale.Y(), t.scale.Z()),
+		fmt.Sprintf("position = [%.f %.f %.f]", t.position.X(), t.position.Y(), t.position.Z()),
+		fmt.Sprintf("rotation = [%.f %.f %.f]", t.rotation.X(), t.rotation.Y(), t.rotation.Z()),
+	)
 }

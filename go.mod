@@ -1,10 +1,11 @@
-module github.com/project-midgard/midgarts
+module github.com/drgomesp/midgarts
 
 go 1.16
 
 require (
 	github.com/AllenDang/giu v0.5.3
 	github.com/EngoEngine/ecs v1.0.5
+	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-gl/gl v0.0.0-20210426225639-a3bfa832c8aa
 	github.com/go-gl/mathgl v1.0.0
 	github.com/google/uuid v1.2.0

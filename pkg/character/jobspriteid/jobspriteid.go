@@ -3,7 +3,7 @@ package jobspriteid
 import (
 	"log"
 
-	"github.com/project-midgard/midgarts/pkg/character/jobid"
+	"github.com/drgomesp/midgarts/pkg/character/jobid"
 )
 
 type Type int

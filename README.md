@@ -66,7 +66,7 @@ GRF_FILE_PATH=/path/to/data.grf
 
 3. Build the main binary by running:
 ```bash
-go build -o midgarts ./cmd/sdlclient/main.go 
+go build -o midgarts ./cmd/sdlclient/main.go.go 
 ```
 
 4. Run the binary:

@@ -1,8 +1,8 @@
 package caching
 
 import (
+	"github.com/drgomesp/midgarts/pkg/graphic"
 	"github.com/google/uuid"
-	"github.com/project-midgard/midgarts/pkg/graphic"
 )
 
 type CachedTextureProvider map[uuid.UUID]*graphic.Texture

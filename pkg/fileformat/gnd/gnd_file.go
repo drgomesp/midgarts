@@ -6,7 +6,7 @@ import (
 	"io"
 	"log"
 
-	"github.com/project-midgard/midgarts/pkg/bytesutil"
+	"github.com/drgomesp/midgarts/pkg/bytesutil"
 	"golang.org/x/text/encoding/charmap"
 )
 

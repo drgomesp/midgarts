@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/drgomesp/midgarts/pkg/character"
+	"github.com/drgomesp/midgarts/pkg/character/jobspriteid"
+	"github.com/drgomesp/midgarts/pkg/fileformat/grf"
 	"github.com/pkg/errors"
-	"github.com/project-midgard/midgarts/pkg/character"
-	"github.com/project-midgard/midgarts/pkg/character/jobspriteid"
-	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
 	"golang.org/x/text/encoding/charmap"
 )
 

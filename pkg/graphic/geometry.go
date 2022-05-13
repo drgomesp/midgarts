@@ -1,7 +1,7 @@
 package graphic
 
 import (
-	opengl "github.com/project-midgard/midgarts/internal/opengl"
+	opengl "github.com/drgomesp/midgarts/internal/opengl"
 )
 
 type Geometry struct {

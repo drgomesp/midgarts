@@ -11,9 +11,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/drgomesp/midgarts/pkg/fileformat/act"
+	"github.com/drgomesp/midgarts/pkg/fileformat/spr"
 	"github.com/pkg/errors"
-	"github.com/project-midgard/midgarts/pkg/fileformat/act"
-	"github.com/project-midgard/midgarts/pkg/fileformat/spr"
 	"golang.org/x/text/encoding/charmap"
 )
 

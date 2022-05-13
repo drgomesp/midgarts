@@ -7,7 +7,7 @@ import (
 	"image/color"
 	"io"
 
-	"github.com/project-midgard/midgarts/pkg/bytesutil"
+	"github.com/drgomesp/midgarts/pkg/bytesutil"
 )
 
 const (

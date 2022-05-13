@@ -3,8 +3,8 @@ package camera
 import (
 	"math"
 
+	"github.com/drgomesp/midgarts/pkg/graphic"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/project-midgard/midgarts/pkg/graphic"
 )
 
 type Projection int

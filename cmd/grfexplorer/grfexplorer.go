@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	g "github.com/AllenDang/giu"
-	"github.com/project-midgard/midgarts/pkg/fileformat/act"
-	"github.com/project-midgard/midgarts/pkg/fileformat/grf"
-	"github.com/project-midgard/midgarts/pkg/fileformat/spr"
+	"github.com/drgomesp/midgarts/pkg/fileformat/act"
+	"github.com/drgomesp/midgarts/pkg/fileformat/grf"
+	"github.com/drgomesp/midgarts/pkg/fileformat/spr"
 	"golang.org/x/text/encoding/charmap"
 )
 
@@ -20,7 +20,7 @@ var imageScaleMultiplier int32 = 1
 var loadedImageName string
 var currentEntry *grf.Entry
 
-// Run implements the main program loop of the demo. It returns when the platform signals to stop.
+// Run implements the main.go program loop of the demo. It returns when the platform signals to stop.
 // This demo application shows some basic features of ImGui, as well as exposing the standard demo window.
 func Run() {
 	g.SingleWindowWithMenuBar("splitter").Layout(

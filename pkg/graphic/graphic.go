@@ -1,8 +1,9 @@
 package graphic
 
 import (
+	"github.com/drgomesp/midgarts/internal/opengl"
 	"github.com/go-gl/gl/v3.3-core/gl"
-	opengl "github.com/project-midgard/midgarts/internal/opengl"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -20,6 +21,8 @@ func NewGraphic(geom *Geometry, renderMode uint32) *Graphic {
 }
 
 func (g *Graphic) Render(gls *opengl.State) {
+	log.Trace().Msgf("Graphic::Render\n transform={%+v}\n geometry={%v}\n", gls, g.Transform)
+
 	geom := g.geometry
 
 	if geom.gls == nil {

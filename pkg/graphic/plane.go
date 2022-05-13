@@ -1,8 +1,8 @@
 package graphic
 
 import (
+	"github.com/drgomesp/midgarts/internal/opengl"
 	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/project-midgard/midgarts/internal/opengl"
 )
 
 type Plane struct {

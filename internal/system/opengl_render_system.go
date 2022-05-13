@@ -2,12 +2,12 @@ package system
 
 import (
 	"github.com/EngoEngine/ecs"
+	"github.com/drgomesp/midgarts/internal/opengl"
+	"github.com/drgomesp/midgarts/internal/system/rendercmd"
+	"github.com/drgomesp/midgarts/pkg/camera"
+	"github.com/drgomesp/midgarts/pkg/graphic"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/project-midgard/midgarts/internal/opengl"
-	"github.com/project-midgard/midgarts/internal/system/rendercmd"
-	"github.com/project-midgard/midgarts/pkg/camera"
-	"github.com/project-midgard/midgarts/pkg/graphic"
 )
 
 type RenderCommands struct {
