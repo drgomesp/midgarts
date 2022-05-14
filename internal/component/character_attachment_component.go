@@ -2,13 +2,12 @@ package component
 
 import (
 	"fmt"
-	"strconv"
-
-	"github.com/drgomesp/midgarts/pkg/character"
-	"github.com/drgomesp/midgarts/pkg/character/jobspriteid"
-	"github.com/drgomesp/midgarts/pkg/fileformat/grf"
 	"github.com/pkg/errors"
+	"github.com/project-midgard/midgarts/internal/character"
+	"github.com/project-midgard/midgarts/internal/character/jobspriteid"
+	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"golang.org/x/text/encoding/charmap"
+	"strconv"
 )
 
 type CharacterAttachmentComponentFace interface {
@@ -24,7 +23,7 @@ type CharacterAttachmentComponent struct {
 type CharacterAttachmentComponentConfig struct {
 	Gender           character.GenderType
 	JobSpriteID      jobspriteid.Type
-	HeadIndex        int
+	HeadIndex        character.HeadIndex
 	EnableShield     bool
 	ShieldSpriteName string // Loaded from GRF
 }
@@ -57,19 +56,19 @@ func NewCharacterAttachmentComponent(
 		genderPath = "¿©"
 	}
 
-	cmp.Files[character.AttachmentShadow], err = f.GetActionAndSpriteFiles("data/sprite/shadow")
+	cmp.Files[character.AttachmentShadow], err = f.GetSpriteFiles("data/sprite/shadow")
 	if err != nil {
 		return cmp, errors.Wrapf(err, "could not load shadow act and spr files (%v, %s)", conf.Gender, conf.JobSpriteID)
 	}
 
 	bodyFilePath := "data/sprite/" + decodedFolderA + "/" + decodedFolderB + "/" + genderPath + "/" + jobFileName + "_" + genderPath
-	cmp.Files[character.AttachmentBody], err = f.GetActionAndSpriteFiles(bodyFilePath)
+	cmp.Files[character.AttachmentBody], err = f.GetSpriteFiles(bodyFilePath)
 	if err != nil {
 		return cmp, errors.Wrapf(err, "could not load body act and spr files (%v, %s)", conf.Gender, conf.JobSpriteID)
 	}
 
-	headFilePath := "data/sprite/ÀÎ°£Á·/¸Ó¸®Åë/" + genderPath + "/" + strconv.Itoa(conf.HeadIndex) + "_" + genderPath
-	cmp.Files[character.AttachmentHead], err = f.GetActionAndSpriteFiles(headFilePath)
+	headFilePath := "data/sprite/ÀÎ°£Á·/¸Ó¸®Åë/" + genderPath + "/" + strconv.Itoa(int(conf.HeadIndex)) + "_" + genderPath
+	cmp.Files[character.AttachmentHead], err = f.GetSpriteFiles(headFilePath)
 	if err != nil {
 		return cmp, errors.Wrapf(err, "could not load head act and spr files (%v, %s)", conf.Gender, conf.JobSpriteID)
 	}
@@ -79,7 +78,7 @@ func NewCharacterAttachmentComponent(
 			conf.ShieldSpriteName = "°¡µå"
 		}
 		shieldFilePath := "data/sprite/¹æÆÐ/" + jobFileName + "/" + jobFileName + "_" + genderPath + "_" + conf.ShieldSpriteName
-		cmp.Files[character.AttachmentShield], err = f.GetActionAndSpriteFiles(shieldFilePath)
+		cmp.Files[character.AttachmentShield], err = f.GetSpriteFiles(shieldFilePath)
 		if err != nil {
 			return cmp, errors.Wrapf(err, "could not load shield act and spr files (%v, %s, %s)", conf.Gender, conf.JobSpriteID, conf.ShieldSpriteName)
 		}

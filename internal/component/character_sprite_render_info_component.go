@@ -1,10 +1,9 @@
 package component
 
 import (
-	"github.com/drgomesp/midgarts/pkg/character/actionindex"
+	"github.com/project-midgard/midgarts/internal/character/actionindex"
+	"github.com/project-midgard/midgarts/internal/character/directiontype"
 	"time"
-
-	"github.com/drgomesp/midgarts/pkg/character/directiontype"
 )
 
 type CharacterSpriteRenderInfoComponentFace interface {

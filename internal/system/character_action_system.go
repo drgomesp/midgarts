@@ -1,16 +1,15 @@
 package system
 
 import (
-	"github.com/drgomesp/midgarts/pkg/character/actionindex"
+	"github.com/EngoEngine/ecs"
+	"github.com/project-midgard/midgarts/internal/character/actionindex"
+	"github.com/project-midgard/midgarts/internal/character/statetype"
+	"github.com/project-midgard/midgarts/internal/component"
+	"github.com/project-midgard/midgarts/internal/entity"
+	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"log"
 	"strconv"
 	"time"
-
-	"github.com/EngoEngine/ecs"
-	"github.com/drgomesp/midgarts/internal/component"
-	"github.com/drgomesp/midgarts/internal/entity"
-	"github.com/drgomesp/midgarts/pkg/character/statetype"
-	"github.com/drgomesp/midgarts/pkg/fileformat/grf"
 )
 
 type CharacterActionable interface {

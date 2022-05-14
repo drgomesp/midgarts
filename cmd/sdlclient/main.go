@@ -2,21 +2,21 @@ package main
 
 import (
 	"github.com/EngoEngine/ecs"
-	"github.com/drgomesp/midgarts/internal/entity"
-	"github.com/drgomesp/midgarts/internal/opengl"
-	"github.com/drgomesp/midgarts/internal/system"
-	"github.com/drgomesp/midgarts/internal/window"
-	"github.com/drgomesp/midgarts/pkg/camera"
-	"github.com/drgomesp/midgarts/pkg/character"
-	"github.com/drgomesp/midgarts/pkg/character/directiontype"
-	"github.com/drgomesp/midgarts/pkg/character/jobspriteid"
-	"github.com/drgomesp/midgarts/pkg/character/statetype"
-	"github.com/drgomesp/midgarts/pkg/fileformat/gat"
-	"github.com/drgomesp/midgarts/pkg/fileformat/grf"
-	"github.com/drgomesp/midgarts/pkg/graphic/caching"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/project-midgard/midgarts/internal/camera"
+	"github.com/project-midgard/midgarts/internal/character"
+	"github.com/project-midgard/midgarts/internal/character/directiontype"
+	"github.com/project-midgard/midgarts/internal/character/jobspriteid"
+	"github.com/project-midgard/midgarts/internal/character/statetype"
+	"github.com/project-midgard/midgarts/internal/entity"
+	"github.com/project-midgard/midgarts/internal/fileformat/gat"
+	"github.com/project-midgard/midgarts/internal/fileformat/grf"
+	"github.com/project-midgard/midgarts/internal/graphic/caching"
+	"github.com/project-midgard/midgarts/internal/opengl"
+	"github.com/project-midgard/midgarts/internal/system"
+	"github.com/project-midgard/midgarts/internal/window"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/veandco/go-sdl2/sdl"
@@ -89,7 +89,7 @@ func main() {
 	gls := opengl.InitOpenGL()
 
 	var grfFile *grf.File
-	if grfFile, err = grf.Load(GrfFilePath); err != nil {
+	if grfFile, err = grf.Load("./assets/grf/data.grf"); err != nil {
 		log.Fatal().Err(err).Msg("failed to load grf file")
 	}
 
@@ -131,7 +131,7 @@ func main() {
 	c12 := entity.NewCharacter(character.Female, jobspriteid.Dancer, 16)
 
 	c1.SetPosition(mgl32.Vec3{0, 44, -1})
-	c2.SetPosition(mgl32.Vec3{4, 44, 0})
+	c2.SetPosition(mgl32.Vec3{4, 44, 5})
 	c3.SetPosition(mgl32.Vec3{8, 44, 0})
 	c4.SetPosition(mgl32.Vec3{0, 40, 0})
 	c5.SetPosition(mgl32.Vec3{4, 40, 0})

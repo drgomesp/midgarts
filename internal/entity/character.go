@@ -2,12 +2,12 @@ package entity
 
 import (
 	"github.com/EngoEngine/ecs"
-	"github.com/drgomesp/midgarts/internal/component"
-	"github.com/drgomesp/midgarts/pkg/character"
-	"github.com/drgomesp/midgarts/pkg/character/actionplaymode"
-	"github.com/drgomesp/midgarts/pkg/character/jobspriteid"
-	"github.com/drgomesp/midgarts/pkg/character/statetype"
-	"github.com/drgomesp/midgarts/pkg/graphic"
+	"github.com/project-midgard/midgarts/internal/character"
+	"github.com/project-midgard/midgarts/internal/character/actionplaymode"
+	"github.com/project-midgard/midgarts/internal/character/jobspriteid"
+	"github.com/project-midgard/midgarts/internal/character/statetype"
+	"github.com/project-midgard/midgarts/internal/component"
+	"github.com/project-midgard/midgarts/internal/graphic"
 )
 
 type Character struct {

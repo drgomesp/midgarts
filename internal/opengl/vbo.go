@@ -1,9 +1,8 @@
 package opengl
 
 import (
-	"unsafe"
-
 	"github.com/go-gl/gl/v3.3-core/gl"
+	"unsafe"
 )
 
 type VBOAttributeType int
@@ -77,7 +76,7 @@ func (vbo *VBO) Load(gls *State) {
 	}
 
 	if !vbo.buffAllocated {
-		for loc, _ := range vbo.attributes {
+		for loc := range vbo.attributes {
 			gl.GenBuffers(int32(NumVertexAttributes), &vbo.handles[loc])
 		}
 		vbo.buffAllocated = true

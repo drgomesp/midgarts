@@ -1,4 +1,4 @@
-module github.com/drgomesp/midgarts
+module github.com/project-midgard/midgarts
 
 go 1.16
 

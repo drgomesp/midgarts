@@ -1,8 +1,8 @@
 package rendercmd
 
 import (
-	"github.com/drgomesp/midgarts/pkg/graphic"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/project-midgard/midgarts/internal/graphic"
 )
 
 type SpriteRenderCommand struct {

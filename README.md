@@ -36,21 +36,10 @@ Milestone | Description |
 ## Dependencies
 
 1. CentOS/Fedora-like Linux Distros:
-   ```
-    SDL2{,_image,_mixer,_ttf,_gfx}-devel alsa-lib-devel libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel libXi-devel libXxf86vm-devel
-   ```
+   `SDL2{,_image,_mixer,_ttf,_gfx}-devel alsa-lib-devel libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel libXi-devel libXxf86vm-devel`
 
-3. Arch Linux:
-    ```
-    pacman -S sdl2{,_image,_mixer,_ttf,_gfx}
-   ```
-
-4. Linux Mint:
-    ```
-    sudo apt-get install libglm-dev
-    sudo apt-get install libglew-dev
-    sudo apt-get install libsdl2-dev`
-    ```
+2. Arch Linux:
+    `pacman -S sdl2{,_image,_mixer,_ttf,_gfx}`
 
 ## Building and Running
 
@@ -66,7 +55,7 @@ GRF_FILE_PATH=/path/to/data.grf
 
 3. Build the main binary by running:
 ```bash
-go build -o midgarts ./cmd/sdlclient/main.go.go 
+go build -o midgarts ./cmd/sdlclient/main.go 
 ```
 
 4. Run the binary:

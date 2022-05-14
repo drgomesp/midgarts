@@ -253,7 +253,7 @@ func NewKeyState(window *sdl.Window) *KeyState {
 	// it's not work for OSX. Runtime Error: Terminating app due to uncaught exception
 	// 'NSInternalInconsistencyException',
 	// reason: 'Modifications to the layout engine must not be performed from a background thread after it has been
-	// accessed from the main.go thread.'
+	// accessed from the main thread.'
 	//go ks.pollEventKeys()
 
 	return ks
@@ -263,7 +263,7 @@ func (ks *KeyState) Pressed(keyCode sdl.Keycode) bool {
 	return ks.states[keyCode]
 }
 
-func (ks *KeyState) Update(event sdl.Event) {
+func(ks *KeyState) Update(event sdl.Event) {
 	if event == nil {
 		return
 	}

@@ -2,12 +2,12 @@ package system
 
 import (
 	"github.com/EngoEngine/ecs"
-	"github.com/drgomesp/midgarts/internal/opengl"
-	"github.com/drgomesp/midgarts/internal/system/rendercmd"
-	"github.com/drgomesp/midgarts/pkg/camera"
-	"github.com/drgomesp/midgarts/pkg/graphic"
 	"github.com/go-gl/gl/v3.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/project-midgard/midgarts/internal/camera"
+	graphic2 "github.com/project-midgard/midgarts/internal/graphic"
+	"github.com/project-midgard/midgarts/internal/opengl"
+	"github.com/project-midgard/midgarts/internal/system/rendercmd"
 )
 
 type RenderCommands struct {
@@ -21,7 +21,7 @@ type OpenGLRenderSystem struct {
 	renderCommands *RenderCommands
 
 	// Buffer of reusable sprites
-	spritesBuf []*graphic.Sprite
+	spritesBuf []*graphic2.Sprite
 }
 
 func NewOpenGLRenderSystem(gls *opengl.State, cam *camera.Camera, commands *RenderCommands) *OpenGLRenderSystem {
@@ -29,7 +29,7 @@ func NewOpenGLRenderSystem(gls *opengl.State, cam *camera.Camera, commands *Rend
 		gls:            gls,
 		cam:            cam,
 		renderCommands: commands,
-		spritesBuf:     []*graphic.Sprite{},
+		spritesBuf:     []*graphic2.Sprite{},
 	}
 }
 
@@ -70,7 +70,7 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 			gl.Uniform2fv(offsetu, 1, &cmd.Offset[0])
 
 			iden := mgl32.Ident4()
-			rotation := iden.Mul4(mgl32.HomogRotate3D(cmd.RotationRadians, graphic.Backwards))
+			rotation := iden.Mul4(mgl32.HomogRotate3D(cmd.RotationRadians, graphic2.Backwards))
 			rotationu := gl.GetUniformLocation(s.gls.Program().ID(), gl.Str("rotation\x00"))
 			gl.UniformMatrix4fv(rotationu, 1, false, &rotation[0])
 
@@ -87,7 +87,7 @@ func (s *OpenGLRenderSystem) EnsureSpritesBufLen(minLen int) {
 	s.spritesBuf = ensureSpritesBufferLength(s.spritesBuf, minLen)
 }
 
-func ensureSpritesBufferLength(slice []*graphic.Sprite, minLen int) []*graphic.Sprite {
+func ensureSpritesBufferLength(slice []*graphic2.Sprite, minLen int) []*graphic2.Sprite {
 	oldLen := len(slice)
 
 	if cacheOverflow := minLen - oldLen; cacheOverflow <= 0 {
@@ -96,7 +96,7 @@ func ensureSpritesBufferLength(slice []*graphic.Sprite, minLen int) []*graphic.S
 	}
 
 	if minLen > cap(slice) {
-		newSlice := make([]*graphic.Sprite, oldLen, minLen)
+		newSlice := make([]*graphic2.Sprite, oldLen, minLen)
 		copy(newSlice, slice)
 		slice = newSlice
 	}
@@ -104,7 +104,7 @@ func ensureSpritesBufferLength(slice []*graphic.Sprite, minLen int) []*graphic.S
 	slice = slice[0:minLen]
 
 	for i := oldLen; i < minLen; i++ {
-		slice[i] = graphic.NewSprite(0, 0, nil)
+		slice[i] = graphic2.NewSprite(0, 0, nil)
 	}
 	return slice
 }

@@ -1,24 +1,23 @@
 package system
 
 import (
+	"github.com/EngoEngine/ecs"
+	"github.com/go-gl/mathgl/mgl32"
+	"github.com/project-midgard/midgarts/internal/character"
+	"github.com/project-midgard/midgarts/internal/character/actionindex"
+	"github.com/project-midgard/midgarts/internal/character/actionplaymode"
+	"github.com/project-midgard/midgarts/internal/character/directiontype"
+	"github.com/project-midgard/midgarts/internal/component"
+	"github.com/project-midgard/midgarts/internal/entity"
+	"github.com/project-midgard/midgarts/internal/fileformat/act"
+	"github.com/project-midgard/midgarts/internal/fileformat/grf"
+	"github.com/project-midgard/midgarts/internal/fileformat/spr"
+	graphic2 "github.com/project-midgard/midgarts/internal/graphic"
+	"github.com/project-midgard/midgarts/internal/system/rendercmd"
 	"log"
 	"math"
 	"strconv"
 	"time"
-
-	"github.com/EngoEngine/ecs"
-	"github.com/drgomesp/midgarts/internal/component"
-	"github.com/drgomesp/midgarts/internal/entity"
-	"github.com/drgomesp/midgarts/internal/system/rendercmd"
-	"github.com/drgomesp/midgarts/pkg/character"
-	"github.com/drgomesp/midgarts/pkg/character/actionindex"
-	"github.com/drgomesp/midgarts/pkg/character/actionplaymode"
-	"github.com/drgomesp/midgarts/pkg/character/directiontype"
-	"github.com/drgomesp/midgarts/pkg/fileformat/act"
-	"github.com/drgomesp/midgarts/pkg/fileformat/grf"
-	"github.com/drgomesp/midgarts/pkg/fileformat/spr"
-	"github.com/drgomesp/midgarts/pkg/graphic"
-	"github.com/go-gl/mathgl/mgl32"
 )
 
 const (
@@ -35,10 +34,10 @@ type CharacterRenderSystem struct {
 	grfFile         *grf.File
 	characters      map[string]*entity.Character
 	RenderCommands  *RenderCommands
-	textureProvider graphic.TextureProvider
+	textureProvider graphic2.TextureProvider
 }
 
-func NewCharacterRenderSystem(grfFile *grf.File, textureProvider graphic.TextureProvider) *CharacterRenderSystem {
+func NewCharacterRenderSystem(grfFile *grf.File, textureProvider graphic2.TextureProvider) *CharacterRenderSystem {
 	return &CharacterRenderSystem{
 		grfFile:    grfFile,
 		characters: map[string]*entity.Character{},
@@ -195,13 +194,13 @@ func (s *CharacterRenderSystem) renderLayer(
 
 	frame := spr.Frames[frameIndex]
 	width, height := float32(frame.Width), float32(frame.Height)
-	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
-	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
+	width *= layer.Scale[0] * SpriteScaleFactor * graphic2.OnePixelSize
+	height *= layer.Scale[1] * SpriteScaleFactor * graphic2.OnePixelSize
 	rot := float64(layer.Angle) * (math.Pi / 180)
 
 	offset = [2]float32{
-		(float32(layer.Position[0]) + offset[0]) * graphic.OnePixelSize,
-		(float32(layer.Position[1]) + offset[1]) * graphic.OnePixelSize,
+		(float32(layer.Position[0]) + offset[0]) * graphic2.OnePixelSize,
+		(float32(layer.Position[1]) + offset[1]) * graphic2.OnePixelSize,
 	}
 
 	// This is the current API to render a sprite. Commands will

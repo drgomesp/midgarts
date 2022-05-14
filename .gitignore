@@ -1,2 +1,4 @@
 .env
-assets/*
+assets/grf/
+assets/out/
+assets/build/

@@ -1,8 +1,8 @@
 package component
 
 import (
-	"github.com/drgomesp/midgarts/pkg/character/actionplaymode"
-	"github.com/drgomesp/midgarts/pkg/character/statetype"
+	"github.com/project-midgard/midgarts/internal/character/actionplaymode"
+	"github.com/project-midgard/midgarts/internal/character/statetype"
 )
 
 type CharacterStateComponentFace interface {
