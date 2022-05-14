@@ -26,7 +26,7 @@ type Character struct {
 	ShieldSpriteName string
 }
 
-func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex int) *Character {
+func NewCharacter(gender character.GenderType, jobSpriteID jobspriteid.Type, headIndex character.HeadIndex) *Character {
 	b := ecs.NewBasic()
 	c := &Character{
 		BasicEntity: &b,
