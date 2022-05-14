@@ -187,7 +187,7 @@ func (s *CharacterRenderSystem) renderLayer(
 		return
 	}
 
-	texture, err := s.textureProvider.NewTextureFromRGBA(spr.ImageAt(int(frameIndex)))
+	texture, err := s.textureProvider.NewTextureFromRGBA(spr.ImageAt(character.SpriteIndex(frameIndex)))
 	if err != nil {
 		log.Fatal(err)
 	}

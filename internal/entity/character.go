@@ -17,7 +17,7 @@ type Character struct {
 	*component.CharacterStateComponent
 	*component.CharacterSpriteRenderInfoComponent
 
-	HeadIndex        int
+	HeadIndex        character.HeadIndex
 	Gender           character.GenderType
 	JobSpriteID      jobspriteid.Type
 	IsMounted        bool

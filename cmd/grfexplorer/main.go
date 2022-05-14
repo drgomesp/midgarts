@@ -29,7 +29,12 @@ func main() {
 
 func Run() {
 	go func() {
-		sprite, err := SpriteLoader.LoadSprite(character.Female, jobspriteid.Blacksmith, 23, 0)
+		sprite, err := SpriteLoader.LoadSprite(char.SpriteOptions{
+			Gender:      character.Female,
+			JobSpriteID: jobspriteid.Blacksmith,
+			HeadIndex:   23,
+			SpriteIndex: 0,
+		})
 
 		if noErr(err) {
 			var btex *g.Texture
