@@ -3,30 +3,18 @@ package opengl
 import (
 	_ "embed"
 	"fmt"
-	"github.com/go-gl/gl/v3.3-core/gl"
-	"github.com/rs/zerolog/log"
 	"strings"
+
+	"github.com/go-gl/gl/v4.6-core/gl"
 )
 
-//go:embed shaders/default.vert
-var unversionedVertexShader string
-
-//go:embed shaders/default.frag
-var unversionedFragmentShader string
-
-func InitOpenGL() *State {
-	if err := gl.Init(); err != nil {
-		panic(err)
-	}
-	version := gl.GoStr(gl.GetString(gl.VERSION))
-	log.Info().Msgf("OpenGL version: %s", version)
-
-	vertexShader, err := compileShader(unversionedVertexShader, gl.VERTEX_SHADER)
+func NewShader(vert string, frag string) *State {
+	vertexShader, err := compileShader(vert, gl.VERTEX_SHADER)
 	if err != nil {
 		panic(err)
 	}
 
-	fragmentShader, err := compileShader(unversionedFragmentShader, gl.FRAGMENT_SHADER)
+	fragmentShader, err := compileShader(frag, gl.FRAGMENT_SHADER)
 	if err != nil {
 		panic(err)
 	}

@@ -1,8 +1,9 @@
 package character
 
 import (
-	"github.com/project-midgard/midgarts/internal/character/jobspriteid"
 	"golang.org/x/text/encoding/charmap"
+
+	"github.com/project-midgard/midgarts/internal/character/jobspriteid"
 )
 
 var JobSpriteNameTable = map[jobspriteid.Type]string{}

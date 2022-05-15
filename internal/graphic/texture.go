@@ -2,10 +2,11 @@ package graphic
 
 import (
 	"fmt"
-	"github.com/go-gl/gl/v3.3-core/gl"
 	"image"
 	"image/draw"
 	_ "image/png"
+
+	"github.com/go-gl/gl/v4.6-core/gl"
 )
 
 type Texture struct {
@@ -20,6 +21,11 @@ type Texture struct {
 func (t *Texture) Bind(unit uint32) {
 	gl.ActiveTexture(gl.TEXTURE0 + unit)
 	gl.BindTexture(gl.TEXTURE_2D, t.handle)
+}
+
+func (t *Texture) Unbind(unit uint32) {
+	gl.ActiveTexture(gl.TEXTURE0)
+	gl.BindTexture(gl.TEXTURE_2D, 0)
 }
 
 type TextureProvider interface {

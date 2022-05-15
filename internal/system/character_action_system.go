@@ -1,15 +1,17 @@
 package system
 
 import (
+	"log"
+	"strconv"
+	"time"
+
 	"github.com/EngoEngine/ecs"
+
 	"github.com/project-midgard/midgarts/internal/character/actionindex"
 	"github.com/project-midgard/midgarts/internal/character/statetype"
 	"github.com/project-midgard/midgarts/internal/component"
 	"github.com/project-midgard/midgarts/internal/entity"
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
-	"log"
-	"strconv"
-	"time"
 )
 
 type CharacterActionable interface {
@@ -43,12 +45,12 @@ func (s *CharacterActionSystem) Add(char *entity.Character) {
 	s.characters[strconv.Itoa(int(char.ID()))] = char
 }
 
-func (s CharacterActionSystem) AddByInterface(o ecs.Identifier) {
+func (s *CharacterActionSystem) AddByInterface(o ecs.Identifier) {
 	char := o.(*entity.Character)
 	s.Add(char)
 }
 
-func (s CharacterActionSystem) Update(dt float32) {
+func (s *CharacterActionSystem) Update(dt float32) {
 	for _, c := range s.characters {
 		now := time.Now()
 		previousAnimationHasEnded := now.After(c.AnimationEndsAt)
@@ -77,6 +79,6 @@ func (s CharacterActionSystem) Update(dt float32) {
 	}
 }
 
-func (s CharacterActionSystem) Remove(e ecs.BasicEntity) {
+func (s *CharacterActionSystem) Remove(e ecs.BasicEntity) {
 	delete(s.characters, strconv.Itoa(int(e.ID())))
 }

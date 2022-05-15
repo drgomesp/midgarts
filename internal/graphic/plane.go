@@ -1,7 +1,8 @@
 package graphic
 
 import (
-	"github.com/go-gl/gl/v3.3-core/gl"
+	"github.com/go-gl/gl/v4.6-core/gl"
+
 	"github.com/project-midgard/midgarts/internal/opengl"
 )
 
@@ -21,16 +22,16 @@ func NewPlane(width, height float32) *Plane {
 		-w, +h, 0, // top-right
 	}
 	colors := []float32{
-		1, 0, 0,
-		0, 1, 0,
-		0, 0, 1,
-		1, 1, 1,
+		1, 0, 1,
+		1, 0, 1,
+		1, 0, 1,
+		1, 0, 1,
 	}
 	texCoords := []float32{
 		0, 0,
-		1, 1,
+		0, 0,
 		0, 1,
-		1, 0,
+		0, 0,
 	}
 
 	geom.AddVBO(opengl.NewVBO([opengl.NumVertexAttributes][]float32{
@@ -43,6 +44,6 @@ func NewPlane(width, height float32) *Plane {
 		SetIndices(0, 1, 2, 3, 1, 0)
 
 	return &Plane{
-		Graphic: NewGraphic(geom, gl.TRIANGLES),
+		Graphic: NewGraphic(geom, gl.LINE),
 	}
 }

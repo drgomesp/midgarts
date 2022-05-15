@@ -1,8 +1,14 @@
 package system
 
 import (
+	"math"
+	"strconv"
+	"time"
+
 	"github.com/EngoEngine/ecs"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/rs/zerolog/log"
+
 	"github.com/project-midgard/midgarts/internal/character"
 	"github.com/project-midgard/midgarts/internal/character/actionindex"
 	"github.com/project-midgard/midgarts/internal/character/actionplaymode"
@@ -12,12 +18,8 @@ import (
 	"github.com/project-midgard/midgarts/internal/fileformat/act"
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"github.com/project-midgard/midgarts/internal/fileformat/spr"
-	graphic2 "github.com/project-midgard/midgarts/internal/graphic"
+	"github.com/project-midgard/midgarts/internal/graphic"
 	"github.com/project-midgard/midgarts/internal/system/rendercmd"
-	"log"
-	"math"
-	"strconv"
-	"time"
 )
 
 const (
@@ -26,6 +28,7 @@ const (
 )
 
 type CharacterRenderable interface {
+	ecs.BasicFace
 	component.CharacterStateComponentFace
 	component.CharacterAttachmentComponentFace
 }
@@ -34,10 +37,10 @@ type CharacterRenderSystem struct {
 	grfFile         *grf.File
 	characters      map[string]*entity.Character
 	RenderCommands  *RenderCommands
-	textureProvider graphic2.TextureProvider
+	textureProvider graphic.TextureProvider
 }
 
-func NewCharacterRenderSystem(grfFile *grf.File, textureProvider graphic2.TextureProvider) *CharacterRenderSystem {
+func NewCharacterRenderSystem(grfFile *grf.File, textureProvider graphic.TextureProvider) *CharacterRenderSystem {
 	return &CharacterRenderSystem{
 		grfFile:    grfFile,
 		characters: map[string]*entity.Character{},
@@ -62,15 +65,15 @@ func (s *CharacterRenderSystem) AddByInterface(o ecs.Identifier) {
 }
 
 func (s *CharacterRenderSystem) Add(char *entity.Character) {
-	cmp, e := component.NewCharacterAttachmentComponent(s.grfFile, component.CharacterAttachmentComponentConfig{
+	cmp, err := component.NewCharacterAttachmentComponent(s.grfFile, component.CharacterAttachmentComponentConfig{
 		Gender:           char.Gender,
 		JobSpriteID:      char.JobSpriteID,
 		HeadIndex:        char.HeadIndex,
 		EnableShield:     char.HasShield,
 		ShieldSpriteName: char.ShieldSpriteName,
 	})
-	if e != nil {
-		log.Fatal(e)
+	if err != nil {
+		log.Fatal().Err(err).Send()
 	}
 
 	char.SetCharacterAttachmentComponent(cmp)
@@ -110,7 +113,6 @@ func (s *CharacterRenderSystem) renderAttachment(
 	elem character.AttachmentType,
 	offset *[2]float32,
 ) {
-
 	var actions []*act.Action
 	if actions = char.Files[elem].ACT.Actions; len(actions) == 0 {
 		return
@@ -152,6 +154,7 @@ func (s *CharacterRenderSystem) renderAttachment(
 	if len(frame.Positions) > 0 &&
 		elem != character.AttachmentBody &&
 		elem != character.AttachmentShield {
+
 		position[0] = offset[0] - float32(frame.Positions[0][0])
 		position[1] = offset[1] - float32(frame.Positions[0][1])
 	}
@@ -182,30 +185,28 @@ func (s *CharacterRenderSystem) renderLayer(
 	spr *spr.SpriteFile,
 	offset [2]float32,
 ) {
-	frameIndex := int64(layer.SpriteFrameIndex)
+	frameIndex := character.SpriteIndex(layer.SpriteFrameIndex)
 	if frameIndex < 0 {
 		return
 	}
 
-	texture, err := s.textureProvider.NewTextureFromRGBA(spr.ImageAt(character.SpriteIndex(frameIndex)))
+	texture, err := s.textureProvider.NewTextureFromRGBA(spr.ImageAt(frameIndex))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Send()
 	}
 
 	frame := spr.Frames[frameIndex]
 	width, height := float32(frame.Width), float32(frame.Height)
-	width *= layer.Scale[0] * SpriteScaleFactor * graphic2.OnePixelSize
-	height *= layer.Scale[1] * SpriteScaleFactor * graphic2.OnePixelSize
+	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
+	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
 	rot := float64(layer.Angle) * (math.Pi / 180)
 
 	offset = [2]float32{
-		(float32(layer.Position[0]) + offset[0]) * graphic2.OnePixelSize,
-		(float32(layer.Position[1]) + offset[1]) * graphic2.OnePixelSize,
+		(float32(layer.Position[0]) + offset[0]) * graphic.OnePixelSize,
+		(float32(layer.Position[1]) + offset[1]) * graphic.OnePixelSize,
 	}
 
-	// This is the current API to render a sprite. Commands will
-	// be collected by the lower-level rendering system (OpenGL).
-	s.renderSpriteCommand(rendercmd.SpriteRenderCommand{
+	cmd := rendercmd.SpriteRenderCommand{
 		Scale:           layer.Scale,
 		Size:            mgl32.Vec2{width, height},
 		Position:        char.Position(),
@@ -213,7 +214,11 @@ func (s *CharacterRenderSystem) renderLayer(
 		RotationRadians: float32(rot),
 		Texture:         texture,
 		FlipVertically:  layer.Mirrored,
-	})
+	}
+
+	// This is the current API to render a shader. Commands will
+	// be collected by the lower-level rendering system (OpenGL).
+	s.renderSpriteCommand(cmd)
 }
 
 func (s *CharacterRenderSystem) renderSpriteCommand(cmd ...rendercmd.SpriteRenderCommand) {

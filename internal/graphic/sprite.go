@@ -1,14 +1,23 @@
 package graphic
 
 import (
-	"github.com/go-gl/gl/v3.3-core/gl"
+	"github.com/go-gl/gl/v4.6-core/gl"
+
 	"github.com/project-midgard/midgarts/internal/opengl"
 )
 
+const (
+	OnePixelSize = 1.0 / 35.0
+)
+
 type Sprite struct {
-	positions []float32
 	*Graphic
-	Texture *Texture
+
+	Geometry *Geometry
+	Texture  *Texture
+
+	Width, Height float32
+	positions     []float32
 }
 
 func (s *Sprite) SetBounds(width, height float32) {
@@ -28,12 +37,15 @@ func (s *Sprite) SetBounds(width, height float32) {
 
 func (s *Sprite) SetTexture(text *Texture) {
 	s.Texture = text
+	s.Texture.Bind(0)
 }
 
 func NewSprite(width, height float32, texture *Texture) *Sprite {
 	s := &Sprite{
-		positions: make([]float32, 12),
 		Texture:   texture,
+		Width:     width,
+		Height:    height,
+		positions: make([]float32, 12),
 	}
 
 	s.SetBounds(width, height)
@@ -62,6 +74,8 @@ func NewSprite(width, height float32, texture *Texture) *Sprite {
 		AddAttribute(opengl.VertexTexCoord),
 	).SetIndices(0, 1, 2, 3, 1, 0)
 
+	s.Geometry = geom
 	s.Graphic = NewGraphic(geom, gl.TRIANGLES)
+
 	return s
 }

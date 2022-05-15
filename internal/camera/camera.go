@@ -1,10 +1,11 @@
 package camera
 
 import (
-	"github.com/project-midgard/midgarts/internal/graphic"
 	"math"
 
 	"github.com/go-gl/mathgl/mgl32"
+
+	"github.com/project-midgard/midgarts/internal/graphic"
 )
 
 type Projection int
@@ -68,11 +69,11 @@ func (c *Camera) ViewMatrix() mgl32.Mat4 {
 	return c.viewMatrix
 }
 
-func (c Camera) ProjectionMatrix() mgl32.Mat4 {
+func (c *Camera) ProjectionMatrix() mgl32.Mat4 {
 	return c.projectionMatrix
 }
 
-func (c *Camera) ResetAngleAndY(windowWidth, windowHeight uint32) {
+func (c *Camera) ResetAngleAndY(windowWidth, windowHeight int32) {
 	c.yaw = Yaw
 	c.pitch = Pitch
 	c.SetY(40)
@@ -93,9 +94,10 @@ func (c *Camera) Rotate(yaw float32, pitch float32) {
 
 	c.right = c.front.Cross(graphic.Up)
 	c.up = c.right.Cross(c.front)
+	c.UpdateVisibleZRange(0, 0)
 }
 
-func (c *Camera) UpdateVisibleZRange(width uint32, height uint32) {
+func (c *Camera) UpdateVisibleZRange(width int32, height int32) {
 	view := c.createViewMatrix()
 	_ = view
 }

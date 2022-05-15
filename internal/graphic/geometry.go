@@ -1,7 +1,7 @@
 package graphic
 
 import (
-	opengl "github.com/project-midgard/midgarts/internal/opengl"
+	"github.com/project-midgard/midgarts/internal/opengl"
 )
 
 type Geometry struct {
@@ -25,6 +25,10 @@ func NewGeometry() *Geometry {
 func (g *Geometry) AddVBO(vbo *opengl.VBO) *Geometry {
 	g.vbos = append(g.vbos, vbo)
 	return g
+}
+
+func (g *Geometry) VBOs() []*opengl.VBO {
+	return g.vbos
 }
 
 func (g *Geometry) Indices() []uint32 {

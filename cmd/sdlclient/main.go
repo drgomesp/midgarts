@@ -1,10 +1,18 @@
 package main
 
 import (
+	"os"
+	"time"
+
 	"github.com/EngoEngine/ecs"
-	"github.com/go-gl/gl/v3.3-core/gl"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/go-gl/gl/v4.6-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"github.com/veandco/go-sdl2/sdl"
+
 	"github.com/project-midgard/midgarts/internal/camera"
 	"github.com/project-midgard/midgarts/internal/character"
 	"github.com/project-midgard/midgarts/internal/character/directiontype"
@@ -14,22 +22,15 @@ import (
 	"github.com/project-midgard/midgarts/internal/fileformat/gat"
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"github.com/project-midgard/midgarts/internal/graphic/caching"
-	"github.com/project-midgard/midgarts/internal/opengl"
 	"github.com/project-midgard/midgarts/internal/system"
 	"github.com/project-midgard/midgarts/internal/window"
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-	"github.com/veandco/go-sdl2/sdl"
-	"os"
-	"runtime"
-	"time"
 )
 
 const (
-	WindowWidth  = 1280
-	WindowHeight = 720
+	WindowWidth  = 1920
+	WindowHeight = 1080
 	AspectRatio  = float32(WindowWidth) / float32(WindowHeight)
-	FPS          = 120
+	FPS          = 60
 )
 
 var (
@@ -42,8 +43,6 @@ func init() {
 }
 
 func main() {
-	runtime.LockOSThread()
-
 	var err error
 	if err = sdl.Init(sdl.INIT_EVERYTHING); err != nil {
 		log.Fatal().Err(err).Msg("failed to load sdl")
@@ -65,12 +64,12 @@ func main() {
 		_ = win.Destroy()
 	}()
 
-	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 3)
+	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 4)
 	if err != nil {
 		panic(err)
 	}
 
-	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 3)
+	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 6)
 	if err != nil {
 		panic(err)
 	}
@@ -86,10 +85,14 @@ func main() {
 	}
 	defer sdl.GLDeleteContext(context)
 
-	gls := opengl.InitOpenGL()
+	if err := gl.Init(); err != nil {
+		panic(err)
+	}
+	version := gl.GoStr(gl.GetString(gl.VERSION))
+	log.Info().Msgf("OpenGL version: %s", version)
 
 	var grfFile *grf.File
-	if grfFile, err = grf.Load("./assets/grf/data.grf"); err != nil {
+	if grfFile, err = grf.Load(GrfFilePath); err != nil {
 		log.Fatal().Err(err).Msg("failed to load grf file")
 	}
 
@@ -131,7 +134,7 @@ func main() {
 	c12 := entity.NewCharacter(character.Female, jobspriteid.Dancer, 16)
 
 	c1.SetPosition(mgl32.Vec3{0, 44, -1})
-	c2.SetPosition(mgl32.Vec3{4, 44, 5})
+	c2.SetPosition(mgl32.Vec3{4, 44, 0})
 	c3.SetPosition(mgl32.Vec3{8, 44, 0})
 	c4.SetPosition(mgl32.Vec3{0, 40, 0})
 	c5.SetPosition(mgl32.Vec3{4, 40, 0})
@@ -147,22 +150,22 @@ func main() {
 	var renderable *system.CharacterRenderable
 	w.AddSystemInterface(actionSystem, actionable, nil)
 	w.AddSystemInterface(renderSys, renderable, nil)
-	w.AddSystem(system.NewOpenGLRenderSystem(gls, cam, renderSys.RenderCommands))
+	w.AddSystem(system.NewOpenGLRenderSystem(cam, renderSys.RenderCommands))
 
-	w.AddEntity(c2)
-	w.AddEntity(c3)
-	w.AddEntity(c4)
-	w.AddEntity(c5)
-	w.AddEntity(c6)
-	w.AddEntity(c7)
-	w.AddEntity(c8)
-	w.AddEntity(c9)
-	w.AddEntity(c10)
-	w.AddEntity(c11)
-	w.AddEntity(c12)
 	w.AddEntity(c1)
+	//w.AddEntity(c2)
+	//w.AddEntity(c3)
+	//w.AddEntity(c4)
+	//w.AddEntity(c5)
+	//w.AddEntity(c6)
+	//w.AddEntity(c7)
+	//w.AddEntity(c8)
+	//w.AddEntity(c9)
+	//w.AddEntity(c10)
+	//w.AddEntity(c11)
+	//w.AddEntity(c12)
 
-	//c1.SetState(statetype.StandBy)
+	c1.SetState(statetype.StandBy)
 
 	shouldStop := false
 
@@ -171,11 +174,40 @@ func main() {
 	for !shouldStop {
 		frameStart := time.Now()
 		for event := sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
-			switch event.(type) {
+			switch eventType := event.(type) {
 			case *sdl.QuitEvent:
 				println("Quit")
 				shouldStop = true
 				break
+			case *sdl.MouseButtonEvent:
+				halfWidth := WindowWidth / 2
+				halfHeight := WindowHeight / 2
+
+				if eventType.Type == sdl.MOUSEBUTTONDOWN {
+					if int(eventType.X) < halfWidth {
+						if int(eventType.Y) < halfHeight {
+							c1.Direction = directiontype.NorthWest
+						} else if int(eventType.Y) > halfHeight {
+							c1.Direction = directiontype.SouthWest
+						} else {
+							c1.Direction = directiontype.West
+						}
+					}
+
+					if int(eventType.X) > halfWidth {
+						if int(eventType.Y) < halfHeight {
+							c1.Direction = directiontype.NorthEast
+						} else if int(eventType.Y) > halfHeight {
+							c1.Direction = directiontype.SouthEast
+						} else {
+							c1.Direction = directiontype.East
+						}
+					}
+
+					spew.Dump(eventType)
+					//}
+					break
+				}
 			}
 
 			ks.Update(event)
@@ -232,6 +264,10 @@ func main() {
 			cam.SetPosition(mgl32.Vec3{cam.Position().X(), cam.Position().Y(), cam.Position().Z() + 0.2})
 		} else if ks.Pressed(sdl.K_x) {
 			cam.SetPosition(mgl32.Vec3{cam.Position().X(), cam.Position().Y(), cam.Position().Z() - 0.2})
+		} else if ks.Pressed(sdl.K_c) {
+			cam.SetPosition(mgl32.Vec3{cam.Position().X() - 0.2, cam.Position().Y(), cam.Position().Z()})
+		} else if ks.Pressed(sdl.K_v) {
+			cam.SetPosition(mgl32.Vec3{cam.Position().X() + 0.2, cam.Position().Y(), cam.Position().Z()})
 		}
 
 		//c2.SetState(statetype.StandBy)

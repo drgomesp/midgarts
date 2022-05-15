@@ -2,12 +2,15 @@ package component
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
+	"golang.org/x/text/encoding/charmap"
+
 	"github.com/project-midgard/midgarts/internal/character"
 	"github.com/project-midgard/midgarts/internal/character/jobspriteid"
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
-	"golang.org/x/text/encoding/charmap"
-	"strconv"
 )
 
 type CharacterAttachmentComponentFace interface {
@@ -17,7 +20,7 @@ type CharacterAttachmentComponentFace interface {
 // CharacterAttachmentComponent defines a component that holds state about character
 // character attachments (shadow, body, head...).
 type CharacterAttachmentComponent struct {
-	Files [character.NumAttachments]grf.ActionSpriteFilePair
+	Files map[character.AttachmentType]grf.ActionSpriteFilePair
 }
 
 type CharacterAttachmentComponentConfig struct {
@@ -33,7 +36,7 @@ func NewCharacterAttachmentComponent(
 	conf CharacterAttachmentComponentConfig,
 ) (*CharacterAttachmentComponent, error) {
 	cmp := &CharacterAttachmentComponent{
-		Files: [character.NumAttachments]grf.ActionSpriteFilePair{},
+		Files: make(map[character.AttachmentType]grf.ActionSpriteFilePair),
 	}
 
 	jobFileName := character.JobSpriteNameTable[conf.JobSpriteID]
@@ -62,6 +65,7 @@ func NewCharacterAttachmentComponent(
 	}
 
 	bodyFilePath := "data/sprite/" + decodedFolderA + "/" + decodedFolderB + "/" + genderPath + "/" + jobFileName + "_" + genderPath
+	log.Debug().Msgf("body_file_path=%s", bodyFilePath)
 	cmp.Files[character.AttachmentBody], err = f.GetSpriteFiles(bodyFilePath)
 	if err != nil {
 		return cmp, errors.Wrapf(err, "could not load body act and spr files (%v, %s)", conf.Gender, conf.JobSpriteID)

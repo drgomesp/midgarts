@@ -1,12 +1,9 @@
 package graphic
 
 import (
-	"github.com/go-gl/gl/v3.3-core/gl"
-	opengl "github.com/project-midgard/midgarts/internal/opengl"
-)
+	"github.com/go-gl/gl/v4.6-core/gl"
 
-const (
-	OnePixelSize = 1.0 / 35.0
+	"github.com/project-midgard/midgarts/internal/opengl"
 )
 
 type Graphic struct {
