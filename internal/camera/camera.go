@@ -76,7 +76,7 @@ func (c *Camera) ProjectionMatrix() mgl32.Mat4 {
 func (c *Camera) ResetAngleAndY(windowWidth, windowHeight int32) {
 	c.yaw = Yaw
 	c.pitch = Pitch
-	c.SetY(35)
+	c.SetY(45)
 	c.Rotate(c.pitch, c.yaw)
 	c.UpdateVisibleZRange(windowWidth, windowHeight)
 }

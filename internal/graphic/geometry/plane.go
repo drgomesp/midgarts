@@ -11,17 +11,19 @@ const (
 	OnePixelSize = 1.0 / 35.0
 )
 
-type Sprite struct {
+type Plane struct {
 	*graphic.Graphic
 
 	Geometry *graphic.Geometry
 	Texture  *graphic.Texture
 
 	Width, Height float32
-	positions     []float32
+
+	colors    []float32
+	positions []float32
 }
 
-func (s *Sprite) SetBounds(width, height float32) {
+func (s *Plane) SetBounds(width, height float32) {
 	w := width / 2
 	h := height / 2
 
@@ -36,28 +38,40 @@ func (s *Sprite) SetBounds(width, height float32) {
 	s.positions[10] = h
 }
 
-func (s *Sprite) SetTexture(text *graphic.Texture) {
+func (s *Plane) SetColors(colors []float32) {
+	s.colors = colors
+}
+
+func (s *Plane) SetTexture(text *graphic.Texture) {
 	s.Texture = text
 	s.Texture.Bind(0)
 }
 
-func NewSprite(width, height float32, texture *graphic.Texture) *Sprite {
-	s := &Sprite{
+func NewPlane(width, height float32, texture *graphic.Texture) *Plane {
+	plane := &Plane{
 		Texture:   texture,
 		Width:     width,
 		Height:    height,
 		positions: make([]float32, 12),
 	}
 
-	s.SetBounds(width, height)
-	geom := graphic.NewGeometry()
-
-	colors := []float32{
-		1, 1, 1,
-		1, 1, 1,
-		1, 1, 1,
-		1, 1, 1,
+	plane.SetBounds(width, height)
+	if plane.Texture != nil {
+		plane.SetColors([]float32{
+			1, 1, 1,
+			1, 1, 1,
+			1, 1, 1,
+			1, 1, 1,
+		})
+	} else {
+		plane.SetColors([]float32{
+			1, 0, 1,
+			1, 0, 1,
+			1, 0, 1,
+			1, 0, 1,
+		})
 	}
+
 	texCoords := []float32{
 		0, 0,
 		1, 1,
@@ -65,17 +79,18 @@ func NewSprite(width, height float32, texture *graphic.Texture) *Sprite {
 		1, 0,
 	}
 
+	geom := graphic.NewGeometry()
 	geom.AddVBO(opengl.NewVBO([opengl.NumVertexAttributes][]float32{
-		s.positions,
-		colors,
+		plane.positions,
+		plane.colors,
 		texCoords,
 	}).AddAttribute(opengl.VertexPosition).
 		AddAttribute(opengl.VertexColor).
 		AddAttribute(opengl.VertexTexCoord),
 	).SetIndices(0, 1, 2, 3, 1, 0)
 
-	s.Geometry = geom
-	s.Graphic = graphic.NewGraphic(geom, gl.TRIANGLES)
+	plane.Geometry = geom
+	plane.Graphic = graphic.NewGraphic(geom, gl.TRIANGLES)
 
-	return s
+	return plane
 }

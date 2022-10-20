@@ -36,21 +36,21 @@ type OpenGLRenderSystem struct {
 	renderCommands *RenderCommands
 
 	// Buffer of reusable sprites
-	spritesBuf []*geometry.Sprite
+	spritesBuf []*geometry.Plane
 }
 
 func NewOpenGLRenderSystem(cam *camera.Camera, commands *RenderCommands) *OpenGLRenderSystem {
 	return &OpenGLRenderSystem{
 		cam:            cam,
 		renderCommands: commands,
-		spritesBuf:     []*geometry.Sprite{},
+		spritesBuf:     []*geometry.Plane{},
 	}
 }
 
 func (s *OpenGLRenderSystem) Update(dt float32) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-	// 2D Sprite Box
+	// 2D Plane Box
 	s.renderSpriteBoxes()
 
 	// 2D Sprites
@@ -68,6 +68,7 @@ func (s *OpenGLRenderSystem) renderSpriteBoxes() {
 		}
 
 		box := geometry.NewPlane(0, 0, nil)
+		box.SetColors([]float32{1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0})
 		box.SetBounds(cmd.Size.X(), cmd.Size.Y())
 		box.SetPosition(mgl32.Vec3{cmd.Position.X(), cmd.Position.Y(), cmd.Position.Z()})
 
@@ -154,7 +155,7 @@ func (s *OpenGLRenderSystem) EnsureSpritesBufLen(minLen int) {
 	s.spritesBuf = ensureSpritesBufferLength(s.spritesBuf, minLen)
 }
 
-func ensureSpritesBufferLength(slice []*geometry.Sprite, minLen int) []*geometry.Sprite {
+func ensureSpritesBufferLength(slice []*geometry.Plane, minLen int) []*geometry.Plane {
 	oldLen := len(slice)
 
 	if cacheOverflow := minLen - oldLen; cacheOverflow <= 0 {
@@ -163,7 +164,7 @@ func ensureSpritesBufferLength(slice []*geometry.Sprite, minLen int) []*geometry
 	}
 
 	if minLen > cap(slice) {
-		newSlice := make([]*geometry.Sprite, oldLen, minLen)
+		newSlice := make([]*geometry.Plane, oldLen, minLen)
 		copy(newSlice, slice)
 		slice = newSlice
 	}
@@ -171,7 +172,7 @@ func ensureSpritesBufferLength(slice []*geometry.Sprite, minLen int) []*geometry
 	slice = slice[0:minLen]
 
 	for i := oldLen; i < minLen; i++ {
-		slice[i] = geometry.NewSprite(0, 0, nil)
+		slice[i] = geometry.NewPlane(0, 0, new(graphic.Texture))
 	}
 	return slice
 }
