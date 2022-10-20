@@ -8,12 +8,15 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec2 size;
+uniform vec2 offset;
 
 out vec3 fragColor;
 out vec2 texCoords;
 
 void main() {
     vec4 pos = vec4(VertexPosition.x, VertexPosition.y, 0.0, 1.0);
+    pos.x += offset.x;
+    pos.y -= offset.y;
 
     mat4 modelView = view * model;
 

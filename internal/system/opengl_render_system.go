@@ -60,22 +60,26 @@ func (s *OpenGLRenderSystem) renderSpriteBoxes() {
 	pid := shader.Program().ID()
 	gl.UseProgram(pid)
 
-	s.EnsureSpritesBufLen(len(s.renderCommands.sprite))
-
-	for i, cmd := range s.renderCommands.sprite {
+	for _, cmd := range s.renderCommands.sprite {
 		if cmd.FlipVertically {
 			cmd.Size = mgl32.Vec2{-cmd.Size.X(), cmd.Size.Y()}
 		}
 
-		sprite := s.spritesBuf[i]
-		sprite.SetBounds(cmd.Size.X(), cmd.Size.Y())
-		sprite.SetPosition(mgl32.Vec3{cmd.Position.X(), cmd.Position.Y(), cmd.Position.Z()})
+		//box := graphic.NewSprite(0, 0, nil)
+		//box.SetBounds(cmd.Size.X(), cmd.Size.Y())
+		//box.SetTexture(cmd.Texture)
+		//box.SetPosition(mgl32.Vec3{cmd.Position.X(), cmd.Position.Y(), cmd.Position.Z()})
+		//box.Texture.Bind(0)
+
+		box := graphic.NewPlane(0, 0, nil)
+		box.SetBounds(cmd.Size.X(), cmd.Size.Y())
+		box.SetPosition(mgl32.Vec3{cmd.Position.X(), cmd.Position.Y(), cmd.Position.Z()})
 
 		view := s.cam.ViewMatrix()
 		viewu := gl.GetUniformLocation(pid, gl.Str("view\x00"))
 		gl.UniformMatrix4fv(viewu, 1, false, &view[0])
 
-		model := sprite.Model()
+		model := box.Model()
 		modelu := gl.GetUniformLocation(pid, gl.Str("model\x00"))
 		gl.UniformMatrix4fv(modelu, 1, false, &model[0])
 
@@ -86,21 +90,24 @@ func (s *OpenGLRenderSystem) renderSpriteBoxes() {
 		sizeu := gl.GetUniformLocation(pid, gl.Str("size\x00"))
 		gl.Uniform2fv(sizeu, 1, &cmd.Size[0])
 
+		offsetu := gl.GetUniformLocation(pid, gl.Str("offset\x00"))
+		gl.Uniform2fv(offsetu, 1, &cmd.Offset[0])
+
 		iden := mgl32.Ident4()
 		rotation := iden.Mul4(mgl32.HomogRotate3D(cmd.RotationRadians, graphic.Backwards))
 		rotationu := gl.GetUniformLocation(pid, gl.Str("rotation\x00"))
 		gl.UniformMatrix4fv(rotationu, 1, false, &rotation[0])
 
 		gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
-		sprite.Render(shader)
+		box.Render(shader)
 	}
 }
 
 func (s *OpenGLRenderSystem) renderSprites() {
 	shader := opengl.NewShader(spriteVertexShader, spriteFragmentShader)
-
 	pid := shader.Program().ID()
 	gl.UseProgram(pid)
+
 	s.EnsureSpritesBufLen(len(s.renderCommands.sprite))
 
 	for i, cmd := range s.renderCommands.sprite {

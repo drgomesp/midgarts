@@ -49,7 +49,6 @@ func NewSprite(width, height float32, texture *Texture) *Sprite {
 	}
 
 	s.SetBounds(width, height)
-
 	geom := NewGeometry()
 
 	colors := []float32{
