@@ -15,5 +15,5 @@ layout(push_constant) uniform Constants {
 } constants;
 
 void main() {
-    fragment_color = texture(sprite_texture, texture_coordinates) * constants.color;
+    fragment_color = texture(sprite_texture, texture_coordinates) * uFragColor;
 }

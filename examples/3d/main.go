@@ -98,7 +98,7 @@ func main() {
 		nk.NkStyleSetFont(ctx, sansFont.Handle())
 	}
 
-	gls := opengl.InitOpenGL()
+	//gls := opengl.InitOpenGL()
 	for {
 		select {
 		case <-exitC:
@@ -129,7 +129,7 @@ func main() {
 			}
 
 			{
-				gfxMain(win, state, ctx, cam, gls)
+				gfxMain(win, state, ctx, cam, nil)
 			}
 
 		}

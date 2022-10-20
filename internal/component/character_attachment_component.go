@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog/log"
 	"golang.org/x/text/encoding/charmap"
 
 	"github.com/project-midgard/midgarts/internal/character"
@@ -65,7 +64,6 @@ func NewCharacterAttachmentComponent(
 	}
 
 	bodyFilePath := "data/sprite/" + decodedFolderA + "/" + decodedFolderB + "/" + genderPath + "/" + jobFileName + "_" + genderPath
-	log.Debug().Msgf("body_file_path=%s", bodyFilePath)
 	cmp.Files[character.AttachmentBody], err = f.GetSpriteFiles(bodyFilePath)
 	if err != nil {
 		return cmp, errors.Wrapf(err, "could not load body act and spr files (%v, %s)", conf.Gender, conf.JobSpriteID)
