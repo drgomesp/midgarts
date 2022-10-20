@@ -117,7 +117,7 @@ func main() {
 	renderSys := system.NewCharacterRenderSystem(grfFile, caching.NewCachedTextureProvider())
 	actionSystem := system.NewCharacterActionSystem(grfFile)
 
-	c1 := entity.NewCharacter(character.Male, jobspriteid.Blacksmith, 23)
+	c1 := entity.NewCharacter(character.Male, jobspriteid.Knight, 23)
 	c1.HasShield = true
 	c2 := entity.NewCharacter(character.Male, jobspriteid.Knight, 22)
 	c2.HasShield = true

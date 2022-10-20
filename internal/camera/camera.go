@@ -34,7 +34,7 @@ type Camera struct {
 
 func NewPerspectiveCamera(fov, aspect, near, far float32) *Camera {
 	cam := &Camera{
-		Transform:      graphic.NewTransform(mgl32.Vec3{0, 40.0, 0}),
+		Transform:      graphic.NewTransform(mgl32.Vec3{0, 40.0, -10}),
 		projectionType: Perspective,
 		aspect:         aspect,
 		fov:            fov,
