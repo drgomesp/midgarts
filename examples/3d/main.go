@@ -205,7 +205,7 @@ func gfxMain(win *sdl.Window, state *State, ctx *nk.Context, cam *camera.Camera,
 
 	{
 		gl.UseProgram(gls.Program().ID())
-		plane := geometry.NewSprite(50, 60, nil)
+		plane := geometry.NewPlane(50, 60, nil)
 
 		view := cam.ViewMatrix()
 		viewu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("view\x00"))

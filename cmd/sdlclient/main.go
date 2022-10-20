@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	WindowWidth  = 1280
+	WindowWidth  = 960
 	WindowHeight = 720
 	AspectRatio  = float32(WindowWidth) / float32(WindowHeight)
 	FPS          = 60
@@ -256,6 +256,7 @@ func main() {
 			//c2.SetState(statetype.Walking)
 			//c2.SetPosition(mgl32.Vec3{p2.X() + MovementRate, p2.Y(), p2.Z()})
 		} else {
+			//c1.SetState(statetype.StandBy)
 			c1.SetState(statetype.StandBy)
 		}
 
