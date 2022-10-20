@@ -5,11 +5,12 @@ Midgarts Client is an attempt to write a modern client implementation of the old
 Current Screenshots:
 
 <p align="center">
-    <img src="https://user-images.githubusercontent.com/696982/117575166-fff95980-b0b6-11eb-8afa-acd7dcdd6b34.gif" width="50%" />
+    <img src="https://user-images.githubusercontent.com/696982/117575166-fff95980-b0b6-11eb-8afa-acd7dcdd6b34.gif" width="25%" />
+    <img src="https://user-images.githubusercontent.com/696982/197043590-041d711b-a5d6-4d58-bf3c-8ea98c1afdc6.gif" width="50%" />
 </p>
 <p align="center">
-    <img src="https://user-images.githubusercontent.com/696982/116827693-c2557780-ab70-11eb-90cd-b093004361db.gif" width="44%" />
-    <img src="https://user-images.githubusercontent.com/696982/115995910-96a42180-a5b3-11eb-8200-1cfae06bf5bc.gif" width="44%" />
+    <img src="https://user-images.githubusercontent.com/696982/116827693-c2557780-ab70-11eb-90cd-b093004361db.gif" width="34%" />
+    <img src="https://user-images.githubusercontent.com/696982/115995910-96a42180-a5b3-11eb-8200-1cfae06bf5bc.gif" width="34%" />
 </p>
 
 ## Table of Contents
@@ -39,7 +40,7 @@ Milestone | Description |
    `SDL2{,_image,_mixer,_ttf,_gfx}-devel alsa-lib-devel libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel libXi-devel libXxf86vm-devel`
 
 2. Arch Linux:
-    `pacman -S sdl2{,_image,_mixer,_ttf,_gfx}`
+   `pacman -S sdl2{,_image,_mixer,_ttf,_gfx}`
 
 ## Building and Running
 
