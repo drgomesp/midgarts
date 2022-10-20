@@ -27,8 +27,8 @@ import (
 )
 
 const (
-	WindowWidth  = 1920
-	WindowHeight = 1080
+	WindowWidth  = 1280
+	WindowHeight = 720
 	AspectRatio  = float32(WindowWidth) / float32(WindowHeight)
 	FPS          = 60
 )

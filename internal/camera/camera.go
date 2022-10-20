@@ -34,7 +34,7 @@ type Camera struct {
 
 func NewPerspectiveCamera(fov, aspect, near, far float32) *Camera {
 	cam := &Camera{
-		Transform:      graphic.NewTransform(mgl32.Vec3{0, 40.0, -10}),
+		Transform:      graphic.NewTransform(mgl32.Vec3{0, 40.0, 0}),
 		projectionType: Perspective,
 		aspect:         aspect,
 		fov:            fov,
@@ -76,7 +76,7 @@ func (c *Camera) ProjectionMatrix() mgl32.Mat4 {
 func (c *Camera) ResetAngleAndY(windowWidth, windowHeight int32) {
 	c.yaw = Yaw
 	c.pitch = Pitch
-	c.SetY(40)
+	c.SetY(35)
 	c.Rotate(c.pitch, c.yaw)
 	c.UpdateVisibleZRange(windowWidth, windowHeight)
 }
