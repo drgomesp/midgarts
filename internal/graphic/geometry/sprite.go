@@ -1,8 +1,9 @@
-package graphic
+package geometry
 
 import (
 	"github.com/go-gl/gl/v4.6-core/gl"
 
+	"github.com/project-midgard/midgarts/internal/graphic"
 	"github.com/project-midgard/midgarts/internal/opengl"
 )
 
@@ -11,10 +12,10 @@ const (
 )
 
 type Sprite struct {
-	*Graphic
+	*graphic.Graphic
 
-	Geometry *Geometry
-	Texture  *Texture
+	Geometry *graphic.Geometry
+	Texture  *graphic.Texture
 
 	Width, Height float32
 	positions     []float32
@@ -35,12 +36,12 @@ func (s *Sprite) SetBounds(width, height float32) {
 	s.positions[10] = h
 }
 
-func (s *Sprite) SetTexture(text *Texture) {
+func (s *Sprite) SetTexture(text *graphic.Texture) {
 	s.Texture = text
 	s.Texture.Bind(0)
 }
 
-func NewSprite(width, height float32, texture *Texture) *Sprite {
+func NewSprite(width, height float32, texture *graphic.Texture) *Sprite {
 	s := &Sprite{
 		Texture:   texture,
 		Width:     width,
@@ -49,7 +50,7 @@ func NewSprite(width, height float32, texture *Texture) *Sprite {
 	}
 
 	s.SetBounds(width, height)
-	geom := NewGeometry()
+	geom := graphic.NewGeometry()
 
 	colors := []float32{
 		1, 1, 1,
@@ -74,7 +75,7 @@ func NewSprite(width, height float32, texture *Texture) *Sprite {
 	).SetIndices(0, 1, 2, 3, 1, 0)
 
 	s.Geometry = geom
-	s.Graphic = NewGraphic(geom, gl.TRIANGLES)
+	s.Graphic = graphic.NewGraphic(geom, gl.TRIANGLES)
 
 	return s
 }

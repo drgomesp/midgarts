@@ -9,6 +9,7 @@ import (
 
 	"github.com/project-midgard/midgarts/internal/camera"
 	"github.com/project-midgard/midgarts/internal/graphic"
+	"github.com/project-midgard/midgarts/internal/graphic/geometry"
 	"github.com/project-midgard/midgarts/internal/opengl"
 	"github.com/project-midgard/midgarts/internal/system/rendercmd"
 )
@@ -35,14 +36,14 @@ type OpenGLRenderSystem struct {
 	renderCommands *RenderCommands
 
 	// Buffer of reusable sprites
-	spritesBuf []*graphic.Sprite
+	spritesBuf []*geometry.Sprite
 }
 
 func NewOpenGLRenderSystem(cam *camera.Camera, commands *RenderCommands) *OpenGLRenderSystem {
 	return &OpenGLRenderSystem{
 		cam:            cam,
 		renderCommands: commands,
-		spritesBuf:     []*graphic.Sprite{},
+		spritesBuf:     []*geometry.Sprite{},
 	}
 }
 
@@ -55,6 +56,7 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 	// 2D Sprites
 	s.renderSprites()
 }
+
 func (s *OpenGLRenderSystem) renderSpriteBoxes() {
 	shader := opengl.NewShader(boxVertexShader, boxFragmentShader)
 	pid := shader.Program().ID()
@@ -65,13 +67,7 @@ func (s *OpenGLRenderSystem) renderSpriteBoxes() {
 			cmd.Size = mgl32.Vec2{-cmd.Size.X(), cmd.Size.Y()}
 		}
 
-		//box := graphic.NewSprite(0, 0, nil)
-		//box.SetBounds(cmd.Size.X(), cmd.Size.Y())
-		//box.SetTexture(cmd.Texture)
-		//box.SetPosition(mgl32.Vec3{cmd.Position.X(), cmd.Position.Y(), cmd.Position.Z()})
-		//box.Texture.Bind(0)
-
-		box := graphic.NewPlane(0, 0, nil)
+		box := geometry.NewPlane(0, 0, nil)
 		box.SetBounds(cmd.Size.X(), cmd.Size.Y())
 		box.SetPosition(mgl32.Vec3{cmd.Position.X(), cmd.Position.Y(), cmd.Position.Z()})
 
@@ -158,7 +154,7 @@ func (s *OpenGLRenderSystem) EnsureSpritesBufLen(minLen int) {
 	s.spritesBuf = ensureSpritesBufferLength(s.spritesBuf, minLen)
 }
 
-func ensureSpritesBufferLength(slice []*graphic.Sprite, minLen int) []*graphic.Sprite {
+func ensureSpritesBufferLength(slice []*geometry.Sprite, minLen int) []*geometry.Sprite {
 	oldLen := len(slice)
 
 	if cacheOverflow := minLen - oldLen; cacheOverflow <= 0 {
@@ -167,7 +163,7 @@ func ensureSpritesBufferLength(slice []*graphic.Sprite, minLen int) []*graphic.S
 	}
 
 	if minLen > cap(slice) {
-		newSlice := make([]*graphic.Sprite, oldLen, minLen)
+		newSlice := make([]*geometry.Sprite, oldLen, minLen)
 		copy(newSlice, slice)
 		slice = newSlice
 	}
@@ -175,7 +171,7 @@ func ensureSpritesBufferLength(slice []*graphic.Sprite, minLen int) []*graphic.S
 	slice = slice[0:minLen]
 
 	for i := oldLen; i < minLen; i++ {
-		slice[i] = graphic.NewSprite(0, 0, nil)
+		slice[i] = geometry.NewSprite(0, 0, nil)
 	}
 	return slice
 }

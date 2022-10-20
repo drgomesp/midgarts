@@ -37,8 +37,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.6.1/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/veandco/go-sdl2 v0.4.10 h1:8QoD2bhWl7SbQDflIAUYWfl9Vq+mT8/boJFAUzAScgY=
-github.com/veandco/go-sdl2 v0.4.10/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
+github.com/veandco/go-sdl2 v0.4.25 h1:J5ac3KKOccp/0xGJA1PaNYKPUcZm19IxhDGs8lJofPI=
+github.com/veandco/go-sdl2 v0.4.25/go.mod h1:OROqMhHD43nT4/i9crJukyVecjPNYYuCofep6SNiAjY=
 github.com/xlab/android-go v0.0.0-20221014001251-3dab312ceaf9 h1:gGO62iqn+KRAAHuaTj28knIfP5X03pgnLBw8f/XHH7s=
 github.com/xlab/android-go v0.0.0-20221014001251-3dab312ceaf9/go.mod h1:cX5Ob29gFddv5hlAJN3tmNcvHuNQwUXzIP06azWW1M8=
 github.com/xlab/closer v1.1.0 h1:yrDiOXjd/B7pZ3lZkl/EZ1gWrR2M2N5XpBnixynm4mc=

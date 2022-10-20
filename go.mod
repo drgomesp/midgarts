@@ -15,7 +15,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
 	github.com/stretchr/testify v1.7.0
-	github.com/veandco/go-sdl2 v0.4.10
+	github.com/veandco/go-sdl2 v0.4.25
 	github.com/xlab/android-go v0.0.0-20221014001251-3dab312ceaf9 // indirect
 	github.com/xlab/closer v1.1.0
 	golang.org/x/text v0.3.6

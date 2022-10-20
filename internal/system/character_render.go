@@ -19,6 +19,7 @@ import (
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"github.com/project-midgard/midgarts/internal/fileformat/spr"
 	"github.com/project-midgard/midgarts/internal/graphic"
+	"github.com/project-midgard/midgarts/internal/graphic/geometry"
 	"github.com/project-midgard/midgarts/internal/system/rendercmd"
 )
 
@@ -197,13 +198,13 @@ func (s *CharacterRenderSystem) renderLayer(
 
 	frame := spr.Frames[frameIndex]
 	width, height := float32(frame.Width), float32(frame.Height)
-	width *= layer.Scale[0] * SpriteScaleFactor * graphic.OnePixelSize
-	height *= layer.Scale[1] * SpriteScaleFactor * graphic.OnePixelSize
+	width *= layer.Scale[0] * SpriteScaleFactor * geometry.OnePixelSize
+	height *= layer.Scale[1] * SpriteScaleFactor * geometry.OnePixelSize
 	rot := float64(layer.Angle) * (math.Pi / 180)
 
 	offset = [2]float32{
-		(float32(layer.Position[0]) + offset[0]) * graphic.OnePixelSize,
-		(float32(layer.Position[1]) + offset[1]) * graphic.OnePixelSize,
+		(float32(layer.Position[0]) + offset[0]) * geometry.OnePixelSize,
+		(float32(layer.Position[1]) + offset[1]) * geometry.OnePixelSize,
 	}
 
 	cmd := rendercmd.SpriteRenderCommand{

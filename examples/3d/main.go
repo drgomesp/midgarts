@@ -16,6 +16,7 @@ import (
 
 	"github.com/project-midgard/midgarts/internal/camera"
 	"github.com/project-midgard/midgarts/internal/graphic"
+	"github.com/project-midgard/midgarts/internal/graphic/geometry"
 	"github.com/project-midgard/midgarts/internal/opengl"
 	"github.com/project-midgard/midgarts/internal/window"
 )
@@ -204,7 +205,7 @@ func gfxMain(win *sdl.Window, state *State, ctx *nk.Context, cam *camera.Camera,
 
 	{
 		gl.UseProgram(gls.Program().ID())
-		plane := graphic.NewSprite(50, 60, nil)
+		plane := geometry.NewSprite(50, 60, nil)
 
 		view := cam.ViewMatrix()
 		viewu := gl.GetUniformLocation(gls.Program().ID(), gl.Str("view\x00"))
