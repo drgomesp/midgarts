@@ -21,9 +21,10 @@ type Application struct {
 	validationLayers []string
 }
 
-func NewApplication(config Config) (*Application, error) {
+func NewApplication(config Config, window *sdl.Window) (*Application, error) {
 	app := &Application{
 		config: config,
+		window: window,
 	}
 
 	extensions, err := app.loadExtensions()
@@ -36,7 +37,7 @@ func NewApplication(config Config) (*Application, error) {
 		return nil, err
 	}
 
-	app.device, err = NewDevice(config, extensions, validationLayers)
+	app.device, err = NewDevice(config, extensions, validationLayers, window)
 	if err != nil {
 		return nil, err
 	}

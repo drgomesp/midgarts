@@ -17,7 +17,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/veandco/go-sdl2 v0.4.25
 	github.com/vulkan-go/asche v0.0.0-20190912134304-d4b318b67e07
-	github.com/vulkan-go/vulkan v0.0.0-20221021074824-8c4a09847a88 // indirect
+	github.com/vulkan-go/vulkan v0.0.0-20221021074824-8c4a09847a88
 	github.com/xlab/android-go v0.0.0-20221014001251-3dab312ceaf9 // indirect
 	github.com/xlab/closer v1.1.0
 	github.com/xlab/linmath v0.0.0-20220922225318-40b6290c3b40 // indirect

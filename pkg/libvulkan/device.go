@@ -3,6 +3,7 @@ package libvulkan
 import (
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/veandco/go-sdl2/sdl"
 	vk "github.com/vulkan-go/vulkan"
 )
 
@@ -12,12 +13,13 @@ type Device struct {
 	instance vk.Instance
 	gpu      vk.PhysicalDevice
 	device   vk.Device
+	surface  vk.Surface
 
 	gpuProperties    vk.PhysicalDeviceProperties
 	memoryProperties vk.PhysicalDeviceMemoryProperties
 }
 
-func NewDevice(config Config, extensions []string, validationLayers []string) (*Device, error) {
+func NewDevice(config Config, extensions []string, validationLayers []string, window *sdl.Window) (*Device, error) {
 	device := &Device{
 		config: config,
 	}
@@ -26,11 +28,15 @@ func NewDevice(config Config, extensions []string, validationLayers []string) (*
 		return nil, err
 	}
 
-	if err := device.selectPhysicalDevice(); err != nil {
+	if err := device.loadGPU(); err != nil {
 		return nil, err
 	}
 
 	if err := device.loadExtensions(); err != nil {
+		return nil, err
+	}
+
+	if err := device.loadSurface(window); err != nil {
 		return nil, err
 	}
 
@@ -46,7 +52,7 @@ func (d *Device) createInstance(extensions []string, validationLayers []string) 
 			ApiVersion:         uint32(d.config.APIVersion),
 			ApplicationVersion: uint32(d.config.AppVersion),
 			PApplicationName:   safeString(d.config.AppName),
-			PEngineName:        "kurwamuc\x00",
+			PEngineName:        safeString("libVulkan"),
 		},
 		EnabledExtensionCount:   uint32(len(extensions)),
 		PpEnabledExtensionNames: extensions,
@@ -67,7 +73,7 @@ func (d *Device) createInstance(extensions []string, validationLayers []string) 
 	return nil
 }
 
-func (d *Device) selectPhysicalDevice() error {
+func (d *Device) loadGPU() error {
 	var gpuCount uint32
 	ret := vk.EnumeratePhysicalDevices(d.instance, &gpuCount, nil)
 	if err := VkError(ret); err != nil {
@@ -90,7 +96,7 @@ func (d *Device) selectPhysicalDevice() error {
 	vk.GetPhysicalDeviceMemoryProperties(d.gpu, &d.memoryProperties)
 	d.memoryProperties.Deref()
 
-	log.Debug().Msgf("selected GPU device %s]", d.gpuProperties.DeviceName)
+	log.Debug().Msgf("selected GPU device [%s]", d.gpuProperties.DeviceName)
 
 	return nil
 }
@@ -125,5 +131,15 @@ func (d *Device) loadExtensions() error {
 
 	log.Info().Msg("enabled device extensions")
 
+	return nil
+}
+
+func (d *Device) loadSurface(window *sdl.Window) error {
+	surfPtr, err := window.VulkanCreateSurface(d.instance)
+	if err != nil {
+		return err
+	}
+
+	d.surface = vk.SurfaceFromPointer(uintptr(surfPtr))
 	return nil
 }
