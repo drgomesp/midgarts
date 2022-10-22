@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"runtime"
+	"time"
 
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -31,7 +33,7 @@ func main() {
 	checkErr(vk.Init())
 	defer closer.Close()
 
-	window, err := sdl.CreateWindow("VulkanCube (SDL2)",
+	window, err := sdl.CreateWindow("libvulkan (SDL2)",
 		sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		800, 600,
 		sdl.WINDOW_VULKAN)
@@ -40,7 +42,49 @@ func main() {
 	app, err := libvulkan.NewApplication(libvulkan.DefaultConfig(), window)
 	checkErr(err)
 
-	_ = app
+	// some sync logic
+	doneC := make(chan struct{}, 2)
+	exitC := make(chan struct{}, 2)
+	defer closer.Bind(func() {
+		exitC <- struct{}{}
+		<-doneC
+		log.Info().Msg("Bye!")
+	})
+
+	fpsDelay := time.Second / 60
+	fpsTicker := time.NewTicker(fpsDelay)
+	start := time.Now()
+	frames := 0
+_MainLoop:
+	for {
+		select {
+		case <-exitC:
+			fmt.Printf("FPS: %.2f\n", float64(frames)/time.Now().Sub(start).Seconds())
+			//app.Destroy()
+			//platform.Destroy()
+			//window.Destroy()
+			fpsTicker.Stop()
+			doneC <- struct{}{}
+			return
+		case <-fpsTicker.C:
+			frames++
+			var event sdl.Event
+			for event = sdl.PollEvent(); event != nil; event = sdl.PollEvent() {
+				switch t := event.(type) {
+				case *sdl.KeyboardEvent:
+					if t.Keysym.Sym == sdl.K_ESCAPE {
+						exitC <- struct{}{}
+						continue _MainLoop
+					}
+				case *sdl.QuitEvent:
+					exitC <- struct{}{}
+					continue _MainLoop
+				}
+			}
+
+			_ = app
+		}
+	}
 }
 
 func checkErr(err error) {

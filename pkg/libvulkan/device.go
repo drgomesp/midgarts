@@ -15,32 +15,54 @@ type Device struct {
 	device   vk.Device
 	surface  vk.Surface
 
+	extensions, validationLayers []string
+
 	gpuProperties    vk.PhysicalDeviceProperties
 	memoryProperties vk.PhysicalDeviceMemoryProperties
+
+	graphicsQueueIndex uint32
+	presentQueueIndex  uint32
+	presentQueue       vk.Queue
+	graphicsQueue      vk.Queue
 }
 
 func NewDevice(config Config, extensions []string, validationLayers []string, window *sdl.Window) (*Device, error) {
-	device := &Device{
-		config: config,
+	d := &Device{
+		config:           config,
+		extensions:       extensions,
+		validationLayers: validationLayers,
 	}
 
-	if err := device.createInstance(extensions, validationLayers); err != nil {
+	if err := d.createInstance(extensions, validationLayers); err != nil {
 		return nil, err
 	}
 
-	if err := device.loadGPU(); err != nil {
+	if err := d.loadPhysicalDevice(); err != nil {
 		return nil, err
 	}
 
-	if err := device.loadExtensions(); err != nil {
+	if err := d.loadLogicalDevice(); err != nil {
 		return nil, err
 	}
 
-	if err := device.loadSurface(window); err != nil {
+	if err := d.loadExtensions(); err != nil {
 		return nil, err
 	}
 
-	return device, nil
+	if err := d.loadSurface(window); err != nil {
+		return nil, err
+	}
+
+	// Get queue family properties
+	var queueCount uint32
+	vk.GetPhysicalDeviceQueueFamilyProperties(d.gpu, &queueCount, nil)
+	queueProperties := make([]vk.QueueFamilyProperties, queueCount)
+	vk.GetPhysicalDeviceQueueFamilyProperties(d.gpu, &queueCount, queueProperties)
+	if queueCount == 0 { // probably should try another GPU
+		return nil, errors.New("vulkan error: no queue families found on GPU 0")
+	}
+
+	return d, nil
 }
 
 func (d *Device) createInstance(extensions []string, validationLayers []string) error {
@@ -73,7 +95,7 @@ func (d *Device) createInstance(extensions []string, validationLayers []string) 
 	return nil
 }
 
-func (d *Device) loadGPU() error {
+func (d *Device) loadPhysicalDevice() error {
 	var gpuCount uint32
 	ret := vk.EnumeratePhysicalDevices(d.instance, &gpuCount, nil)
 	if err := VkError(ret); err != nil {
@@ -128,7 +150,6 @@ func (d *Device) loadExtensions() error {
 	}
 
 	log.Debug().Strs("device_extensions", deviceExtensions).Msgf("device extensions")
-
 	log.Info().Msg("enabled device extensions")
 
 	return nil
@@ -141,5 +162,132 @@ func (d *Device) loadSurface(window *sdl.Window) error {
 	}
 
 	d.surface = vk.SurfaceFromPointer(uintptr(surfPtr))
+	return nil
+}
+
+func (d *Device) loadLogicalDevice() error {
+	// Get queue family properties
+	var queueCount uint32
+	vk.GetPhysicalDeviceQueueFamilyProperties(d.gpu, &queueCount, nil)
+	queueProperties := make([]vk.QueueFamilyProperties, queueCount)
+	vk.GetPhysicalDeviceQueueFamilyProperties(d.gpu, &queueCount, queueProperties)
+	if queueCount == 0 { // probably should try another GPU
+		return errors.New("vulkan error: no queue families found on GPU 0")
+	}
+
+	// Find a suitable queue family for the target Vulkan mode
+	var graphicsFound bool
+	var presentFound bool
+	var separateQueue bool
+	for i := uint32(0); i < queueCount; i++ {
+		var (
+			required        vk.QueueFlags
+			supportsPresent vk.Bool32
+			needsPresent    bool
+		)
+		if graphicsFound {
+			// looking for separate present queue
+			separateQueue = true
+			vk.GetPhysicalDeviceSurfaceSupport(d.gpu, i, d.surface, &supportsPresent)
+			if supportsPresent.B() {
+				d.presentQueueIndex = i
+				presentFound = true
+				break
+			}
+		}
+
+		required |= vk.QueueFlags(vk.QueueGraphicsBit)
+		queueProperties[i].Deref()
+
+		if queueProperties[i].QueueFlags&required != 0 {
+			if !needsPresent || (needsPresent && supportsPresent.B()) {
+				d.graphicsQueueIndex = i
+				graphicsFound = true
+				break
+			} else if needsPresent {
+				d.graphicsQueueIndex = i
+				graphicsFound = true
+			}
+		}
+	}
+
+	if separateQueue && !presentFound {
+		return errors.New("vulkan error: could not found separate queue with present capabilities")
+	}
+	if !graphicsFound {
+		return errors.New("vulkan error: could not find a suitable queue family for the target Vulkan mode")
+	}
+
+	// Create a Vulkan device
+	queueInfos := []vk.DeviceQueueCreateInfo{{
+		SType:            vk.StructureTypeDeviceQueueCreateInfo,
+		QueueFamilyIndex: d.graphicsQueueIndex,
+		QueueCount:       1,
+		PQueuePriorities: []float32{1.0},
+	}}
+
+	if separateQueue {
+		queueInfos = append(queueInfos, vk.DeviceQueueCreateInfo{
+			SType:            vk.StructureTypeDeviceQueueCreateInfo,
+			QueueFamilyIndex: d.presentQueueIndex,
+			QueueCount:       1,
+			PQueuePriorities: []float32{1.0},
+		})
+	}
+
+	var device vk.Device
+	ret := vk.CreateDevice(d.gpu, &vk.DeviceCreateInfo{
+		SType:                   vk.StructureTypeDeviceCreateInfo,
+		QueueCreateInfoCount:    uint32(len(queueInfos)),
+		PQueueCreateInfos:       queueInfos,
+		EnabledExtensionCount:   uint32(len(d.extensions)),
+		PpEnabledExtensionNames: d.extensions,
+		EnabledLayerCount:       uint32(len(d.validationLayers)),
+		PpEnabledLayerNames:     d.validationLayers,
+	}, nil, &device)
+	if err := VkError(ret); err != nil {
+		return err
+	}
+
+	d.device = device
+
+	//d.context.device = device
+	//app.VulkanInit(p.context)
+
+	var queue vk.Queue
+	vk.GetDeviceQueue(d.device, d.graphicsQueueIndex, 0, &queue)
+	d.graphicsQueue = queue
+
+	if d.config.Mode.Has(VulkanPresent) {
+		if separateQueue {
+			var presentQueue vk.Queue
+			vk.GetDeviceQueue(d.device, d.presentQueueIndex, 0, &presentQueue)
+			d.presentQueue = presentQueue
+		}
+		//p.context.preparePresent()
+
+		//dimensions := &SwapchainDimensions{
+		//	// some default preferences here
+		//	Width: 640, Height: 480,
+		//	Format: vk.FormatB8g8r8a8Unorm,
+		//}
+		//if iface, ok := app.(ApplicationSwapchainDimensions); ok {
+		//	dimensions = iface.VulkanSwapchainDimensions()
+		//}
+		//p.context.prepareSwapchain(p.gpu, p.surface, dimensions)
+	}
+	//if iface, ok := app.(ApplicationContextPrepare); ok {
+	//	p.context.SetOnPrepare(iface.VulkanContextPrepare)
+	//}
+	//if iface, ok := app.(ApplicationContextCleanup); ok {
+	//	p.context.SetOnCleanup(iface.VulkanContextCleanup)
+	//}
+	//if iface, ok := app.(ApplicationContextInvalidate); ok {
+	//	p.context.SetOnInvalidate(iface.VulkanContextInvalidate)
+	//}
+	//if mode.Has(VulkanPresent) {
+	//	p.context.prepare(false)
+	//}
+
 	return nil
 }
