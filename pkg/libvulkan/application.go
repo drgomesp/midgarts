@@ -10,9 +10,9 @@ var nilExtensions []string
 var nilValidationLayers []string
 
 type Application struct {
-	config   *Config
-	window   *sdl.Window
-	instance vk.Instance
+	config Config
+	window *sdl.Window
+	device *Device
 
 	name  string
 	debug bool
@@ -21,7 +21,7 @@ type Application struct {
 	validationLayers []string
 }
 
-func NewApplication(config *Config) (*Application, error) {
+func NewApplication(config Config) (*Application, error) {
 	app := &Application{
 		config: config,
 	}
@@ -36,8 +36,10 @@ func NewApplication(config *Config) (*Application, error) {
 		return nil, err
 	}
 
-	app.extensions = extensions
-	app.validationLayers = validationLayers
+	app.device, err = NewDevice(config, extensions, validationLayers)
+	if err != nil {
+		return nil, err
+	}
 
 	return app, nil
 }

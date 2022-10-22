@@ -8,13 +8,15 @@ var (
 )
 
 type Config struct {
+	AppName          string
 	APIVersion       vk.Version
 	AppVersion       vk.Version
 	ValidationLayers []string
 }
 
-func DefaultConfig() *Config {
-	return &Config{
+func DefaultConfig() Config {
+	return Config{
+		AppName:          "libvulkan-app",
 		APIVersion:       vk.Version(DefaultVulkanAPIVersion),
 		AppVersion:       vk.Version(DefaultVulkanAppVersion),
 		ValidationLayers: []string{
