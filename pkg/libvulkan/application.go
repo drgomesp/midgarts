@@ -6,6 +6,9 @@ import (
 	vk "github.com/vulkan-go/vulkan"
 )
 
+var nilExtensions []string
+var nilValidationLayers []string
+
 type Application struct {
 	config   *Config
 	window   *sdl.Window
@@ -13,6 +16,9 @@ type Application struct {
 
 	name  string
 	debug bool
+
+	extensions       []string
+	validationLayers []string
 }
 
 func NewApplication(config *Config) (*Application, error) {
@@ -20,21 +26,30 @@ func NewApplication(config *Config) (*Application, error) {
 		config: config,
 	}
 
-	if err := app.loadExtensions(); err != nil {
+	extensions, err := app.loadExtensions()
+	if err != nil {
 		return nil, err
 	}
+
+	validationLayers, err := app.loadValidationLayers()
+	if err != nil {
+		return nil, err
+	}
+
+	app.extensions = extensions
+	app.validationLayers = validationLayers
 
 	return app, nil
 }
 
-func (app *Application) loadExtensions() error {
+func (app *Application) loadExtensions() ([]string, error) {
 	extensions := app.window.VulkanGetInstanceExtensions()
 	if app.debug {
 		extensions = append(extensions, "VK_EXT_debug_report")
 	}
 
-	log.Info().Strs("available_extensions", extensions).
-		Msgf("vulkan available extensions")
+	log.Info().Strs("instance_extensions", extensions).
+		Msgf("instance extensions")
 
 	requiredInstanceExtensions := safeStrings(extensions)
 	var actualInstanceExtensions []string
@@ -42,13 +57,13 @@ func (app *Application) loadExtensions() error {
 	var count uint32
 	ret := vk.EnumerateInstanceExtensionProperties("", &count, nil)
 	if err := VkError(ret); err != nil {
-		return err
+		return nilExtensions, err
 	}
 
 	list := make([]vk.ExtensionProperties, count)
 	ret = vk.EnumerateInstanceExtensionProperties("", &count, list)
 	if err := VkError(ret); err != nil {
-		return err
+		return nilExtensions, err
 	}
 
 	for _, ext := range list {
@@ -56,7 +71,7 @@ func (app *Application) loadExtensions() error {
 		actualInstanceExtensions = append(actualInstanceExtensions, vk.ToString(ext.ExtensionName[:]))
 	}
 	if err := VkError(ret); err != nil {
-		return err
+		return nilExtensions, err
 	}
 
 	instanceExtensions, missing := checkExisting(actualInstanceExtensions, requiredInstanceExtensions)
@@ -64,33 +79,41 @@ func (app *Application) loadExtensions() error {
 		log.Info().Msgf("missing required instance extensions during init")
 	}
 
-	log.Info().Msgf("enabled vulkan instance extensions")
+	log.Info().Msgf("enabled instance extensions")
 
-	// Create instance
-	var instance vk.Instance
-	ret = vk.CreateInstance(&vk.InstanceCreateInfo{
-		SType: vk.StructureTypeInstanceCreateInfo,
-		PApplicationInfo: &vk.ApplicationInfo{
-			SType:              vk.StructureTypeApplicationInfo,
-			ApiVersion:         uint32(app.config.APIVersion),
-			ApplicationVersion: uint32(app.config.AppVersion),
-			PApplicationName:   safeString(app.name),
-			PEngineName:        "libvulkan\x00",
-		},
-		EnabledExtensionCount:   uint32(len(instanceExtensions)),
-		PpEnabledExtensionNames: instanceExtensions,
-		//EnabledLayerCount:       uint32(len(validationLayers)),
-		//PpEnabledLayerNames:     validationLayers,
-	}, nil, &instance)
+	return instanceExtensions, nil
+}
+
+func (app *Application) loadValidationLayers() ([]string, error) {
+	requiredValidationLayers := safeStrings(app.config.ValidationLayers)
+
+	var actualInstanceValidationLayers []string
+	var count uint32
+	ret := vk.EnumerateInstanceLayerProperties(&count, nil)
 	if err := VkError(ret); err != nil {
-		return err
+		return nilValidationLayers, err
 	}
 
-	app.instance = instance
-
-	if err := vk.InitInstance(instance); err != nil {
-		return err
+	list := make([]vk.LayerProperties, count)
+	ret = vk.EnumerateInstanceLayerProperties(&count, list)
+	if err := VkError(ret); err != nil {
+		return nilValidationLayers, err
 	}
 
-	return nil
+	for _, layer := range list {
+		layer.Deref()
+		actualInstanceValidationLayers = append(actualInstanceValidationLayers, vk.ToString(layer.LayerName[:]))
+	}
+
+	validationLayers, missing := checkExisting(actualInstanceValidationLayers, requiredValidationLayers)
+	if missing > 0 {
+		log.Warn().Msgf("missing %d required validation layers during init", missing)
+	}
+
+	log.Info().Strs("validation_layers", validationLayers).
+		Msgf("instance validation layers")
+
+	log.Info().Msgf("enabled instance validation layers")
+
+	return validationLayers, nil
 }
