@@ -7,25 +7,34 @@ import (
 )
 
 type Application struct {
-	window *sdl.Window
-	debug  bool
+	config   *Config
+	window   *sdl.Window
+	instance vk.Instance
+
+	name  string
+	debug bool
 }
 
-func NewApplication() *Application {
-	app := &Application{}
+func NewApplication(config *Config) (*Application, error) {
+	app := &Application{
+		config: config,
+	}
 
-	app.loadExtensions()
+	if err := app.loadExtensions(); err != nil {
+		return nil, err
+	}
 
-	return app
+	return app, nil
 }
 
-func (a *Application) loadExtensions() error {
-	extensions := a.window.VulkanGetInstanceExtensions()
-	if a.debug {
+func (app *Application) loadExtensions() error {
+	extensions := app.window.VulkanGetInstanceExtensions()
+	if app.debug {
 		extensions = append(extensions, "VK_EXT_debug_report")
 	}
 
-	log.Info().Strs("available_extensions", extensions).Msgf("vulkan: loaded extension info")
+	log.Info().Strs("available_extensions", extensions).
+		Msgf("vulkan available extensions")
 
 	requiredInstanceExtensions := safeStrings(extensions)
 	var actualInstanceExtensions []string
@@ -52,10 +61,36 @@ func (a *Application) loadExtensions() error {
 
 	instanceExtensions, missing := checkExisting(actualInstanceExtensions, requiredInstanceExtensions)
 	if missing > 0 {
-		log.Info().Msgf("vulkan warning: missing", missing, "required instance extensions during init")
+		log.Info().Msgf("missing required instance extensions during init")
 	}
 
-	log.Info().Msgf("vulkan: enabling %d instance extensions", len(instanceExtensions))
+	log.Info().Msgf("enabled vulkan instance extensions")
+
+	// Create instance
+	var instance vk.Instance
+	ret = vk.CreateInstance(&vk.InstanceCreateInfo{
+		SType: vk.StructureTypeInstanceCreateInfo,
+		PApplicationInfo: &vk.ApplicationInfo{
+			SType:              vk.StructureTypeApplicationInfo,
+			ApiVersion:         uint32(app.config.APIVersion),
+			ApplicationVersion: uint32(app.config.AppVersion),
+			PApplicationName:   safeString(app.name),
+			PEngineName:        "libvulkan\x00",
+		},
+		EnabledExtensionCount:   uint32(len(instanceExtensions)),
+		PpEnabledExtensionNames: instanceExtensions,
+		//EnabledLayerCount:       uint32(len(validationLayers)),
+		//PpEnabledLayerNames:     validationLayers,
+	}, nil, &instance)
+	if err := VkError(ret); err != nil {
+		return err
+	}
+
+	app.instance = instance
+
+	if err := vk.InitInstance(instance); err != nil {
+		return err
+	}
 
 	return nil
 }

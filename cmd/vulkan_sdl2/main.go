@@ -4,7 +4,6 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/veandco/go-sdl2/sdl"
@@ -32,8 +31,10 @@ func main() {
 	checkErr(vk.Init())
 	defer closer.Close()
 
-	app := libvulkan.NewApplication()
-	spew.Dump(app)
+	app, err := libvulkan.NewApplication(libvulkan.DefaultConfig())
+	checkErr(err)
+
+	_ = app
 }
 
 func checkErr(err error) {
