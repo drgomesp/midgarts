@@ -50,7 +50,7 @@ func (app *Application) loadExtensions() ([]string, error) {
 		extensions = append(extensions, "VK_EXT_debug_report")
 	}
 
-	log.Info().Strs("instance_extensions", extensions).
+	log.Debug().Strs("instance_extensions", extensions).
 		Msgf("instance extensions")
 
 	requiredInstanceExtensions := safeStrings(extensions)
@@ -112,7 +112,7 @@ func (app *Application) loadValidationLayers() ([]string, error) {
 		log.Warn().Msgf("missing %d required validation layers during init", missing)
 	}
 
-	log.Info().Strs("validation_layers", validationLayers).
+	log.Debug().Strs("validation_layers", validationLayers).
 		Msgf("instance validation layers")
 
 	log.Info().Msgf("enabled instance validation layers")

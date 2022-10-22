@@ -12,6 +12,7 @@ type Config struct {
 	APIVersion       vk.Version
 	AppVersion       vk.Version
 	ValidationLayers []string
+	DeviceExtensions []string
 }
 
 func DefaultConfig() Config {
@@ -27,6 +28,9 @@ func DefaultConfig() Config {
 			// "VK_LAYER_LUNARG_api_dump",
 			// "VK_LAYER_LUNARG_swapchain",
 			// "VK_LAYER_GOOGLE_unique_objects",
+		},
+		DeviceExtensions: []string{
+			"VK_KHR_swapchain",
 		},
 	}
 }
