@@ -20,7 +20,7 @@ import (
 	"github.com/project-midgard/midgarts/internal/fileformat/spr"
 	"github.com/project-midgard/midgarts/internal/graphic"
 	"github.com/project-midgard/midgarts/internal/graphic/geometry"
-	"github.com/project-midgard/midgarts/internal/system/rendercmd"
+	"github.com/project-midgard/midgarts/internal/system/opengl"
 )
 
 const (
@@ -37,7 +37,7 @@ type CharacterRenderable interface {
 type CharacterRenderSystem struct {
 	grfFile         *grf.File
 	characters      map[string]*entity.Character
-	RenderCommands  *RenderCommands
+	RenderCommands  *opengl.RenderCommands
 	textureProvider graphic.TextureProvider
 }
 
@@ -45,15 +45,15 @@ func NewCharacterRenderSystem(grfFile *grf.File, textureProvider graphic.Texture
 	return &CharacterRenderSystem{
 		grfFile:    grfFile,
 		characters: map[string]*entity.Character{},
-		RenderCommands: &RenderCommands{
-			sprite: []rendercmd.SpriteRenderCommand{},
+		RenderCommands: &opengl.RenderCommands{
+			Sprites: []opengl.SpriteRenderCommand{},
 		},
 		textureProvider: textureProvider,
 	}
 }
 
 func (s *CharacterRenderSystem) Update(dt float32) {
-	s.RenderCommands.sprite = []rendercmd.SpriteRenderCommand{}
+	s.RenderCommands.Sprites = []opengl.SpriteRenderCommand{}
 
 	for _, char := range s.characters {
 		s.renderCharacter(dt, char)
@@ -207,7 +207,7 @@ func (s *CharacterRenderSystem) renderLayer(
 		(float32(layer.Position[1]) + offset[1]) * geometry.OnePixelSize,
 	}
 
-	cmd := rendercmd.SpriteRenderCommand{
+	cmd := opengl.SpriteRenderCommand{
 		Scale:           layer.Scale,
 		Size:            mgl32.Vec2{width, height},
 		Position:        char.Position(),
@@ -217,11 +217,11 @@ func (s *CharacterRenderSystem) renderLayer(
 		FlipVertically:  layer.Mirrored,
 	}
 
-	// This is the current API to render a shader. Commands will
+	// This is the current API to render a shaders. Commands will
 	// be collected by the lower-level rendering system (OpenGL).
 	s.renderSpriteCommand(cmd)
 }
 
-func (s *CharacterRenderSystem) renderSpriteCommand(cmd ...rendercmd.SpriteRenderCommand) {
-	s.RenderCommands.sprite = append(s.RenderCommands.sprite, cmd...)
+func (s *CharacterRenderSystem) renderSpriteCommand(cmd ...opengl.SpriteRenderCommand) {
+	s.RenderCommands.Sprites = append(s.RenderCommands.Sprites, cmd...)
 }

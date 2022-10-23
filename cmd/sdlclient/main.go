@@ -23,6 +23,7 @@ import (
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"github.com/project-midgard/midgarts/internal/graphic/caching"
 	"github.com/project-midgard/midgarts/internal/system"
+	"github.com/project-midgard/midgarts/internal/system/opengl"
 	"github.com/project-midgard/midgarts/internal/window"
 )
 
@@ -150,7 +151,7 @@ func main() {
 	var renderable *system.CharacterRenderable
 	w.AddSystemInterface(actionSystem, actionable, nil)
 	w.AddSystemInterface(renderSys, renderable, nil)
-	w.AddSystem(system.NewOpenGLRenderSystem(cam, renderSys.RenderCommands))
+	w.AddSystem(opengl.NewOpenGLRenderSystem(cam, renderSys.RenderCommands))
 
 	w.AddEntity(c1)
 	w.AddEntity(c2)

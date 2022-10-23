@@ -43,7 +43,7 @@ package char
 //		return nil, err
 //	}
 //
-//	// Set the shader to the first
+//	// Set the shaders to the first
 //	// Set action index to the default "idle" action
 //	actionIndex := 0
 //	// Set the frame index to the first action frame

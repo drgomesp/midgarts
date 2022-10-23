@@ -1,7 +1,8 @@
-package rendercmd
+package opengl
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
+
 	"github.com/project-midgard/midgarts/internal/graphic"
 )
 

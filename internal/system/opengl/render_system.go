@@ -1,4 +1,4 @@
-package system
+package opengl
 
 import (
 	_ "embed"
@@ -11,27 +11,26 @@ import (
 	"github.com/project-midgard/midgarts/internal/graphic"
 	"github.com/project-midgard/midgarts/internal/graphic/geometry"
 	"github.com/project-midgard/midgarts/internal/opengl"
-	"github.com/project-midgard/midgarts/internal/system/rendercmd"
 )
 
-//go:embed shader/box.vert
+//go:embed shaders/box.vert
 var boxVertexShader string
 
-//go:embed shader/box.frag
+//go:embed shaders/box.frag
 var boxFragmentShader string
 
-//go:embed shader/sprite.vert
+//go:embed shaders/sprite.vert
 var spriteVertexShader string
 
-//go:embed shader/sprite.frag
+//go:embed shaders/sprite.frag
 var spriteFragmentShader string
 
 type RenderCommands struct {
-	sprite []rendercmd.SpriteRenderCommand
+	Sprites []SpriteRenderCommand
 }
 
-// OpenGLRenderSystem defines an OpenGL-based rendering system.
-type OpenGLRenderSystem struct {
+// RenderSystem defines an OpenGL-based rendering system.
+type RenderSystem struct {
 	cam            *camera.Camera
 	renderCommands *RenderCommands
 
@@ -39,15 +38,15 @@ type OpenGLRenderSystem struct {
 	spritesBuf []*geometry.Plane
 }
 
-func NewOpenGLRenderSystem(cam *camera.Camera, commands *RenderCommands) *OpenGLRenderSystem {
-	return &OpenGLRenderSystem{
+func NewOpenGLRenderSystem(cam *camera.Camera, commands *RenderCommands) *RenderSystem {
+	return &RenderSystem{
 		cam:            cam,
 		renderCommands: commands,
 		spritesBuf:     []*geometry.Plane{},
 	}
 }
 
-func (s *OpenGLRenderSystem) Update(dt float32) {
+func (s *RenderSystem) Update(dt float32) {
 	gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 	// 2D Plane Box
@@ -57,12 +56,12 @@ func (s *OpenGLRenderSystem) Update(dt float32) {
 	s.renderSprites()
 }
 
-func (s *OpenGLRenderSystem) renderSpriteBoxes() {
+func (s *RenderSystem) renderSpriteBoxes() {
 	shader := opengl.NewShader(boxVertexShader, boxFragmentShader)
 	pid := shader.Program().ID()
 	gl.UseProgram(pid)
 
-	for _, cmd := range s.renderCommands.sprite {
+	for _, cmd := range s.renderCommands.Sprites {
 		if cmd.FlipVertically {
 			cmd.Size = mgl32.Vec2{-cmd.Size.X(), cmd.Size.Y()}
 		}
@@ -100,14 +99,14 @@ func (s *OpenGLRenderSystem) renderSpriteBoxes() {
 	}
 }
 
-func (s *OpenGLRenderSystem) renderSprites() {
+func (s *RenderSystem) renderSprites() {
 	shader := opengl.NewShader(spriteVertexShader, spriteFragmentShader)
 	pid := shader.Program().ID()
 	gl.UseProgram(pid)
 
-	s.EnsureSpritesBufLen(len(s.renderCommands.sprite))
+	s.EnsureSpritesBufLen(len(s.renderCommands.Sprites))
 
-	for i, cmd := range s.renderCommands.sprite {
+	for i, cmd := range s.renderCommands.Sprites {
 		if cmd.FlipVertically {
 			cmd.Size = mgl32.Vec2{-cmd.Size.X(), cmd.Size.Y()}
 		}
@@ -147,11 +146,11 @@ func (s *OpenGLRenderSystem) renderSprites() {
 	}
 }
 
-func (s *OpenGLRenderSystem) Remove(e ecs.BasicEntity) {
+func (s *RenderSystem) Remove(e ecs.BasicEntity) {
 	panic("implement me")
 }
 
-func (s *OpenGLRenderSystem) EnsureSpritesBufLen(minLen int) {
+func (s *RenderSystem) EnsureSpritesBufLen(minLen int) {
 	s.spritesBuf = ensureSpritesBufferLength(s.spritesBuf, minLen)
 }
 
