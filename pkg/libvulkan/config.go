@@ -24,6 +24,7 @@ var (
 )
 
 type Config struct {
+	Debug            bool
 	AppName          string
 	APIVersion       vk.Version
 	AppVersion       vk.Version
@@ -34,9 +35,10 @@ type Config struct {
 
 func DefaultConfig() Config {
 	return Config{
-		AppName:    "libvulkan-app",
-		APIVersion: vk.Version(DefaultVulkanAPIVersion),
-		AppVersion: vk.Version(DefaultVulkanAppVersion),
+		Debug:            true,
+		AppName:          "libvulkan-app",
+		APIVersion:       vk.Version(DefaultVulkanAPIVersion),
+		AppVersion:       vk.Version(DefaultVulkanAppVersion),
 		ValidationLayers: []string{
 			//"VK_LAYER_GOOGLE_threading",
 			//"VK_LAYER_LUNARG_parameter_validation",

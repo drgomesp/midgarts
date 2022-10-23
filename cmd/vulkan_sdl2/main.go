@@ -33,10 +33,14 @@ func main() {
 	checkErr(vk.Init())
 	defer closer.Close()
 
-	window, err := sdl.CreateWindow("libvulkan (SDL2)",
-		sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		800, 600,
-		sdl.WINDOW_VULKAN)
+	window, err := sdl.CreateWindow(
+		"libvulkan (SDL2)",
+		sdl.WINDOWPOS_UNDEFINED,
+		sdl.WINDOWPOS_UNDEFINED,
+		800,
+		600,
+		sdl.WINDOW_VULKAN,
+	)
 	checkErr(err)
 
 	app, err := libvulkan.NewApplication(libvulkan.DefaultConfig(), window)

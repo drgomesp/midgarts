@@ -3,7 +3,6 @@ package libvulkan
 import (
 	"github.com/rs/zerolog/log"
 	"github.com/veandco/go-sdl2/sdl"
-	vk "github.com/vulkan-go/vulkan"
 )
 
 var nilExtensions []string
@@ -14,8 +13,7 @@ type Application struct {
 	window *sdl.Window
 	device *Device
 
-	name  string
-	debug bool
+	name string
 
 	extensions       []string
 	validationLayers []string
@@ -27,17 +25,16 @@ func NewApplication(config Config, window *sdl.Window) (*Application, error) {
 		window: window,
 	}
 
-	extensions, err := app.loadExtensions()
+	if err := app.loadExtensions(); err != nil {
+		return nil, err
+	}
+
+	err := app.loadValidationLayers()
 	if err != nil {
 		return nil, err
 	}
 
-	validationLayers, err := app.loadValidationLayers()
-	if err != nil {
-		return nil, err
-	}
-
-	app.device, err = NewDevice(config, extensions, validationLayers, window)
+	app.device, err = NewDevice(config, app.extensions, app.validationLayers, window)
 	if err != nil {
 		return nil, err
 	}
@@ -45,78 +42,50 @@ func NewApplication(config Config, window *sdl.Window) (*Application, error) {
 	return app, nil
 }
 
-func (app *Application) loadExtensions() ([]string, error) {
-	extensions := app.window.VulkanGetInstanceExtensions()
-	if app.debug {
-		extensions = append(extensions, "VK_EXT_debug_report")
+func (app *Application) loadExtensions() error {
+	requiredInstanceExtensions := safeStrings(app.window.VulkanGetInstanceExtensions())
+	if app.config.Debug {
+		requiredInstanceExtensions = append(requiredInstanceExtensions, "VK_EXT_debug_report")
 	}
 
-	log.Debug().Strs("instance_extensions", extensions).
-		Msgf("instance extensions")
-
-	requiredInstanceExtensions := safeStrings(extensions)
-	var actualInstanceExtensions []string
-
-	var count uint32
-	ret := vk.EnumerateInstanceExtensionProperties("", &count, nil)
-	if err := VkError(ret); err != nil {
-		return nilExtensions, err
+	actualInstanceExtensions, err := InstanceExtensions()
+	if err != nil {
+		return err
 	}
 
-	list := make([]vk.ExtensionProperties, count)
-	ret = vk.EnumerateInstanceExtensionProperties("", &count, list)
-	if err := VkError(ret); err != nil {
-		return nilExtensions, err
-	}
-
-	for _, ext := range list {
-		ext.Deref()
-		actualInstanceExtensions = append(actualInstanceExtensions, vk.ToString(ext.ExtensionName[:]))
-	}
-	if err := VkError(ret); err != nil {
-		return nilExtensions, err
-	}
+	log.Debug().Strs("instance_extensions", requiredInstanceExtensions).
+		Msgf("loading instance extensions")
 
 	instanceExtensions, missing := checkExisting(actualInstanceExtensions, requiredInstanceExtensions)
 	if missing > 0 {
-		log.Info().Msgf("missing required instance extensions during init")
+		log.Info().Msgf("missing required instance extensions during initialization")
 	}
 
-	log.Info().Msgf("enabled instance extensions")
+	app.extensions = instanceExtensions
+	log.Info().Msgf("loaded instance extensions")
 
-	return instanceExtensions, nil
+	return nil
 }
 
-func (app *Application) loadValidationLayers() ([]string, error) {
-	requiredValidationLayers := safeStrings(app.config.ValidationLayers)
-
-	var actualInstanceValidationLayers []string
-	var count uint32
-	ret := vk.EnumerateInstanceLayerProperties(&count, nil)
-	if err := VkError(ret); err != nil {
-		return nilValidationLayers, err
+func (app *Application) loadValidationLayers() error {
+	var validationLayers []string
+	requiredValidationLayers := safeStrings(app.validationLayers)
+	actualValidationLayers, err := ValidationLayers()
+	if err != nil {
+		return err
 	}
 
-	list := make([]vk.LayerProperties, count)
-	ret = vk.EnumerateInstanceLayerProperties(&count, list)
-	if err := VkError(ret); err != nil {
-		return nilValidationLayers, err
-	}
+	log.Debug().Strs("validation_layers", validationLayers).
+		Msgf("loading validation layers")
 
-	for _, layer := range list {
-		layer.Deref()
-		actualInstanceValidationLayers = append(actualInstanceValidationLayers, vk.ToString(layer.LayerName[:]))
-	}
-
-	validationLayers, missing := checkExisting(actualInstanceValidationLayers, requiredValidationLayers)
+	validationLayers, missing := checkExisting(actualValidationLayers, requiredValidationLayers)
 	if missing > 0 {
 		log.Warn().Msgf("missing %d required validation layers during init", missing)
 	}
 
-	log.Debug().Strs("validation_layers", validationLayers).
-		Msgf("instance validation layers")
-
 	log.Info().Msgf("enabled instance validation layers")
 
-	return validationLayers, nil
+	app.validationLayers = validationLayers
+
+	return nil
 }

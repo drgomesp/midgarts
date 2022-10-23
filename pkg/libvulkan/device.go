@@ -26,26 +26,30 @@ type Device struct {
 	graphicsQueue      vk.Queue
 }
 
-func NewDevice(config Config, extensions []string, validationLayers []string, window *sdl.Window) (*Device, error) {
+func NewDevice(
+	config Config,
+	instanceExtensions []string,
+	validationLayers []string,
+	window *sdl.Window,
+) (*Device, error) {
 	d := &Device{
 		config:           config,
-		extensions:       extensions,
 		validationLayers: validationLayers,
 	}
 
-	if err := d.createInstance(extensions, validationLayers); err != nil {
+	if err := d.createInstance(instanceExtensions, validationLayers); err != nil {
 		return nil, err
 	}
 
-	if err := d.loadPhysicalDevice(); err != nil {
-		return nil, err
-	}
-
-	if err := d.loadLogicalDevice(); err != nil {
+	if err := d.loadGPU(); err != nil {
 		return nil, err
 	}
 
 	if err := d.loadExtensions(); err != nil {
+		return nil, err
+	}
+
+	if err := d.loadLogicalDevice(); err != nil {
 		return nil, err
 	}
 
@@ -74,7 +78,7 @@ func (d *Device) createInstance(extensions []string, validationLayers []string) 
 			ApiVersion:         uint32(d.config.APIVersion),
 			ApplicationVersion: uint32(d.config.AppVersion),
 			PApplicationName:   safeString(d.config.AppName),
-			PEngineName:        safeString("libVulkan"),
+			PEngineName:        "libvulkan\x00",
 		},
 		EnabledExtensionCount:   uint32(len(extensions)),
 		PpEnabledExtensionNames: extensions,
@@ -95,7 +99,7 @@ func (d *Device) createInstance(extensions []string, validationLayers []string) 
 	return nil
 }
 
-func (d *Device) loadPhysicalDevice() error {
+func (d *Device) loadGPU() error {
 	var gpuCount uint32
 	ret := vk.EnumeratePhysicalDevices(d.instance, &gpuCount, nil)
 	if err := VkError(ret); err != nil {
@@ -125,24 +129,13 @@ func (d *Device) loadPhysicalDevice() error {
 
 func (d *Device) loadExtensions() error {
 	requiredDeviceExtensions := safeStrings(d.config.DeviceExtensions)
-
-	var count uint32
-	ret := vk.EnumerateDeviceExtensionProperties(d.gpu, "", &count, nil)
-	if err := VkError(ret); err != nil {
+	actualDeviceExtensions, err := DeviceExtensions(d.gpu)
+	if err != nil {
 		return err
 	}
 
-	var actualDeviceExtensions []string
-	list := make([]vk.ExtensionProperties, count)
-	ret = vk.EnumerateDeviceExtensionProperties(d.gpu, "", &count, list)
-	if err := VkError(ret); err != nil {
-		return err
-	}
-
-	for _, ext := range list {
-		ext.Deref()
-		actualDeviceExtensions = append(actualDeviceExtensions, vk.ToString(ext.ExtensionName[:]))
-	}
+	log.Debug().Strs("device_extensions", requiredDeviceExtensions).
+		Msgf("loading device extensions")
 
 	deviceExtensions, missing := checkExisting(actualDeviceExtensions, requiredDeviceExtensions)
 	if missing > 0 {
