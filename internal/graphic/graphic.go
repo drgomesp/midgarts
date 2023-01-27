@@ -1,7 +1,7 @@
 package graphic
 
 import (
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v3.2-core/gl"
 
 	"github.com/project-midgard/midgarts/internal/opengl"
 )

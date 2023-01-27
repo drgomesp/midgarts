@@ -4,7 +4,7 @@ import (
 	_ "embed"
 
 	"github.com/EngoEngine/ecs"
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 
 	"github.com/project-midgard/midgarts/internal/camera"

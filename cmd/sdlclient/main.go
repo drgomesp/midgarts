@@ -6,7 +6,7 @@ import (
 
 	"github.com/EngoEngine/ecs"
 	"github.com/davecgh/go-spew/spew"
-	"github.com/go-gl/gl/v4.6-core/gl"
+	"github.com/go-gl/gl/v3.2-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/rs/zerolog"
@@ -65,12 +65,12 @@ func main() {
 		_ = win.Destroy()
 	}()
 
-	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 4)
+	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_MAJOR_VERSION, 3)
 	if err != nil {
 		panic(err)
 	}
 
-	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 6)
+	err = sdl.GLSetAttribute(sdl.GL_CONTEXT_MINOR_VERSION, 2)
 	if err != nil {
 		panic(err)
 	}
