@@ -21,8 +21,9 @@ pub struct GrfFile {
 }
 
 impl GrfFile {
+    /// The total file count excluding reserved files.
     pub fn file_count(&self) -> usize {
-        return (self.header.file_count - self.header.reserved_files) as usize - 7;
+        return (self.header.entry_count - self.header.reserved) as usize - 7;
     }
 }
 
@@ -47,7 +48,7 @@ impl FromBytes for GrfFile {
 
                 let mut reader = Cursor::new(&bytes);
                 reader
-                    .seek(SeekFrom::Start(f.header.file_table_offset as u64))
+                    .seek(SeekFrom::Start(f.header.entry_table_offset as u64))
                     .expect("should seek to file table");
 
                 let compressed_size = reader
@@ -69,7 +70,7 @@ impl FromBytes for GrfFile {
                     .expect("should read compressed data");
                 let (decompressed, _checksum) = decompress(&compressed, Format::Zlib).unwrap();
 
-                f.entries.reserve(f.header.file_count as usize);
+                f.entries.reserve(f.header.entry_count as usize);
                 let mut reader = BufReader::new(decompressed.as_slice());
 
                 for _i in 0..f.file_count() {

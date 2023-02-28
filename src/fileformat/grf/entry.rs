@@ -9,6 +9,7 @@ use yazi::*;
 
 use crate::fileformat::FromBytes;
 
+/// The GRF entry header size constant
 pub const ENTRY_HEADER_SIZE: usize = 17;
 
 /// GrfEntryHeader is the entry header of a given entry in a GRF file.

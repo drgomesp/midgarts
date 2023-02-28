@@ -13,7 +13,6 @@
 #[macro_use]
 extern crate chrono;
 extern crate core;
-extern crate dotenv;
 #[macro_use]
 extern crate log;
 extern crate pretty_env_logger;
@@ -29,10 +28,9 @@ use crate::fileformat::grf::file::GrfFile;
 use crate::fileformat::Loader;
 
 /// File format module defines all file formats
-pub(crate) mod fileformat;
+pub mod fileformat;
 
 fn main() {
-    dotenv().ok();
     pretty_env_logger::init();
 
     info!("started {}", chrono::Utc::now());
