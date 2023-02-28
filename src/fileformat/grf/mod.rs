@@ -1,3 +1,4 @@
+use std::convert::TryFrom;
 use std::io::{Cursor, Read};
 use std::*;
 
@@ -5,41 +6,17 @@ use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::fileformat::FromBytes;
 
-/// The GRF file header.
-#[derive(Debug, Default)]
-pub struct GrfHeader {
-    signature: String,
-    encryption: [u8; 15],
-    _file_table_offset: u32,
-    _reserved_files: u32,
-    _file_count: u32,
-    _version: u32,
+pub(crate) enum Version {
+    Version200 = 0x200,
 }
 
-impl FromBytes for GrfHeader {
-    fn from_bytes(bytes: &[u8]) -> Self {
-        let mut reader = Cursor::new(bytes);
+impl TryFrom<u32> for Version {
+    type Error = ();
 
-        let mut buf = [0u8; 15];
-        reader
-            .read_exact(&mut buf)
-            .expect("should read header signature");
-
-        let mut signature = String::from_utf8_lossy(&buf).parse().unwrap();
-        assert_eq!(signature, "Master of Magic");
-
-        let encryption = [0u8; 15];
-        reader
-            .read_exact(&mut buf)
-            .expect("should read header signature");
-
-        GrfHeader {
-            signature,
-            encryption,
-            _file_table_offset: reader.read_u32::<LittleEndian>().unwrap(),
-            _reserved_files: reader.read_u32::<LittleEndian>().unwrap(),
-            _file_count: reader.read_u32::<LittleEndian>().unwrap(),
-            _version: reader.read_u32::<LittleEndian>().unwrap(),
+    fn try_from(v: u32) -> Result<Self, Self::Error> {
+        match v {
+            v if v == Version::Version200 as u32 => Ok(Version::Version200),
+            _ => todo!("invalid header version {}", v),
         }
     }
 }
@@ -63,6 +40,46 @@ impl FromBytes for GrfFile {
     fn from_bytes(bytes: &[u8]) -> Self {
         let header = GrfHeader::from_bytes(bytes);
 
-        GrfFile { header }
+        match header.version.try_into() {
+            Ok(Version::Version200) => GrfFile { header },
+            _ => todo!("unsupported header version"),
+        }
+    }
+}
+
+/// The GRF file header.
+#[derive(Debug, Default)]
+pub struct GrfHeader {
+    encryption: [u8; 15],
+    file_table_offset: u32,
+    reserved_files: u32,
+    file_count: u32,
+    version: u32,
+}
+
+impl FromBytes for GrfHeader {
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let mut reader = Cursor::new(bytes);
+
+        let mut buf = [0u8; 15];
+        reader
+            .read_exact(&mut buf)
+            .expect("should read header signature");
+
+        let mut sig: String = String::from_utf8_lossy(&buf).parse().unwrap();
+        assert_eq!(sig, "Master of Magic", "invalid file header signature");
+
+        let encryption = [0u8; 15];
+        reader
+            .read_exact(&mut buf)
+            .expect("should read header signature");
+
+        GrfHeader {
+            encryption,
+            file_table_offset: reader.read_u32::<LittleEndian>().unwrap(),
+            reserved_files: reader.read_u32::<LittleEndian>().unwrap(),
+            file_count: reader.read_u32::<LittleEndian>().unwrap(),
+            version: reader.read_u32::<LittleEndian>().unwrap(),
+        }
     }
 }
