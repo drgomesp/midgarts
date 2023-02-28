@@ -23,7 +23,10 @@ use std::fs;
 
 use dotenv::dotenv;
 
-use crate::fileformat::{grf::GrfFile, FromBytes};
+use fileformat::grf::file;
+
+use crate::fileformat::grf::file::GrfFile;
+use crate::fileformat::Loader;
 
 /// File format module defines all file formats
 pub(crate) mod fileformat;
