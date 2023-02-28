@@ -11,7 +11,7 @@ pub const HEADER_SIZE: usize = 46;
 pub struct GrfHeader {
     encryption: [u8; 15],
     pub file_table_offset: u32,
-    reserved_files: u32,
+    pub reserved_files: u32,
     pub file_count: u32,
     pub version: u32,
 }
