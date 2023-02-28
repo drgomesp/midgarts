@@ -42,10 +42,10 @@ impl FromBytes for GrfFile {
             Ok(Version::Version200) => {
                 let mut f = GrfFile {
                     header,
-                    entries: Default::default(),
+                    entries: HashMap::new(),
                 };
 
-                let mut reader = Cursor::new(bytes);
+                let mut reader = Cursor::new(&bytes);
                 reader
                     .seek(SeekFrom::Start(f.header.file_table_offset as u64))
                     .expect("should seek to file table");
@@ -69,9 +69,8 @@ impl FromBytes for GrfFile {
                     .expect("should read compressed data");
                 let (decompressed, _checksum) = decompress(&compressed, Format::Zlib).unwrap();
 
-                f.entries = HashMap::with_capacity(f.header.file_count as usize);
-                // let mut reader = BufReader::new(decompressed.as_slice());
-                let mut reader = Cursor::new(&decompressed);
+                f.entries.reserve(f.header.file_count as usize);
+                let mut reader = BufReader::new(decompressed.as_slice());
 
                 for _i in 0..f.file_count() {
                     let mut buf = vec![];

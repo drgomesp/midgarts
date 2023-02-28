@@ -1,5 +1,4 @@
 //! I document the current module!
-
 #![deny(
     missing_docs,
     missing_debug_implementations,
@@ -13,6 +12,7 @@
 
 #[macro_use]
 extern crate chrono;
+extern crate core;
 extern crate dotenv;
 #[macro_use]
 extern crate log;
