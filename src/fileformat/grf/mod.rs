@@ -51,6 +51,14 @@ pub struct GrfFile {
     pub header: GrfHeader,
 }
 
+impl GrfFile {
+    pub fn load(path: String) -> GrfFile {
+        let bytes = fs::read(path).unwrap();
+
+        GrfFile::from_bytes(&bytes)
+    }
+}
+
 impl FromBytes for GrfFile {
     fn from_bytes(bytes: &[u8]) -> Self {
         let header = GrfHeader::from_bytes(bytes);
