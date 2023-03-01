@@ -29,7 +29,7 @@ use crate::fileformat::spr::loader::SpriteLoader;
 use crate::fileformat::Loader;
 
 /// File format module defines all file formats
-pub mod fileformat;
+pub(crate) mod fileformat;
 
 fn main() {
     pretty_env_logger::init();

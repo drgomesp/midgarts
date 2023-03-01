@@ -1,11 +1,11 @@
 /// The GRF module implements GRF file format.
-pub mod grf;
+pub(crate) mod grf;
 
 /// The SPR module implements the sprite file format (.SPR).
-pub mod spr;
+pub(crate) mod spr;
 
 /// The FromBytes trait defines a way for decoding structs from byte slices.
-pub trait FromBytes {
+pub(crate) trait FromBytes {
     /// Decode a slice of bytes into Self.
     fn from_bytes(bytes: &[u8]) -> Self;
 }
@@ -19,7 +19,7 @@ pub trait FromBytes {
 /// GRF::load("assets/data.grf")
 /// ```
 ///
-pub trait Loader {
+pub(crate) trait Loader {
     /// Loads Self from a given path.
     fn load(path: String) -> Self;
 }

@@ -9,30 +9,30 @@ use bytes::{BufMut, Bytes, BytesMut};
 use encoding_rs::WINDOWS_1252;
 use yazi::*;
 
-use crate::fileformat::grf::entry::{GrfEntryHeader, ENTRY_HEADER_SIZE};
-use crate::fileformat::grf::header::HEADER_SIZE;
-use crate::fileformat::grf::{entry::GrfEntry, header::GrfHeader, Version};
+use crate::fileformat::grf::entry::{GrfEntry, GrfEntryHeader, ENTRY_HEADER_SIZE};
+use crate::fileformat::grf::header::{GrfHeader, HEADER_SIZE};
+use crate::fileformat::grf::Version;
 use crate::fileformat::{FromBytes, Loader};
 
 /// The GRF file.
 #[derive(Debug, Default)]
-pub struct GrfFile {
+pub(crate) struct GrfFile {
     /// GRF file raw data.
-    pub data: Vec<u8>,
+    pub(crate) data: Vec<u8>,
     /// The GRF header.
-    pub header: GrfHeader,
+    pub(crate) header: GrfHeader,
     /// The GRF entries table.
-    pub entries: HashMap<String, GrfEntry>,
+    pub(crate) entries: HashMap<String, GrfEntry>,
 }
 
 impl GrfFile {
     /// The total file count excluding reserved files.
-    pub fn entry_count(&self) -> usize {
+    pub(crate) fn entry_count(&self) -> usize {
         return (self.header.entry_count - self.header.reserved) as usize - 7;
     }
 
     /// Get an entry by its path.
-    pub fn get_entry(&self, path: &'static str) -> GrfEntry {
+    pub(crate) fn get_entry(&self, path: &'static str) -> GrfEntry {
         let mut entry = self.entries.get(path).unwrap();
 
         let mut reader = Cursor::new(&self.data);

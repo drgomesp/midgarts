@@ -1,64 +1,65 @@
-use std::io::{Cursor, Read};
+use std::io::{BufReader, Cursor, Read};
 use std::marker::PhantomData;
-use std::string::ToString;
 
-use byteorder::ReadBytesExt;
+use byteorder::{LittleEndian, ReadBytesExt};
 
+use crate::fileformat::spr::version::{Version, VersionFormat};
 use crate::fileformat::FromBytes;
 
+/// The special header signature for sprite files (SP).
 const HEADER_SIGNATURE: &'static str = "SP";
 
 /// Loader submodule for sprite files.
-pub mod loader;
+pub(crate) mod loader;
+mod version;
 
-/// The version format.
-#[derive(Debug, Default)]
-pub enum VersionFormat {
-    #[default]
-    /// Minor first format.
-    MinorFirst,
-    /// Major first format.
-    MajorFirst,
+/// Indexed image defines images that use the palette.
+#[derive(Debug)]
+pub(crate) struct IndexedImage {}
+
+/// RGBA image defines images that use RGBA.
+#[derive(Debug)]
+pub(crate) struct RgbaImage {}
+
+/// The color palette color definition (RGBA).
+#[derive(Copy, Clone, Debug, Default)]
+pub(crate) struct PaletteColor {
+    pub(crate) R: u8,
+    pub(crate) G: u8,
+    pub(crate) B: u8,
+    _reserved: u8,
 }
 
-/// The sprite file version.
-#[derive(Debug, Default)]
-pub struct Version<VersionFormat> {
-    /// The minor version component.
-    pub minor: u8,
-    /// The major version component.
-    pub major: u8,
-    phantom_data: PhantomData<VersionFormat>,
+/// The color palette for indexed images.
+#[derive(Copy, Clone, Debug)]
+pub(crate) struct Palette {
+    pub colors: [PaletteColor; 256],
 }
 
-impl FromBytes for Version<VersionFormat> {
-    fn from_bytes(bytes: &[u8]) -> Self {
-        let mut reader = Cursor::new(bytes);
-
-        let minor = reader
-            .read_u8()
-            .expect("should read version minor component");
-
-        let major = reader
-            .read_u8()
-            .expect("should read version major component");
-
-        return Version {
-            minor,
-            major,
-            phantom_data: PhantomData,
-        };
+impl Default for Palette {
+    fn default() -> Self {
+        Palette {
+            colors: [PaletteColor::default(); 256],
+        }
     }
 }
 
-/// Sprite file format.
-#[derive(Debug, Default)]
-pub struct SprFile<VersionFormat> {
+/// Sprite file format, a compiled form of a texture atlas / sprite sheet.
+#[derive(Debug)]
+pub(crate) struct SprFile<VersionFormat> {
     /// The version format.
-    pub version: Version<VersionFormat>,
+    pub(crate) version: Version<VersionFormat>,
+    /// The number of individual indexed-color images in the atlas
+    pub(crate) indexed_image_count: u16,
+    /// The number of individual RGBA images in the atlas
+    pub(crate) rgba_image_count: Option<u16>,
+    /// The indexed images.
+    pub(crate) indexed_images: Vec<IndexedImage>,
+    /// The RGBA images.
+    pub(crate) rgba_images: Vec<RgbaImage>,
+    /// The color palette.
+    pub(crate) palette: Palette,
 }
-
-impl SprFile<VersionFormat> {}
 
 impl FromBytes for SprFile<VersionFormat> {
     fn from_bytes(bytes: &[u8]) -> Self {
@@ -77,6 +78,25 @@ impl FromBytes for SprFile<VersionFormat> {
 
         let version = Version::from_bytes(reader.remaining_slice());
 
-        SprFile { version }
+        let indexed_image_count = reader
+            .read_u16::<LittleEndian>()
+            .expect("should read palette image count");
+
+        let rgba_image_count = reader
+            .read_u16::<LittleEndian>()
+            .expect("should read rgba image count");
+
+        let indexed_images = Vec::with_capacity(indexed_image_count as usize);
+        let rgba_images = Vec::with_capacity(rgba_image_count as usize);
+        let palette = Palette::default();
+
+        SprFile {
+            version,
+            indexed_image_count,
+            rgba_image_count: Some(rgba_image_count),
+            indexed_images,
+            rgba_images,
+            palette,
+        }
     }
 }

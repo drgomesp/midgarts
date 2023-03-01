@@ -8,15 +8,15 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use crate::fileformat::FromBytes;
 
 /// The GRF entry submodule.
-pub mod entry;
+pub(crate) mod entry;
 /// The GRF file submodule.
-pub mod file;
+pub(crate) mod file;
 /// The GRF header submodule.
-pub mod header;
+pub(crate) mod header;
 
 /// The GRF versions.
 #[derive(Debug, Default)]
-pub enum Version {
+pub(crate) enum Version {
     #[default]
     /// The GRF version 0x200 (512).
     Version200 = 0x200,
