@@ -2,7 +2,7 @@ use std::io::{Cursor, SeekFrom};
 
 use crate::fileformat::grf::file::GrfFile;
 use crate::fileformat::grf::header::HEADER_SIZE;
-use crate::fileformat::spr::SprFile;
+use crate::fileformat::spr::{SprFile, VersionFormat};
 use crate::fileformat::{FromBytes, Loader};
 
 /// Loader of sprite (.SPR) files.
@@ -20,7 +20,7 @@ impl<'a> SpriteLoader<'a> {
 
 impl<'a> SpriteLoader<'a> {
     /// Loads a sprite.
-    pub fn load(&mut self, path: &'static str) -> Result<SprFile, String> {
+    pub fn load(&mut self, path: &'static str) -> Result<SprFile<VersionFormat>, String> {
         let grf_entry = self.grf_file.get_entry(path);
 
         Ok(SprFile::from_bytes(&grf_entry.data))
