@@ -9,8 +9,20 @@ use yazi::*;
 
 use crate::fileformat::FromBytes;
 
-/// The GRF entry header size constant
+/// The GRF entry header size constant.
 pub const ENTRY_HEADER_SIZE: usize = 17;
+
+/// The encryption mode of the GRF entry.
+#[derive(Debug, Default)]
+pub enum Encryption {
+    #[default]
+    /// No encryption.
+    None = 0x01,
+    /// Mixed encryption.
+    Mixed = 0x02,
+    /// Header-only encryption.
+    Header = 0x04,
+}
 
 /// GrfEntryHeader is the entry header of a given entry in a GRF file.
 #[derive(Debug, Default)]
@@ -30,6 +42,8 @@ pub struct GrfEntryHeader {
 /// GrfEntry represents an individual file entry inside a GRF file.
 #[derive(Debug, Default)]
 pub struct GrfEntry {
+    /// The entry raw data.
+    pub data: Vec<u8>,
     /// File name.
     pub file_name: String,
     /// Entry header.
@@ -61,6 +75,7 @@ impl FromBytes for GrfEntry {
             .unwrap_or_else(|_| panic!("failed to read file offset"));
 
         GrfEntry {
+            data: bytes.to_vec(),
             file_name: "".to_string(),
             header: GrfEntryHeader {
                 compressed_size,

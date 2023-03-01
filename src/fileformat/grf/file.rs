@@ -1,19 +1,24 @@
 use std::collections::HashMap;
+use std::fmt::Debug;
 use std::fs;
 use std::io::prelude::*;
 use std::io::{BufReader, Cursor, Read, Seek, SeekFrom};
 
 use byteorder::{LittleEndian, ReadBytesExt};
+use bytes::{BufMut, Bytes, BytesMut};
 use encoding_rs::WINDOWS_1252;
 use yazi::*;
 
-use crate::fileformat::grf::entry::ENTRY_HEADER_SIZE;
+use crate::fileformat::grf::entry::{GrfEntryHeader, ENTRY_HEADER_SIZE};
+use crate::fileformat::grf::header::HEADER_SIZE;
 use crate::fileformat::grf::{entry::GrfEntry, header::GrfHeader, Version};
 use crate::fileformat::{FromBytes, Loader};
 
 /// The GRF file.
 #[derive(Debug, Default)]
 pub struct GrfFile {
+    /// GRF file raw data.
+    pub data: Vec<u8>,
     /// The GRF header.
     pub header: GrfHeader,
     /// The GRF entries table.
@@ -22,16 +27,34 @@ pub struct GrfFile {
 
 impl GrfFile {
     /// The total file count excluding reserved files.
-    pub fn file_count(&self) -> usize {
+    pub fn entry_count(&self) -> usize {
         return (self.header.entry_count - self.header.reserved) as usize - 7;
+    }
+
+    /// Get an entry by its path.
+    pub fn get_entry(&self, path: &'static str) -> GrfEntry {
+        let mut entry = self.entries.get(path).unwrap();
+
+        let mut reader = Cursor::new(&self.data);
+        reader
+            .seek(SeekFrom::Start(
+                entry.header.offset as u64 + HEADER_SIZE as u64,
+            ))
+            .expect("should seek to file table");
+
+        let mut compressed = vec![0u8; entry.header.compressed_size_aligned as usize];
+        reader
+            .read_exact(&mut compressed)
+            .expect("should read entry compressed data");
+        let (uncompressed, _checksum) = decompress(&compressed, Format::Zlib).unwrap();
+
+        GrfEntry::from_bytes(&uncompressed)
     }
 }
 
 impl Loader for GrfFile {
     fn load(path: String) -> GrfFile {
-        let bytes = fs::read(path).unwrap();
-
-        GrfFile::from_bytes(&bytes)
+        GrfFile::from_bytes(&fs::read(path).unwrap())
     }
 }
 
@@ -42,6 +65,7 @@ impl FromBytes for GrfFile {
         match header.version.try_into() {
             Ok(Version::Version200) => {
                 let mut f = GrfFile {
+                    data: bytes.to_owned(),
                     header,
                     entries: HashMap::new(),
                 };
@@ -73,7 +97,7 @@ impl FromBytes for GrfFile {
                 f.entries.reserve(f.header.entry_count as usize);
                 let mut reader = BufReader::new(decompressed.as_slice());
 
-                for _i in 0..f.file_count() {
+                for _i in 0..f.entry_count() {
                     let mut buf = vec![];
                     let mut string_decoder = encoding_rs_io::DecodeReaderBytesBuilder::new();
                     reader

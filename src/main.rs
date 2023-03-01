@@ -25,6 +25,7 @@ use dotenv::dotenv;
 use fileformat::grf::file;
 
 use crate::fileformat::grf::file::GrfFile;
+use crate::fileformat::spr::loader::SpriteLoader;
 use crate::fileformat::Loader;
 
 /// File format module defines all file formats
@@ -36,6 +37,10 @@ fn main() {
     info!("started {}", chrono::Utc::now());
 
     let grf = GrfFile::load("assets/data.grf".to_string());
+    let mut sprite_loader = SpriteLoader::new(&grf);
 
-    debug!("{:?}", grf);
+    debug!(
+        "{:?}",
+        sprite_loader.load("data\\sprite\\àî°£á·\\¸öåë\\³²\\±â»ç_³².spr")
+    );
 }

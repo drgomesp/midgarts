@@ -1,6 +1,9 @@
 /// The GRF module implements GRF file format.
 pub mod grf;
 
+/// The SPR module implements the sprite file format (.SPR).
+pub mod spr;
+
 /// The FromBytes trait defines a way for decoding structs from byte slices.
 pub trait FromBytes {
     /// Decode a slice of bytes into Self.
