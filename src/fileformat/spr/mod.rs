@@ -1,5 +1,4 @@
-use std::io::{BufReader, Cursor, Read};
-use std::marker::PhantomData;
+use std::io::{Cursor, Read};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 
@@ -11,6 +10,7 @@ const HEADER_SIGNATURE: &'static str = "SP";
 
 /// Loader submodule for sprite files.
 pub(crate) mod loader;
+
 mod version;
 
 /// Indexed image defines images that use the palette.
@@ -24,22 +24,22 @@ pub(crate) struct RgbaImage {}
 /// The color palette color definition (RGBA).
 #[derive(Copy, Clone, Debug, Default)]
 pub(crate) struct PaletteColor {
-    pub(crate) R: u8,
-    pub(crate) G: u8,
-    pub(crate) B: u8,
+    _r: u8,
+    _g: u8,
+    _b: u8,
     _reserved: u8,
 }
 
 /// The color palette for indexed images.
 #[derive(Copy, Clone, Debug)]
 pub(crate) struct Palette {
-    pub colors: [PaletteColor; 256],
+    pub _colors: [PaletteColor; 256],
 }
 
 impl Default for Palette {
     fn default() -> Self {
         Palette {
-            colors: [PaletteColor::default(); 256],
+            _colors: [PaletteColor::default(); 256],
         }
     }
 }
@@ -48,17 +48,17 @@ impl Default for Palette {
 #[derive(Debug)]
 pub(crate) struct SprFile<VersionFormat> {
     /// The version format.
-    pub(crate) version: Version<VersionFormat>,
+    pub(crate) _version: Version<VersionFormat>,
     /// The number of individual indexed-color images in the atlas
-    pub(crate) indexed_image_count: u16,
+    pub(crate) _indexed_image_count: u16,
     /// The number of individual RGBA images in the atlas
-    pub(crate) rgba_image_count: Option<u16>,
+    pub(crate) _rgba_image_count: Option<u16>,
     /// The indexed images.
-    pub(crate) indexed_images: Vec<IndexedImage>,
+    pub(crate) _indexed_images: Vec<IndexedImage>,
     /// The RGBA images.
-    pub(crate) rgba_images: Vec<RgbaImage>,
+    pub(crate) _rgba_images: Vec<RgbaImage>,
     /// The color palette.
-    pub(crate) palette: Palette,
+    pub(crate) _palette: Palette,
 }
 
 impl FromBytes for SprFile<VersionFormat> {
@@ -69,7 +69,7 @@ impl FromBytes for SprFile<VersionFormat> {
         reader
             .read_exact(&mut buf)
             .expect("should read sprite file data");
-        let mut signature = String::from_utf8_lossy(&buf).to_string();
+        let signature = String::from_utf8_lossy(&buf).to_string();
 
         assert_eq!(
             signature, HEADER_SIGNATURE,
@@ -91,12 +91,12 @@ impl FromBytes for SprFile<VersionFormat> {
         let palette = Palette::default();
 
         SprFile {
-            version,
-            indexed_image_count,
-            rgba_image_count: Some(rgba_image_count),
-            indexed_images,
-            rgba_images,
-            palette,
+            _version: version,
+            _indexed_image_count: indexed_image_count,
+            _rgba_image_count: Some(rgba_image_count),
+            _indexed_images: indexed_images,
+            _rgba_images: rgba_images,
+            _palette: palette,
         }
     }
 }

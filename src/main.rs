@@ -6,23 +6,16 @@
     trivial_casts,
     trivial_numeric_casts,
     unsafe_code,
+    unused_imports,
     unused_import_braces,
     unused_qualifications
 )]
 
-#[macro_use]
 extern crate chrono;
 extern crate core;
 #[macro_use]
 extern crate log;
 extern crate pretty_env_logger;
-
-use std::env;
-use std::fs;
-
-use dotenv::dotenv;
-
-use fileformat::grf::file;
 
 use crate::fileformat::grf::file::GrfFile;
 use crate::fileformat::spr::loader::SpriteLoader;
@@ -36,11 +29,13 @@ fn main() {
 
     info!("started {}", chrono::Utc::now());
 
-    let grf = GrfFile::load("assets/data.grf".to_string());
+    let grf = GrfFile::load("assets/data.grf");
     let mut sprite_loader = SpriteLoader::new(&grf);
 
     debug!(
         "{:?}",
         sprite_loader.load("data\\sprite\\àî°£á·\\¸öåë\\³²\\±â»ç_³².spr")
     );
+
+    info!("finished {}", chrono::Utc::now());
 }

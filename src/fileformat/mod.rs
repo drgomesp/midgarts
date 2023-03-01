@@ -21,5 +21,5 @@ pub(crate) trait FromBytes {
 ///
 pub(crate) trait Loader {
     /// Loads Self from a given path.
-    fn load(path: String) -> Self;
+    fn load(path: &'static str) -> Self;
 }

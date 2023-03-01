@@ -1,11 +1,7 @@
 use std::fmt::Debug;
-use std::io::{BufRead, Cursor, Read, Seek, SeekFrom};
-use std::{fs, str};
+use std::io::Cursor;
 
-use byteorder::{ByteOrder, LittleEndian, ReadBytesExt};
-use bytes::Buf;
-use encoding_rs::WINDOWS_1252;
-use yazi::*;
+use byteorder::{LittleEndian, ReadBytesExt};
 
 use crate::fileformat::FromBytes;
 
@@ -18,25 +14,25 @@ pub(crate) enum Encryption {
     #[default]
     /// No encryption.
     None = 0x01,
-    /// Mixed encryption.
-    Mixed = 0x02,
-    /// Header-only encryption.
-    Header = 0x04,
+    // /// Mixed encryption.
+    // Mixed = 0x02,
+    // /// Header-only encryption.
+    // Header = 0x04,
 }
 
 /// GrfEntryHeader is the entry header of a given entry in a GRF file.
 #[derive(Debug, Default)]
 pub(crate) struct GrfEntryHeader {
     /// Compressed size in bytes.
-    pub(crate) compressed_size: u32,
+    pub(crate) _compressed_size: u32,
     /// Compressed size aligned in bytes.
-    pub(crate) compressed_size_aligned: u32,
+    pub(crate) _compressed_size_aligned: u32,
     /// Uncompressed size.
-    pub(crate) uncompressed_size: u32,
+    pub(crate) _uncompressed_size: u32,
     /// Flags
-    pub(crate) flags: u8,
+    pub(crate) _flags: u8,
     /// Offset
-    pub(crate) offset: u32,
+    pub(crate) _offset: u32,
 }
 
 /// GrfEntry represents an individual file entry inside a GRF file.
@@ -78,11 +74,11 @@ impl FromBytes for GrfEntry {
             data: bytes.to_vec(),
             file_name: "".to_string(),
             header: GrfEntryHeader {
-                compressed_size,
-                compressed_size_aligned,
-                uncompressed_size,
-                flags,
-                offset,
+                _compressed_size: compressed_size,
+                _compressed_size_aligned: compressed_size_aligned,
+                _uncompressed_size: uncompressed_size,
+                _flags: flags,
+                _offset: offset,
             },
         }
     }

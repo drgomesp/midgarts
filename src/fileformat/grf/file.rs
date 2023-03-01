@@ -5,11 +5,10 @@ use std::io::prelude::*;
 use std::io::{BufReader, Cursor, Read, Seek, SeekFrom};
 
 use byteorder::{LittleEndian, ReadBytesExt};
-use bytes::{BufMut, Bytes, BytesMut};
 use encoding_rs::WINDOWS_1252;
 use yazi::*;
 
-use crate::fileformat::grf::entry::{GrfEntry, GrfEntryHeader, ENTRY_HEADER_SIZE};
+use crate::fileformat::grf::entry::{GrfEntry, ENTRY_HEADER_SIZE};
 use crate::fileformat::grf::header::{GrfHeader, HEADER_SIZE};
 use crate::fileformat::grf::Version;
 use crate::fileformat::{FromBytes, Loader};
@@ -33,16 +32,16 @@ impl GrfFile {
 
     /// Get an entry by its path.
     pub(crate) fn get_entry(&self, path: &'static str) -> GrfEntry {
-        let mut entry = self.entries.get(path).unwrap();
+        let entry = self.entries.get(path).unwrap();
 
         let mut reader = Cursor::new(&self.data);
         reader
             .seek(SeekFrom::Start(
-                entry.header.offset as u64 + HEADER_SIZE as u64,
+                entry.header._offset as u64 + HEADER_SIZE as u64,
             ))
             .expect("should seek to file table");
 
-        let mut compressed = vec![0u8; entry.header.compressed_size_aligned as usize];
+        let mut compressed = vec![0u8; entry.header._compressed_size_aligned as usize];
         reader
             .read_exact(&mut compressed)
             .expect("should read entry compressed data");
@@ -53,7 +52,7 @@ impl GrfFile {
 }
 
 impl Loader for GrfFile {
-    fn load(path: String) -> GrfFile {
+    fn load(path: &'static str) -> GrfFile {
         GrfFile::from_bytes(&fs::read(path).unwrap())
     }
 }

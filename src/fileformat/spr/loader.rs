@@ -1,8 +1,6 @@
-use std::io::{Cursor, SeekFrom};
-
 use crate::fileformat::grf::file::GrfFile;
 use crate::fileformat::spr::{SprFile, VersionFormat};
-use crate::fileformat::{FromBytes, Loader};
+use crate::fileformat::FromBytes;
 
 /// Loader of sprite (.SPR) files.
 #[derive(Debug)]
