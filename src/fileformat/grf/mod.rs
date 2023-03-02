@@ -1,16 +1,10 @@
-
 use std::convert::TryFrom;
-
 use std::*;
-
-
-
-
 
 /// The GRF entry submodule.
 pub(crate) mod entry;
 /// The GRF file submodule.
-pub(crate) mod file;
+pub mod file;
 /// The GRF header submodule.
 pub(crate) mod header;
 
@@ -19,7 +13,7 @@ pub(crate) mod header;
 pub(crate) enum Version {
     #[default]
     /// The GRF version 0x200 (512).
-    Version200 = 0x200,
+    Ox200 = 0x200,
 }
 
 impl TryFrom<u32> for Version {
@@ -27,7 +21,7 @@ impl TryFrom<u32> for Version {
 
     fn try_from(v: u32) -> Result<Self, Self::Error> {
         match v {
-            v if v == Version::Version200 as u32 => Ok(Version::Version200),
+            v if v == Version::Ox200 as u32 => Ok(Version::Ox200),
             _ => todo!("invalid header version {}", v),
         }
     }

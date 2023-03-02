@@ -1,6 +1,7 @@
 use std::io::{Cursor, Read};
 
 use byteorder::{LittleEndian, ReadBytesExt};
+use log::debug;
 
 use crate::fileformat::spr::version::{Version, VersionFormat};
 use crate::fileformat::FromBytes;
@@ -78,25 +79,41 @@ impl FromBytes for SprFile<VersionFormat> {
 
         let version = Version::from_bytes(reader.remaining_slice());
 
-        let indexed_image_count = reader
-            .read_u16::<LittleEndian>()
-            .expect("should read palette image count");
-
         let rgba_image_count = reader
             .read_u16::<LittleEndian>()
             .expect("should read rgba image count");
 
-        let indexed_images = Vec::with_capacity(indexed_image_count as usize);
-        let rgba_images = Vec::with_capacity(rgba_image_count as usize);
+        let indexed_image_count = reader
+            .read_u16::<LittleEndian>()
+            .expect("should read palette image count");
+
+        let mut indexed_images = Vec::with_capacity(indexed_image_count as usize);
+        let mut rgba_images = Vec::with_capacity(rgba_image_count as usize);
+
         let palette = Palette::default();
 
-        SprFile {
+        let mut spr_file = SprFile {
             _version: version,
             _indexed_image_count: indexed_image_count,
             _rgba_image_count: Some(rgba_image_count),
             _indexed_images: indexed_images,
             _rgba_images: rgba_images,
             _palette: palette,
+        };
+
+        for _i in 0..spr_file._rgba_image_count.unwrap() {
+            let width = reader.read_u16::<LittleEndian>().unwrap();
+            let height = reader.read_u16::<LittleEndian>().unwrap();
+            let size: u32 = (width * height) as u32;
+            let mut data = vec![0u8; size as usize];
+
+            reader
+                .read_exact(&mut data)
+                .expect("should read sprite image data");
+
+            debug!("width = {:?}, height = {:?}", width, height);
         }
+
+        spr_file
     }
 }

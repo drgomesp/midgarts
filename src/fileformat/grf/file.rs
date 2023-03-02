@@ -6,6 +6,7 @@ use std::io::{BufReader, Cursor, Read, Seek, SeekFrom};
 
 use byteorder::{LittleEndian, ReadBytesExt};
 use encoding_rs::WINDOWS_1252;
+use log::debug;
 use yazi::*;
 
 use crate::fileformat::grf::entry::{GrfEntry, ENTRY_HEADER_SIZE};
@@ -15,7 +16,7 @@ use crate::fileformat::{FromBytes, Loader};
 
 /// The GRF file.
 #[derive(Debug, Default)]
-pub(crate) struct GrfFile {
+pub struct GrfFile {
     /// GRF file raw data.
     pub(crate) data: Vec<u8>,
     /// The GRF header.
@@ -26,28 +27,48 @@ pub(crate) struct GrfFile {
 
 impl GrfFile {
     /// The total file count excluding reserved files.
-    pub(crate) fn entry_count(&self) -> usize {
+    pub fn entry_count(&self) -> usize {
         return (self.header.entry_count - self.header.reserved) as usize - 7;
     }
 
     /// Get an entry by its path.
-    pub(crate) fn get_entry(&self, path: &'static str) -> GrfEntry {
+    pub fn get_entry(&self, path: &'static str) -> GrfEntry {
         let entry = self.entries.get(path).unwrap();
+        //
+        // let mut reader = Cursor::new(&self.data);
+        // reader
+        //     .seek(SeekFrom::Start(
+        //         entry.header._offset as u64 + HEADER_SIZE as u64,
+        //     ))
+        //     .expect("should seek to file table");
+        //
+        // let mut compressed = vec![0u8; entry.header._compressed_size_aligned as usize];
+        // reader
+        //     .read_exact(&mut compressed)
+        //     .expect("should read entry compressed data");
+        // let (uncompressed, _checksum) = decompress(&compressed, Format::Zlib).unwrap();
+        //
+        // let mut buf = vec![];
+        // let mut string_decoder = encoding_rs_io::DecodeReaderBytesBuilder::new();
+        // reader
+        //     .read_until(b'\0', &mut buf)
+        //     .expect("should read file name as string");
+        //
+        // let mut string_decoder = string_decoder
+        //     .encoding(Some(WINDOWS_1252))
+        //     .build(Cursor::new(&buf[0..buf.len() - 1]));
+        //
+        // let mut file_name = String::new();
+        // string_decoder
+        //     .read_to_string(&mut file_name)
+        //     .unwrap_or_else(|_| panic!("failed to read file name"));
+        //
+        // let mut grf_entry = GrfEntry::from_bytes(&uncompressed);
+        // grf_entry.file_name = file_name;
+        //
+        // grf_entry
 
-        let mut reader = Cursor::new(&self.data);
-        reader
-            .seek(SeekFrom::Start(
-                entry.header._offset as u64 + HEADER_SIZE as u64,
-            ))
-            .expect("should seek to file table");
-
-        let mut compressed = vec![0u8; entry.header._compressed_size_aligned as usize];
-        reader
-            .read_exact(&mut compressed)
-            .expect("should read entry compressed data");
-        let (uncompressed, _checksum) = decompress(&compressed, Format::Zlib).unwrap();
-
-        GrfEntry::from_bytes(&uncompressed)
+        todo!();
     }
 }
 
@@ -62,7 +83,7 @@ impl FromBytes for GrfFile {
         let header = GrfHeader::from_bytes(bytes);
 
         match header.version.try_into() {
-            Ok(Version::Version200) => {
+            Ok(Version::Ox200) => {
                 let mut f = GrfFile {
                     data: bytes.to_owned(),
                     header,
@@ -125,7 +146,7 @@ impl FromBytes for GrfFile {
 
                 f
             }
-            _ => todo!("unsupported header version"),
+            _ => todo!("unsupported GRF version"),
         }
     }
 }

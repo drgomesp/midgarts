@@ -37,7 +37,7 @@ pub(crate) struct GrfEntryHeader {
 
 /// GrfEntry represents an individual file entry inside a GRF file.
 #[derive(Debug, Default)]
-pub(crate) struct GrfEntry {
+pub struct GrfEntry {
     /// The entry raw data.
     pub(crate) data: Vec<u8>,
     /// File name.
