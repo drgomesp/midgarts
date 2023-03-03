@@ -5,12 +5,12 @@ use crate::fileformat::FromBytes;
 /// Loader of sprite (.SPR) files.
 #[derive(Debug)]
 pub(crate) struct SpriteLoader<'a> {
-    grf_file: &'a GrfFile,
+    grf_file: &'a mut GrfFile,
 }
 
 impl<'a> SpriteLoader<'a> {
     /// Creates a new sprite loader.
-    pub(crate) fn new(grf_file: &'a GrfFile) -> Self {
+    pub(crate) fn new(grf_file: &'a mut GrfFile) -> Self {
         SpriteLoader { grf_file }
     }
 }

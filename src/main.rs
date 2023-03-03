@@ -29,13 +29,15 @@ fn main() {
 
     info!("started {}", chrono::Utc::now());
 
-    let grf = GrfFile::load("assets/data.grf");
-    let mut sprite_loader = SpriteLoader::new(&grf);
+    let mut grf = GrfFile::load("assets/data.grf");
+    let mut sprite_loader = SpriteLoader::new(&mut grf);
 
-    debug!(
-        "{:?}",
-        sprite_loader.load("data\\sprite\\àî°£á·\\¸öåë\\³²\\±â»ç_³².spr")
-    );
+    debug!("{:?}", grf.get_entry("data\\sprite\\shadow.spr"));
+
+    // debug!(
+    //     "{:?}",
+    //     sprite_loader.load("data\\sprite\\àî°£á·\\¸öåë\\³²\\±â»ç_³².spr")
+    // );
 
     info!("finished {}", chrono::Utc::now());
 }
