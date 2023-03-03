@@ -7,5 +7,5 @@ use midgarts::fileformat::{grf::file::GrfFile, Loader};
 fn main() {
     let grf = GrfFile::load("assets/data.grf");
 
-    println!("entries = {:#?}", grf.get_entry_count());
+    println!("entry = {:#?}", grf.get_entry("data\\sprite\\shadow.spr"));
 }
