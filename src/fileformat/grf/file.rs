@@ -8,7 +8,7 @@ use encoding_rs::WINDOWS_1252;
 use log::debug;
 use yazi::*;
 
-use crate::fileformat::grf::entry::{GrfEntry, ENTRY_HEADER_SIZE};
+use crate::fileformat::grf::entry::{GrfEntry, GrfEntryHeader, ENTRY_HEADER_SIZE};
 use crate::fileformat::grf::header::{GrfHeader, HEADER_SIZE};
 use crate::fileformat::grf::Version;
 use crate::fileformat::{FromBytes, Loader};
@@ -31,8 +31,8 @@ impl GrfFile {
     }
 
     /// Get an entry by its path.
-    pub fn get_entry(&mut self, path: &'static str) -> &GrfEntry {
-        let mut entry = self.entries.get_mut(path).unwrap();
+    pub fn get_entry(&self, path: &'static str) -> GrfEntry {
+        let entry = self.entries.get(path).unwrap();
         let mut reader = Cursor::new(&self.data);
         reader
             .seek(SeekFrom::Start(
@@ -47,8 +47,17 @@ impl GrfFile {
 
         let (uncompressed, _checksum) = decompress(&compressed, Format::Zlib).unwrap();
 
-        entry.data = uncompressed;
-        entry
+        GrfEntry {
+            data: uncompressed,
+            file_name: path.to_string(),
+            header: GrfEntryHeader {
+                _compressed_size: entry.header._compressed_size,
+                _compressed_size_aligned: entry.header._compressed_size_aligned,
+                _uncompressed_size: entry.header._uncompressed_size,
+                _flags: entry.header._flags,
+                _offset: entry.header._offset,
+            },
+        }
     }
 }
 

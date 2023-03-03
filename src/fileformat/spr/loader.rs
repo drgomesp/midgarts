@@ -1,16 +1,17 @@
 use crate::fileformat::grf::file::GrfFile;
-use crate::fileformat::spr::{SprFile, VersionFormat};
+use crate::fileformat::spr::file::SprFile;
+use crate::fileformat::spr::version::VersionFormat;
 use crate::fileformat::FromBytes;
 
 /// Loader of sprite (.SPR) files.
 #[derive(Debug)]
 pub(crate) struct SpriteLoader<'a> {
-    grf_file: &'a mut GrfFile,
+    grf_file: &'a GrfFile,
 }
 
 impl<'a> SpriteLoader<'a> {
     /// Creates a new sprite loader.
-    pub(crate) fn new(grf_file: &'a mut GrfFile) -> Self {
+    pub(crate) fn new(grf_file: &'a GrfFile) -> Self {
         SpriteLoader { grf_file }
     }
 }

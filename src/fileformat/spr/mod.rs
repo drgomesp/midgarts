@@ -1,17 +1,10 @@
-use std::io::{Cursor, Read};
-
-use byteorder::{LittleEndian, ReadBytesExt};
-use log::debug;
-
-use crate::fileformat::spr::version::{Version, VersionFormat};
-use crate::fileformat::FromBytes;
-
 /// The special header signature for sprite files (SP).
 const HEADER_SIGNATURE: &'static str = "SP";
 
 /// Loader submodule for sprite files.
 pub(crate) mod loader;
 
+mod file;
 mod version;
 
 /// Indexed image defines images that use the palette.
@@ -42,78 +35,5 @@ impl Default for Palette {
         Palette {
             _colors: [PaletteColor::default(); 256],
         }
-    }
-}
-
-/// Sprite file format, a compiled form of a texture atlas / sprite sheet.
-#[derive(Debug)]
-pub(crate) struct SprFile<VersionFormat> {
-    /// The version format.
-    pub(crate) _version: Version<VersionFormat>,
-    /// The number of individual indexed-color images in the atlas
-    pub(crate) _indexed_image_count: u16,
-    /// The number of individual RGBA images in the atlas
-    pub(crate) _rgba_image_count: Option<u16>,
-    /// The indexed images.
-    pub(crate) _indexed_images: Vec<IndexedImage>,
-    /// The RGBA images.
-    pub(crate) _rgba_images: Vec<RgbaImage>,
-    /// The color palette.
-    pub(crate) _palette: Palette,
-}
-
-impl FromBytes for SprFile<VersionFormat> {
-    fn from_bytes(bytes: &[u8]) -> Self {
-        let mut reader = Cursor::new(bytes);
-
-        let mut buf = [0u8; 2];
-        reader
-            .read_exact(&mut buf)
-            .expect("should read sprite file data");
-        let signature = String::from_utf8_lossy(&buf).to_string();
-
-        assert_eq!(
-            signature, HEADER_SIGNATURE,
-            "invalid sprite file header signature"
-        );
-
-        let version = Version::from_bytes(reader.remaining_slice());
-
-        let rgba_image_count = reader
-            .read_u16::<LittleEndian>()
-            .expect("should read rgba image count");
-
-        let indexed_image_count = reader
-            .read_u16::<LittleEndian>()
-            .expect("should read palette image count");
-
-        let mut indexed_images = Vec::with_capacity(indexed_image_count as usize);
-        let mut rgba_images = Vec::with_capacity(rgba_image_count as usize);
-
-        let palette = Palette::default();
-
-        let mut spr_file = SprFile {
-            _version: version,
-            _indexed_image_count: indexed_image_count,
-            _rgba_image_count: Some(rgba_image_count),
-            _indexed_images: indexed_images,
-            _rgba_images: rgba_images,
-            _palette: palette,
-        };
-
-        for _i in 0..spr_file._rgba_image_count.unwrap() {
-            let width = reader.read_u16::<LittleEndian>().unwrap();
-            let height = reader.read_u16::<LittleEndian>().unwrap();
-            let size: u32 = (width * height) as u32;
-            let mut data = vec![0u8; size as usize];
-
-            reader
-                .read_exact(&mut data)
-                .expect("should read sprite image data");
-
-            debug!("width = {:?}, height = {:?}", width, height);
-        }
-
-        spr_file
     }
 }

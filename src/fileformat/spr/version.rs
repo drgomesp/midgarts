@@ -1,3 +1,5 @@
+use std::fmt;
+use std::fmt::{Display, Formatter};
 use std::io::BufReader;
 use std::marker::PhantomData;
 
@@ -16,7 +18,7 @@ pub(crate) enum VersionFormat {
 }
 
 /// The sprite file version.
-#[derive(Debug, Default)]
+#[derive(Copy, Clone, Debug)]
 pub(crate) struct Version<VersionFormat> {
     /// The minor version component.
     pub(crate) _minor: u8,
@@ -43,5 +45,11 @@ impl FromBytes for Version<VersionFormat> {
             _major: major,
             _phantom_data: PhantomData,
         };
+    }
+}
+
+impl<T> Display for Version<T> {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> fmt::Result {
+        write!(formatter, "{}.{}", self._major, self._minor)
     }
 }

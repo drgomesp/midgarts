@@ -30,14 +30,10 @@ fn main() {
     info!("started {}", chrono::Utc::now());
 
     let mut grf = GrfFile::load("assets/data.grf");
-    let mut sprite_loader = SpriteLoader::new(&mut grf);
+    let mut sprite_loader = SpriteLoader::new(&grf);
 
     debug!("{:?}", grf.get_entry("data\\sprite\\shadow.spr"));
-
-    // debug!(
-    //     "{:?}",
-    //     sprite_loader.load("data\\sprite\\àî°£á·\\¸öåë\\³²\\±â»ç_³².spr")
-    // );
+    debug!("{:?}", sprite_loader.load("data\\sprite\\shadow.spr"));
 
     info!("finished {}", chrono::Utc::now());
 }
