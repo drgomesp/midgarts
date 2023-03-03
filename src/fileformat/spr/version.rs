@@ -9,7 +9,7 @@ use crate::fileformat::FromBytes;
 
 /// The version format.
 #[derive(Debug, Default)]
-pub(crate) enum VersionFormat {
+pub enum VersionFormat {
     #[default]
     /// Minor first format.
     MinorFirst,
@@ -19,11 +19,11 @@ pub(crate) enum VersionFormat {
 
 /// The sprite file version.
 #[derive(Copy, Clone, Debug)]
-pub(crate) struct Version<VersionFormat> {
+pub struct Version<VersionFormat> {
     /// The minor version component.
-    pub(crate) _minor: u8,
+    pub _minor: u8,
     /// The major version component.
-    pub(crate) _major: u8,
+    pub _major: u8,
 
     _phantom_data: PhantomData<VersionFormat>,
 }

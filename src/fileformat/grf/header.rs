@@ -5,20 +5,20 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use crate::fileformat::FromBytes;
 
 /// The GRF header size constant.
-pub(crate) const HEADER_SIZE: usize = 46;
+pub const HEADER_SIZE: usize = 46;
 
 /// The GRF file header.
 #[derive(Debug, Default)]
-pub(crate) struct GrfHeader {
+pub struct GrfHeader {
     _encryption: [u8; 15],
     /// The offset of the file table
-    pub(crate) entry_table_offset: u32,
+    pub entry_table_offset: u32,
     /// The reserved files.
-    pub(crate) reserved: u32,
+    pub reserved: u32,
     /// The entry count.
-    pub(crate) entry_count: u32,
+    pub entry_count: u32,
     /// The GRF version.
-    pub(crate) version: u32,
+    pub version: u32,
 }
 
 impl FromBytes for GrfHeader {

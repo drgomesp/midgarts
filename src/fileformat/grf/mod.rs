@@ -2,15 +2,15 @@ use std::convert::TryFrom;
 use std::*;
 
 /// The GRF entry submodule.
-pub(crate) mod entry;
+pub mod entry;
 /// The GRF file submodule.
 pub mod file;
 /// The GRF header submodule.
-pub(crate) mod header;
+pub mod header;
 
 /// The GRF versions.
 #[derive(Debug, Default)]
-pub(crate) enum Version {
+pub enum Version {
     #[default]
     /// The GRF version 0x200 (512).
     Ox200 = 0x200,

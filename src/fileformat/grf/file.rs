@@ -17,11 +17,11 @@ use crate::fileformat::{FromBytes, Loader};
 #[derive(Debug, Default)]
 pub struct GrfFile {
     /// GRF file raw data.
-    pub(crate) data: Vec<u8>,
+    pub data: Vec<u8>,
     /// The GRF header.
-    pub(crate) header: GrfHeader,
+    pub header: GrfHeader,
     /// The GRF entries table.
-    pub(crate) entries: HashMap<String, GrfEntry>,
+    pub entries: HashMap<String, GrfEntry>,
 }
 
 impl GrfFile {

@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use std::io::{Cursor, Read};
 
 use byteorder::{LittleEndian, ReadBytesExt};
@@ -7,21 +8,38 @@ use crate::fileformat::spr::version::{Version, VersionFormat};
 use crate::fileformat::spr::{IndexedImage, Palette, RgbaImage, HEADER_SIGNATURE};
 use crate::fileformat::FromBytes;
 
+#[derive(Debug)]
+pub enum SpriteType {
+    PAL,
+    RGBA,
+}
+
+impl Display for SpriteType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SpriteType::PAL => write!(f, "PAL"),
+            SpriteType::RGBA => write!(f, "RGBA"),
+        }
+    }
+}
+
 /// Sprite file format, a compiled form of a texture atlas / sprite sheet.
 #[derive(Debug)]
-pub(crate) struct SprFile<VersionFormat> {
+pub struct SprFile<VersionFormat> {
+    /// The sprite type (PAL or RGBA).
+    pub _type: SpriteType,
     /// The version format.
-    pub(crate) _version: Version<VersionFormat>,
+    pub _version: Version<VersionFormat>,
     /// The number of individual indexed-color images in the atlas
-    pub(crate) _indexed_image_count: u16,
+    pub _indexed_image_count: u16,
     /// The number of individual RGBA images in the atlas
-    pub(crate) _rgba_image_count: Option<u16>,
+    pub _rgba_image_count: Option<u16>,
     /// The indexed images.
-    pub(crate) _indexed_images: Vec<IndexedImage>,
+    pub _indexed_images: Vec<IndexedImage>,
     /// The RGBA images.
-    pub(crate) _rgba_images: Vec<RgbaImage>,
+    pub _rgba_images: Vec<RgbaImage>,
     /// The color palette.
-    pub(crate) _palette: Palette,
+    pub _palette: Palette,
 }
 
 impl FromBytes for SprFile<VersionFormat> {
@@ -45,8 +63,6 @@ impl FromBytes for SprFile<VersionFormat> {
             .expect("should read sprite file data");
         let version = Version::from_bytes(vec![buf[0], buf[1]].as_slice());
 
-        debug!("version = {}", version);
-
         let indexed_image_count = reader
             .read_u16::<LittleEndian>()
             .expect("should read palette image count");
@@ -61,6 +77,7 @@ impl FromBytes for SprFile<VersionFormat> {
         let palette = Palette::default();
 
         let mut spr_file = SprFile {
+            _type: SpriteType::PAL,
             _version: version,
             _indexed_image_count: indexed_image_count,
             _rgba_image_count: Some(rgba_image_count),
@@ -71,30 +88,39 @@ impl FromBytes for SprFile<VersionFormat> {
 
         spr_file.read_indexed_images(reader);
 
+        debug!("sprite = {:?}", spr_file);
+
         spr_file
     }
 }
 
 impl SprFile<VersionFormat> {
     fn read_indexed_images(&mut self, mut reader: Cursor<&[u8]>) -> Vec<IndexedImage> {
-        for _i in 0..self._indexed_image_count {
-            let width = reader.read_u16::<LittleEndian>().unwrap();
-            let height = reader.read_u16::<LittleEndian>().unwrap();
-            let size = reader.read_u16::<LittleEndian>().unwrap();
+        (0..self._indexed_image_count)
+            .map(|_i| {
+                let width = reader.read_u16::<LittleEndian>().unwrap();
+                let height = reader.read_u16::<LittleEndian>().unwrap();
+                let size = reader.read_u16::<LittleEndian>().unwrap();
 
-            let mut skip = vec![0u8; size as usize];
-            let _ = reader.read_exact(&mut skip);
+                let mut skip = vec![0u8; size as usize];
+                let _ = reader.read_exact(&mut skip);
 
-            let size: u32 = (width * height) as u32;
-            let mut data = vec![0u8; size as usize];
+                let size: u32 = (width * height) as u32;
+                let mut data = vec![0u8; size as usize];
 
-            reader
-                .read_exact(&mut data)
-                .expect("should read sprite image data");
+                reader
+                    .read_exact(&mut data)
+                    .expect("should read sprite image data");
 
-            debug!("width = {:?}, height = {:?}", width, height);
-        }
+                debug!("width = {:?}, height = {:?}", width, height);
 
-        todo!();
+                IndexedImage {
+                    width,
+                    height,
+                    encoded_data: None,
+                    data: None,
+                }
+            })
+            .collect()
     }
 }

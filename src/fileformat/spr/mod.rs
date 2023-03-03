@@ -2,22 +2,35 @@
 const HEADER_SIGNATURE: &'static str = "SP";
 
 /// Loader submodule for sprite files.
-pub(crate) mod loader;
+pub mod loader;
 
 mod file;
 mod version;
 
+#[derive(Clone, Debug)]
+/// Encoded data represents an RLE-encoded chunk of data.
+pub struct EncodedData(pub Vec<u8>);
+
 /// Indexed image defines images that use the palette.
 #[derive(Debug)]
-pub(crate) struct IndexedImage {}
+pub struct IndexedImage {
+    /// The image width.
+    pub width: u16,
+    /// The image height.
+    pub height: u16,
+    /// The RLE-encoded data.
+    pub encoded_data: Option<EncodedData>,
+    /// The data.
+    pub data: Option<Vec<u8>>,
+}
 
 /// RGBA image defines images that use RGBA.
 #[derive(Debug)]
-pub(crate) struct RgbaImage {}
+pub struct RgbaImage {}
 
 /// The color palette color definition (RGBA).
 #[derive(Copy, Clone, Debug, Default)]
-pub(crate) struct PaletteColor {
+pub struct PaletteColor {
     _r: u8,
     _g: u8,
     _b: u8,
@@ -26,7 +39,8 @@ pub(crate) struct PaletteColor {
 
 /// The color palette for indexed images.
 #[derive(Copy, Clone, Debug)]
-pub(crate) struct Palette {
+pub struct Palette {
+    /// The palette colors.
     pub _colors: [PaletteColor; 256],
 }
 

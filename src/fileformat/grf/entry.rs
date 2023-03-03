@@ -6,11 +6,11 @@ use byteorder::{LittleEndian, ReadBytesExt};
 use crate::fileformat::FromBytes;
 
 /// The GRF entry header size constant.
-pub(crate) const ENTRY_HEADER_SIZE: usize = 17;
+pub const ENTRY_HEADER_SIZE: usize = 17;
 
 /// The encryption mode of the GRF entry.
 #[derive(Debug, Default)]
-pub(crate) enum Encryption {
+pub enum Encryption {
     #[default]
     /// No encryption.
     None = 0x01,
@@ -22,28 +22,28 @@ pub(crate) enum Encryption {
 
 /// GrfEntryHeader is the entry header of a given entry in a GRF file.
 #[derive(Debug, Default)]
-pub(crate) struct GrfEntryHeader {
+pub struct GrfEntryHeader {
     /// Compressed size in bytes.
-    pub(crate) _compressed_size: u32,
+    pub _compressed_size: u32,
     /// Compressed size aligned in bytes.
-    pub(crate) _compressed_size_aligned: u32,
+    pub _compressed_size_aligned: u32,
     /// Uncompressed size.
-    pub(crate) _uncompressed_size: u32,
+    pub _uncompressed_size: u32,
     /// Flags
-    pub(crate) _flags: u8,
+    pub _flags: u8,
     /// Offset
-    pub(crate) _offset: u32,
+    pub _offset: u32,
 }
 
 /// GrfEntry represents an individual file entry inside a GRF file.
 #[derive(Debug, Default)]
 pub struct GrfEntry {
     /// The entry raw data.
-    pub(crate) data: Vec<u8>,
+    pub data: Vec<u8>,
     /// File name.
-    pub(crate) file_name: String,
+    pub file_name: String,
     /// Entry header.
-    pub(crate) header: GrfEntryHeader,
+    pub header: GrfEntryHeader,
 }
 
 impl FromBytes for GrfEntry {
