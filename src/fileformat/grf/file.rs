@@ -26,13 +26,14 @@ pub struct GrfFile {
 
 impl GrfFile {
     /// The total file count excluding reserved files.
-    pub fn entry_count(&self) -> usize {
+    pub fn get_entry_count(&self) -> usize {
         return (self.header.entry_count - self.header.reserved) as usize - 7;
     }
 
     /// Get an entry by its path.
     pub fn get_entry(&self, path: &'static str) -> GrfEntry {
         let entry = self.entries.get(path).unwrap();
+
         let mut reader = Cursor::new(&self.data);
         reader
             .seek(SeekFrom::Start(
@@ -49,7 +50,7 @@ impl GrfFile {
 
         GrfEntry {
             data: uncompressed,
-            file_name: path.to_string(),
+            file_name: path.to_lowercase(),
             header: GrfEntryHeader {
                 _compressed_size: entry.header._compressed_size,
                 _compressed_size_aligned: entry.header._compressed_size_aligned,
@@ -105,7 +106,7 @@ impl FromBytes for GrfFile {
 
                 let mut reader = Cursor::new(&decompressed);
 
-                for _i in 0..f.entry_count() {
+                for _i in 0..f.get_entry_count() {
                     let mut buf = vec![];
                     let mut string_decoder = encoding_rs_io::DecodeReaderBytesBuilder::new();
                     reader

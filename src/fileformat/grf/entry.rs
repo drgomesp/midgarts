@@ -14,10 +14,6 @@ pub enum Encryption {
     #[default]
     /// No encryption.
     None = 0x01,
-    // /// Mixed encryption.
-    // Mixed = 0x02,
-    // /// Header-only encryption.
-    // Header = 0x04,
 }
 
 /// GrfEntryHeader is the entry header of a given entry in a GRF file.
@@ -72,7 +68,7 @@ impl FromBytes for GrfEntry {
 
         GrfEntry {
             data: bytes.to_vec(),
-            file_name: "".to_string(),
+            file_name: String::new(),
             header: GrfEntryHeader {
                 _compressed_size: compressed_size,
                 _compressed_size_aligned: compressed_size_aligned,
