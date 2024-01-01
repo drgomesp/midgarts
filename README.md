@@ -42,6 +42,12 @@ Milestone | Description |
 2. Arch Linux:
    `pacman -S sdl2{,_image,_mixer,_ttf,_gfx}`
 
+3. MacOS:
+  ```bash
+  brew install sdl2
+  brew install pkg-config
+  ```
+
 ## Building and Running
 
 1. Generate and env file by copying the distributed (.env.dist) file:
