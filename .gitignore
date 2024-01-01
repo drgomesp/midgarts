@@ -1,4 +1,8 @@
 .env
+.DS_Store
+tmp
+bin
+
 assets/grf/
 assets/out/
 assets/build/
