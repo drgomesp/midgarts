@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -25,6 +26,7 @@ import (
 	"github.com/project-midgard/midgarts/internal/system"
 	"github.com/project-midgard/midgarts/internal/system/opengl"
 	"github.com/project-midgard/midgarts/internal/window"
+	"github.com/project-midgard/midgarts/pkg/version"
 )
 
 const (
@@ -52,7 +54,7 @@ func main() {
 
 	var win *sdl.Window
 	if win, err = sdl.CreateWindow(
-		"Midgarts Client",
+		fmt.Sprintf("Midgarts Client - %s", version.Get()),
 		sdl.WINDOWPOS_UNDEFINED,
 		sdl.WINDOWPOS_UNDEFINED,
 		WindowWidth,

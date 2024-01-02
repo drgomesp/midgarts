@@ -263,7 +263,7 @@ func (ks *KeyState) Pressed(keyCode sdl.Keycode) bool {
 	return ks.states[keyCode]
 }
 
-func(ks *KeyState) Update(event sdl.Event) {
+func (ks *KeyState) Update(event sdl.Event) {
 	if event == nil {
 		return
 	}

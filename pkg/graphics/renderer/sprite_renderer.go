@@ -9,10 +9,10 @@ import (
 const NumVertexAttributes = 3
 
 var (
-	//go:embed shader/sprite.vert
+	//go:embed shaders/sprite.vert
 	vertexShader string
 
-	//go:embed shader/sprite.frag
+	//go:embed shaders/sprite.frag
 	fragmentShader string
 )
 
