@@ -44,8 +44,7 @@ Milestone | Description |
 
 3. MacOS:
   ```bash
-  brew install sdl2
-  brew install pkg-config
+  brew install sdl2{,_image,_mixer,_ttf,_gfx} pkg-config
   ```
 
 ## Building and Running
