@@ -52,11 +52,16 @@ func main() {
 	}
 	defer sdl.Quit()
 
+	desktop, err := sdl.GetDesktopDisplayMode(0)
+	if err != nil {
+		log.Fatal().Err(err).Msg("getting desktop display mode")
+	}
+
 	var win *sdl.Window
 	if win, err = sdl.CreateWindow(
 		fmt.Sprintf("Midgarts Client - %s", version.Get()),
-		sdl.WINDOWPOS_UNDEFINED,
-		sdl.WINDOWPOS_UNDEFINED,
+		desktop.W-WindowWidth,
+		0,
 		WindowWidth,
 		WindowHeight,
 		sdl.WINDOW_OPENGL,
