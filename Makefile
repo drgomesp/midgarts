@@ -45,6 +45,11 @@ build-grfexplorer:
 run:
 	go run github.com/cosmtrek/air@v1.40.4 --c="./air.toml"
 
+## grfexplorer: runs the grf explorer application
+.PHONY: grfexplorer
+grfexplorer: build-grfexplorer
+	./bin/grfexplorer
+
 
 # ==================================================================================== #
 # QUALITY CONTROL
