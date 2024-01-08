@@ -3,7 +3,7 @@ module github.com/project-midgard/midgarts
 go 1.16
 
 require (
-	github.com/AllenDang/giu v0.5.3
+	github.com/AllenDang/giu v0.7.0
 	github.com/EngoEngine/ecs v1.0.5
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-gl/gl v0.0.0-20211210172815-726fda9656d6
@@ -14,9 +14,10 @@ require (
 	github.com/joho/godotenv v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/rs/zerolog v1.26.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.8.4
+	github.com/suapapa/go_hangul v1.2.1
 	github.com/veandco/go-sdl2 v0.4.25
 	github.com/xlab/android-go v0.0.0-20221014001251-3dab312ceaf9 // indirect
 	github.com/xlab/closer v1.1.0
-	golang.org/x/text v0.3.6
+	golang.org/x/text v0.13.0
 )
