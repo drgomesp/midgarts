@@ -8,20 +8,32 @@ import (
 	g "github.com/AllenDang/giu"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/sqweek/dialog"
 	"github.com/suapapa/go_hangul/encoding/cp949"
+	"golang.org/x/text/encoding/charmap"
 
 	"github.com/project-midgard/midgarts/internal/fileformat/act"
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"github.com/project-midgard/midgarts/internal/fileformat/spr"
 )
 
+type SupportedEncodings string
+
+var (
+	EncodingWindows1252 SupportedEncodings = "Windows1252"
+	EncodingCP949       SupportedEncodings = "CP949"
+)
+
 var grfFile *grf.File
+var grfPath string
 var imageWidget = &g.ImageWidget{}
 var fileInfoWidget g.Widget
 var loadedImageName string
 var currentEntry *grf.Entry
 var splitSize float32 = 500
 var font []byte
+var currentEncoding SupportedEncodings = EncodingWindows1252
+var openFileSelector bool = false
 
 func init() {
 	zerolog.SetGlobalLevel(zerolog.TraceLevel)
@@ -36,13 +48,33 @@ func init() {
 }
 
 func main() {
-	wnd := g.NewMasterWindow("GRF Explorer", 800, 600, g.FocusedFlagsNone)
+	wnd := g.NewMasterWindow("GRF Explorer", 800, 600, g.MasterWindowFlagsNotResizable)
 	g.Context.FontAtlas.SetDefaultFontFromBytes(font, 16)
 	wnd.Run(Run)
 }
 
 func Run() {
-	g.SingleWindow().Layout(
+
+	g.SingleWindowWithMenuBar().Layout(
+		g.MenuBar().Layout(
+			g.Menu("File").Layout(
+				g.MenuItem("Open GRF").Shortcut("Ctrl+O").OnClick(func() {
+					openFileSelector = true
+				}),
+				g.MenuItem("Quit"),
+			),
+			g.Menu("Settings").Layout(
+				g.Menu("File Path Encoding").Layout(
+					g.MenuItem(string(EncodingWindows1252)).OnClick(func() {
+						currentEncoding = EncodingWindows1252
+					}).Selected(currentEncoding == EncodingWindows1252),
+					g.MenuItem(string(EncodingCP949)).OnClick(func() {
+						currentEncoding = EncodingCP949
+					}).Selected(currentEncoding == EncodingCP949),
+				),
+			),
+		),
+
 		g.SplitLayout(g.DirectionVertical, &splitSize,
 			buildEntryTreeNodes(),
 			g.Layout{
@@ -55,6 +87,21 @@ func Run() {
 				}),
 			},
 		),
+
+		g.Custom(func() {
+			if openFileSelector {
+				var err error
+				grfPath, err = dialog.File().Filter("", "grf").Load()
+				if err != nil {
+					panic(err)
+				}
+				grfFile, err = grf.Load(grfPath)
+				if err != nil {
+					panic(err)
+				}
+				openFileSelector = false
+			}
+		}),
 	)
 }
 
@@ -97,7 +144,7 @@ func loadFileInfo() {
 }
 
 func getDecodedFolder(buf []byte) (string, error) {
-	folderNameBytes, err := cp949.From(buf)
+	folderNameBytes, err := decode(buf)
 	return string(folderNameBytes), err
 }
 
@@ -126,7 +173,7 @@ func buildEntryTreeNodes() g.Layout {
 
 			var decodedDirName []byte
 			var err error
-			if decodedDirName, err = cp949.From([]byte(n.Value)); err != nil {
+			if decodedDirName, err = decode([]byte(n.Value)); err != nil {
 				panic(err)
 			}
 
@@ -135,7 +182,7 @@ func buildEntryTreeNodes() g.Layout {
 				selectableNodes = g.RangeBuilder("selectableNodes", nodeEntries, func(i int, v interface{}) g.Widget {
 					var decodedBytes []byte
 					var err error
-					if decodedBytes, err = cp949.From([]byte(v.(string))); err != nil {
+					if decodedBytes, err = decode([]byte(v.(string))); err != nil {
 						panic(err)
 					}
 					return g.Selectable(string(decodedBytes)).OnClick(func() {
@@ -178,4 +225,15 @@ func noErr(err error) bool {
 	}
 
 	return true
+}
+
+func decode(buf []byte) ([]byte, error) {
+	switch currentEncoding {
+	case EncodingCP949:
+		return cp949.From(buf)
+	case EncodingWindows1252:
+		return charmap.Windows1252.NewDecoder().Bytes(buf)
+	}
+
+	return nil, fmt.Errorf("current encoding \"%s\" not valid", currentEncoding)
 }
