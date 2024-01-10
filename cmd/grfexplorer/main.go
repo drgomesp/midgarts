@@ -114,6 +114,8 @@ func (app *App) fileSelectorModal() g.Widget {
 			app.grfFile, err = grf.Load(app.grfPath)
 			if err != nil {
 				log.Error().Err(err).Msg("Error loading GRF file")
+				errorDialog("⚠️  Loading GRF File", "Error loading GRF file: \n"+err.Error())
+
 				return
 			}
 		}
@@ -159,7 +161,7 @@ func (app *App) buildEntryTreeNodes() g.Layout {
 				var decodedBytes []byte
 				var err error
 				if decodedBytes, err = decode([]byte(v.(string)), app.currentEncoding); err != nil {
-					decodedBytes = []byte(fmt.Sprintf("⚠️ %s", v.(string)))
+					decodedBytes = []byte(fmt.Sprintf("⚠️  %s", v.(string)))
 				}
 				return g.Style().
 					SetColor(g.StyleColorText, color.RGBA{203, 213, 255, 255}).
@@ -272,4 +274,8 @@ func decode(buf []byte, encoding SupportedEncodings) ([]byte, error) {
 	default:
 		return nil, fmt.Errorf("unsupported encoding: %s", encoding)
 	}
+}
+
+func errorDialog(title, content string) {
+	dialog.Message("%v", content).Title(title).Error()
 }
