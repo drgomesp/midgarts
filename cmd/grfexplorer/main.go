@@ -13,6 +13,7 @@ import (
 	"github.com/suapapa/go_hangul/encoding/cp949"
 	"golang.org/x/text/encoding/charmap"
 
+	"github.com/project-midgard/midgarts/assets"
 	"github.com/project-midgard/midgarts/internal/fileformat/act"
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"github.com/project-midgard/midgarts/internal/fileformat/spr"
@@ -60,14 +61,8 @@ func configureLogger() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 }
 
-func (app *App) loadInitialData() error {
-	var err error
-	app.grfFile, err = grf.Load("./assets/grf/data.grf")
-	if err != nil {
-		return err
-	}
-
-	app.font, err = os.ReadFile("./assets/Fonts/FreeSans.ttf")
+func (app *App) loadInitialData() (err error) {
+	app.font = assets.FreeSans
 	return err
 }
 
@@ -75,8 +70,10 @@ func (app *App) run() {
 	g.SingleWindowWithMenuBar().Layout(
 		g.MenuBar().Layout(
 			g.Menu("File").Layout(
-				g.MenuItem("Open GRF").Shortcut("Ctrl+O").OnClick(app.openGRFSelector),
-				g.MenuItem("Quit"),
+				g.MenuItem("Open GRF").OnClick(app.openGRFSelector),
+				g.MenuItem("Quit").OnClick(func() {
+					os.Exit(0)
+				}),
 			),
 			app.fileEncodingMenu(),
 		),
@@ -106,6 +103,9 @@ func (app *App) fileSelectorModal() g.Widget {
 	return g.Custom(func() {
 		if app.openFileSelector {
 			var err error
+			defer func() {
+				app.openFileSelector = false
+			}()
 			app.grfPath, err = dialog.File().Filter("", "grf").Load()
 			if err != nil {
 				log.Error().Err(err).Msg("Error opening GRF file")
@@ -116,12 +116,19 @@ func (app *App) fileSelectorModal() g.Widget {
 				log.Error().Err(err).Msg("Error loading GRF file")
 				return
 			}
-			app.openFileSelector = false
 		}
 	})
 }
 
 func (app *App) buildEntryTreeNodes() g.Layout {
+	if app.grfFile == nil {
+		return g.Layout{
+			g.Style().SetStyle(g.StyleVarFramePadding, 10, 5).
+				To(
+					g.Button("Select a GRF file").OnClick(app.openGRFSelector),
+				),
+		}
+	}
 	entries := app.grfFile.GetEntryTree()
 
 	var nodes []any
