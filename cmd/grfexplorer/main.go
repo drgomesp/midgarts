@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	g "github.com/AllenDang/giu"
+	"github.com/atotto/clipboard"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/sqweek/dialog"
@@ -33,10 +34,12 @@ type App struct {
 	fileInfoWidget   g.Widget
 	loadedImageName  string
 	currentEntry     *grf.Entry
+	currentEntryName string
 	splitSize        float32
 	font             []byte
 	currentEncoding  SupportedEncodings
 	openFileSelector bool
+	filter           string
 }
 
 func main() {
@@ -76,6 +79,10 @@ func (app *App) run() {
 				}),
 			),
 			app.fileEncodingMenu(),
+		),
+		g.Row(
+			g.Label("Filter:"),
+			g.InputText(&app.filter).Size(200),
 		),
 		g.SplitLayout(g.DirectionVertical, &app.splitSize, app.buildEntryTreeNodes(), app.fileInfoLayout()),
 		app.fileSelectorModal(),
@@ -144,7 +151,7 @@ func (app *App) buildEntryTreeNodes() g.Layout {
 		nodeEntries := make([]any, 0)
 
 		for _, e := range app.grfFile.GetEntries(n.Value) {
-			if strings.Contains(e.Name, ".spr") {
+			if strings.Contains(e.Name, ".spr") && strings.Contains(e.Name, app.filter) {
 				nodeEntries = append(nodeEntries, e.Name)
 			}
 		}
@@ -186,6 +193,8 @@ func (app *App) buildEntryTreeNodes() g.Layout {
 }
 
 func (app *App) onClickEntry(entryName string) {
+	app.currentEntryName = entryName
+
 	if strings.Contains(entryName, ".act") {
 		var err error
 		app.currentEntry, err = app.grfFile.GetEntry(entryName)
@@ -231,6 +240,9 @@ func (app *App) loadFileInfo() {
 			Rows(
 				g.TableRow(g.Label("Width").Wrapped(true), g.Label(fmt.Sprintf("%d", sprFile.Frames[0].Width))),
 				g.TableRow(g.Label("Height").Wrapped(true), g.Label(fmt.Sprintf("%d", sprFile.Frames[0].Height))),
+				g.TableRow(g.Button("Copy File Path").OnClick(func() {
+					clipboard.WriteAll(app.currentEntryName)
+				})),
 			).Flags(g.TableFlagsBordersH),
 	}
 }
