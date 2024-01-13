@@ -13,6 +13,7 @@ import (
 	"github.com/sqweek/dialog"
 	"github.com/suapapa/go_hangul/encoding/cp949"
 	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/korean"
 
 	"github.com/project-midgard/midgarts/assets"
 	"github.com/project-midgard/midgarts/internal/fileformat/act"
@@ -25,6 +26,7 @@ type SupportedEncodings string
 const (
 	EncodingWindows1252 SupportedEncodings = "Windows1252"
 	EncodingCP949       SupportedEncodings = "CP949"
+	EncodingEUCKR       SupportedEncodings = "EUCKR"
 )
 
 type App struct {
@@ -98,6 +100,9 @@ func (app *App) fileEncodingMenu() *g.MenuWidget {
 			g.MenuItem(string(EncodingCP949)).OnClick(func() {
 				app.currentEncoding = EncodingCP949
 			}).Selected(app.currentEncoding == EncodingCP949),
+			g.MenuItem(string(EncodingEUCKR)).OnClick(func() {
+				app.currentEncoding = EncodingEUCKR
+			}).Selected(app.currentEncoding == EncodingEUCKR),
 		),
 	)
 }
@@ -283,6 +288,8 @@ func decode(buf []byte, encoding SupportedEncodings) ([]byte, error) {
 		return cp949.From(buf)
 	case EncodingWindows1252:
 		return charmap.Windows1252.NewDecoder().Bytes(buf)
+	case EncodingEUCKR:
+		return korean.EUCKR.NewDecoder().Bytes(buf)
 	default:
 		return nil, fmt.Errorf("unsupported encoding: %s", encoding)
 	}
