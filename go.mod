@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/AllenDang/giu v0.7.0
 	github.com/EngoEngine/ecs v1.0.5
+	github.com/atotto/clipboard v0.1.4
 	github.com/davecgh/go-spew v1.1.1
 	github.com/go-gl/gl v0.0.0-20211210172815-726fda9656d6
 	github.com/go-gl/mathgl v1.0.0
@@ -15,7 +16,6 @@ require (
 	github.com/rs/zerolog v1.26.1
 	github.com/sqweek/dialog v0.0.0-20220809060634-e981b270ebbf
 	github.com/stretchr/testify v1.8.4
-	github.com/suapapa/go_hangul v1.2.1
 	github.com/veandco/go-sdl2 v0.4.25
 	github.com/xlab/closer v1.1.0
 	golang.org/x/text v0.13.0
@@ -25,7 +25,6 @@ require (
 	github.com/AllenDang/go-findfont v0.0.0-20200702051237-9f180485aeb8 // indirect
 	github.com/AllenDang/imgui-go v1.12.1-0.20221124025851-59b862ca5a0c // indirect
 	github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf // indirect
-	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/faiface/mainthread v0.0.0-20171120011319-8b78f0a41ae3 // indirect
 	github.com/go-gl/glfw v0.0.0-20221017161538-93cebf72946b // indirect
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20221017161538-93cebf72946b // indirect
