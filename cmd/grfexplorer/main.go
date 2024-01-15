@@ -126,7 +126,7 @@ func (app *App) buildEntryTreeNodes() g.Layout {
 		nodeEntries := make([]any, 0)
 
 		for _, e := range app.grfFile.GetEntries(n.Value) {
-			if strings.Contains(e.Name, ".spr") && strings.Contains(e.Name, app.filter) {
+			if strings.Contains(e.Name.String(), ".spr") && strings.Contains(e.Name.String(), app.filter) {
 				nodeEntries = append(nodeEntries, e.Name)
 			}
 		}
@@ -134,11 +134,12 @@ func (app *App) buildEntryTreeNodes() g.Layout {
 		if len(nodeEntries) > 0 {
 			node := g.TreeNode(fmt.Sprintf("%s (%d)", n.Value, len(nodeEntries)))
 			selectableNodes = g.RangeBuilder("selectableNodes", nodeEntries, func(i int, v interface{}) g.Widget {
+				entryPath := v.(*grf.Path)
 				return g.Style().
 					SetColor(g.StyleColorText, color.RGBA{203, 213, 255, 255}).
 					To(
-						g.Selectable(v.(string)).OnClick(func() {
-							app.onClickEntry(v.(string))
+						g.Selectable(entryPath.String()).OnClick(func() {
+							app.onClickEntry(entryPath.String())
 						}),
 					)
 
@@ -204,9 +205,15 @@ func (app *App) loadFileInfo() {
 			Rows(
 				g.TableRow(g.Label("Width").Wrapped(true), g.Label(fmt.Sprintf("%d", sprFile.Frames[0].Width))),
 				g.TableRow(g.Label("Height").Wrapped(true), g.Label(fmt.Sprintf("%d", sprFile.Frames[0].Height))),
-				g.TableRow(g.Button("Copy File Path").OnClick(func() {
-					clipboard.WriteAll(app.currentEntryName)
-				})),
+				g.TableRow(g.Label("Korean").Wrapped(true), g.Label(app.currentEntry.Name.Korean())),
+				g.TableRow(
+					g.Button("Copy Path").OnClick(func() {
+						clipboard.WriteAll(app.currentEntryName)
+					}),
+					g.Button("Copy Korean Path").OnClick(func() {
+						clipboard.WriteAll(app.currentEntry.Name.Korean())
+					}),
+				),
 			).Flags(g.TableFlagsBordersH),
 	}
 }

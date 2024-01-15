@@ -5,16 +5,17 @@ import (
 	"compress/zlib"
 	"encoding/binary"
 	"fmt"
-	"github.com/project-midgard/midgarts/internal/fileformat/act"
-	"github.com/project-midgard/midgarts/internal/fileformat/spr"
 	"io"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
-	"github.com/pkg/errors"
+	"github.com/project-midgard/midgarts/internal/fileformat/act"
+	"github.com/project-midgard/midgarts/internal/fileformat/spr"
 	"golang.org/x/text/encoding/charmap"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -89,7 +90,7 @@ func (f *File) GetEntry(name string) (entry *Entry, err error) {
 	}
 
 	for _, e := range entries {
-		if e.Name == name {
+		if e.Name.String() == name {
 			entry = e
 			break
 		}
@@ -212,6 +213,11 @@ func (f *File) parseEntries(file *os.File) error {
 			return errors.Wrap(err, "could not decode entry file name")
 		}
 
+		entryPath, err := NewFilePath(fileNameBytes[0 : len(fileNameBytes)-1])
+		if err != nil {
+			return errors.Wrap(err, "decoding entry path")
+		}
+
 		entry := &Entry{Data: []byte{}}
 
 		if err = binary.Read(reader, binary.LittleEndian, &entry.Header); err != nil {
@@ -223,7 +229,7 @@ func (f *File) parseEntries(file *os.File) error {
 		}
 
 		properFileName := strings.ToLower(strings.ReplaceAll(string(d), `\`, `/`))
-		entry.Name = properFileName
+		entry.Name = entryPath
 		dir, _ := filepath.Split(properFileName)
 		dir = strings.TrimSuffix(dir, `/`)
 		uniqueDirs[dir] = true

@@ -26,7 +26,8 @@ type EntryHeader struct {
 
 // Entry ...
 type Entry struct {
-	Name   string
+	Name *Path
+
 	Header EntryHeader
 	Data   []byte
 }
