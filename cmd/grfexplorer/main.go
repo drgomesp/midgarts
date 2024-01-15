@@ -43,7 +43,7 @@ func main() {
 		log.Fatal().Err(err).Send()
 	}
 
-	wnd := g.NewMasterWindow("GRF Explorer", 800, 600, g.MasterWindowFlagsNotResizable)
+	wnd := g.NewMasterWindow("GRF Explorer", 800, 600, 0)
 	g.Context.FontAtlas.SetDefaultFontFromBytes(app.font, 16)
 	wnd.Run(app.run)
 }
