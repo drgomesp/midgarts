@@ -36,6 +36,7 @@ type App struct {
 	font             []byte
 	openFileSelector bool
 	filter           string
+	filterByKorean   bool
 }
 
 func main() {
@@ -91,6 +92,7 @@ func (app *App) run() {
 		g.Row(
 			g.Label("Filter:"),
 			g.InputText(&app.filter).Size(200),
+			g.Checkbox("Korean", &app.filterByKorean),
 		),
 		g.SplitLayout(g.DirectionVertical, &app.splitSize, app.buildEntryTreeNodes(), app.fileInfoLayout()),
 		app.fileSelectorModal(),
@@ -146,7 +148,11 @@ func (app *App) buildEntryTreeNodes() g.Layout {
 		nodeEntries := make([]any, 0)
 
 		for _, e := range app.grfFile.GetEntries(n.Value) {
-			if strings.Contains(e.Name.String(), ".spr") && strings.Contains(e.Name.String(), app.filter) {
+			filterValue := e.Name.String()
+			if app.filterByKorean {
+				filterValue = e.Name.Korean()
+			}
+			if strings.Contains(e.Name.String(), ".spr") && strings.Contains(filterValue, app.filter) {
 				nodeEntries = append(nodeEntries, e.Name)
 			}
 		}
