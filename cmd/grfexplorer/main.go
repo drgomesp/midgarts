@@ -11,22 +11,11 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/sqweek/dialog"
-	"github.com/suapapa/go_hangul/encoding/cp949"
-	"golang.org/x/text/encoding/charmap"
-	"golang.org/x/text/encoding/korean"
 
 	"github.com/project-midgard/midgarts/assets"
 	"github.com/project-midgard/midgarts/internal/fileformat/act"
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"github.com/project-midgard/midgarts/internal/fileformat/spr"
-)
-
-type SupportedEncodings string
-
-const (
-	EncodingWindows1252 SupportedEncodings = "Windows1252"
-	EncodingCP949       SupportedEncodings = "CP949"
-	EncodingEUCKR       SupportedEncodings = "EUCKR"
 )
 
 type App struct {
@@ -39,16 +28,14 @@ type App struct {
 	currentEntryName string
 	splitSize        float32
 	font             []byte
-	currentEncoding  SupportedEncodings
 	openFileSelector bool
 	filter           string
 }
 
 func main() {
 	app := &App{
-		splitSize:       500,
-		currentEncoding: EncodingWindows1252,
-		imageWidget:     &g.ImageWidget{},
+		splitSize:   500,
+		imageWidget: &g.ImageWidget{},
 	}
 
 	configureLogger()
@@ -80,7 +67,6 @@ func (app *App) run() {
 					os.Exit(0)
 				}),
 			),
-			app.fileEncodingMenu(),
 		),
 		g.Row(
 			g.Label("Filter:"),
@@ -88,22 +74,6 @@ func (app *App) run() {
 		),
 		g.SplitLayout(g.DirectionVertical, &app.splitSize, app.buildEntryTreeNodes(), app.fileInfoLayout()),
 		app.fileSelectorModal(),
-	)
-}
-
-func (app *App) fileEncodingMenu() *g.MenuWidget {
-	return g.Menu("Settings").Layout(
-		g.Menu("File Path Encoding").Layout(
-			g.MenuItem(string(EncodingWindows1252)).OnClick(func() {
-				app.currentEncoding = EncodingWindows1252
-			}).Selected(app.currentEncoding == EncodingWindows1252),
-			g.MenuItem(string(EncodingCP949)).OnClick(func() {
-				app.currentEncoding = EncodingCP949
-			}).Selected(app.currentEncoding == EncodingCP949),
-			g.MenuItem(string(EncodingEUCKR)).OnClick(func() {
-				app.currentEncoding = EncodingEUCKR
-			}).Selected(app.currentEncoding == EncodingEUCKR),
-		),
 	)
 }
 
@@ -161,24 +131,13 @@ func (app *App) buildEntryTreeNodes() g.Layout {
 			}
 		}
 
-		var decodedDirName []byte
-		var err error
-		if decodedDirName, err = decode([]byte(n.Value), app.currentEncoding); err != nil {
-			decodedDirName = []byte(fmt.Sprintf("⚠️ %s", n.Value))
-		}
-
 		if len(nodeEntries) > 0 {
-			node := g.TreeNode(fmt.Sprintf("%s (%d)", decodedDirName, len(nodeEntries)))
+			node := g.TreeNode(fmt.Sprintf("%s (%d)", n.Value, len(nodeEntries)))
 			selectableNodes = g.RangeBuilder("selectableNodes", nodeEntries, func(i int, v interface{}) g.Widget {
-				var decodedBytes []byte
-				var err error
-				if decodedBytes, err = decode([]byte(v.(string)), app.currentEncoding); err != nil {
-					decodedBytes = []byte(fmt.Sprintf("⚠️  %s", v.(string)))
-				}
 				return g.Style().
 					SetColor(g.StyleColorText, color.RGBA{203, 213, 255, 255}).
 					To(
-						g.Selectable(string(decodedBytes)).OnClick(func() {
+						g.Selectable(v.(string)).OnClick(func() {
 							app.onClickEntry(v.(string))
 						}),
 					)
@@ -279,19 +238,6 @@ func (app *App) fileInfoLayout() g.Layout {
 				app.loadImage(app.loadedImageName)
 			}
 		}),
-	}
-}
-
-func decode(buf []byte, encoding SupportedEncodings) ([]byte, error) {
-	switch encoding {
-	case EncodingCP949:
-		return cp949.From(buf)
-	case EncodingWindows1252:
-		return charmap.Windows1252.NewDecoder().Bytes(buf)
-	case EncodingEUCKR:
-		return korean.EUCKR.NewDecoder().Bytes(buf)
-	default:
-		return nil, fmt.Errorf("unsupported encoding: %s", encoding)
 	}
 }
 
