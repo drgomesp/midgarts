@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image/color"
 	"os"
+	"path/filepath"
 	"strings"
 
 	g "github.com/AllenDang/giu"
@@ -215,6 +216,8 @@ func (app *App) loadFileInfo() {
 		return
 	}
 
+	_, koreanFileName := filepath.Split(app.currentEntry.Name.Korean())
+
 	app.fileInfoWidget = g.Layout{
 		g.Table().
 			Columns(
@@ -224,7 +227,7 @@ func (app *App) loadFileInfo() {
 			Rows(
 				g.TableRow(g.Label("Width").Wrapped(true), g.Label(fmt.Sprintf("%d", sprFile.Frames[0].Width))),
 				g.TableRow(g.Label("Height").Wrapped(true), g.Label(fmt.Sprintf("%d", sprFile.Frames[0].Height))),
-				g.TableRow(g.Label("Korean").Wrapped(true), g.Label(app.currentEntry.Name.Korean())),
+				g.TableRow(g.Label("Korean").Wrapped(true), g.Label(koreanFileName)),
 				g.TableRow(
 					g.Button("Copy Path").OnClick(func() {
 						clipboard.WriteAll(app.currentEntryName)
