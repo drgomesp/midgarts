@@ -8,6 +8,7 @@ import (
 
 	g "github.com/AllenDang/giu"
 	"github.com/atotto/clipboard"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/sqweek/dialog"
@@ -16,6 +17,10 @@ import (
 	"github.com/project-midgard/midgarts/internal/fileformat/act"
 	"github.com/project-midgard/midgarts/internal/fileformat/grf"
 	"github.com/project-midgard/midgarts/internal/fileformat/spr"
+)
+
+var (
+	GrfFilePath = os.Getenv("GRF_FILE_PATH")
 )
 
 type App struct {
@@ -53,9 +58,23 @@ func configureLogger() {
 	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr})
 }
 
-func (app *App) loadInitialData() (err error) {
+func (app *App) loadInitialData() error {
+	// loads an embedded font
 	app.font = assets.FreeSans
-	return err
+
+	// respects grf env var (if present)
+	if GrfFilePath != "" {
+		var err error
+		app.grfFile, err = grf.Load(GrfFilePath)
+		if err != nil {
+			log.Warn().Err(err).Msg("Error loading GRF file")
+
+			// nil fail, let the user manually select their grf
+			return nil
+		}
+	}
+
+	return nil
 }
 
 func (app *App) run() {
