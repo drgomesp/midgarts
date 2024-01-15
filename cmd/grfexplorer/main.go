@@ -233,7 +233,9 @@ func (app *App) loadFileInfo() {
 			Rows(
 				g.TableRow(g.Label("Width").Wrapped(true), g.Label(fmt.Sprintf("%d", sprFile.Frames[0].Width))),
 				g.TableRow(g.Label("Height").Wrapped(true), g.Label(fmt.Sprintf("%d", sprFile.Frames[0].Height))),
-				g.TableRow(g.Label("Korean").Wrapped(true), g.Label(koreanFileName)),
+				g.TableRow(g.Label("Korean").Wrapped(true), g.Row(g.Label(koreanFileName), g.Button("[C]").OnClick(func() {
+					clipboard.WriteAll(koreanFileName)
+				}))),
 				g.TableRow(
 					g.Button("Copy Path").OnClick(func() {
 						clipboard.WriteAll(app.currentEntryName)
