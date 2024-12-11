@@ -1,6 +1,7 @@
-# Midgarts
 
-Midgarts Client is an attempt to write a modern client implementation of the old classic [Ragnarök Online](https://ragnarok.fandom.com/wiki/Ragnarok_Online) game.
+# Midgarts Client
+
+Welcome to the **Midgarts Client**, a graphical client primarily built using SDL2, OpenGL, and various custom and third-party libraries. The project is designed to create an interactive and visually appealing environment for manipulating and rendering game characters and actions. The application showcases entities, systems, and OpenGL integration for real-time character movement and rendering.
 
 Current Screenshots:
 
@@ -13,104 +14,156 @@ Current Screenshots:
     <img src="https://user-images.githubusercontent.com/696982/115995910-96a42180-a5b3-11eb-8200-1cfae06bf5bc.gif" width="34%" />
 </p>
 
+---
+
 ## Table of Contents
 
-- Introduction (coming soon)
-- [TODO](https://github.com/drgomesp/midgarts/blob/master/TODO.md#todo)
-- [Dependencies](https://github.com/drgomesp/midgarts/blob/master/README.md#dependencies)
-- [Building & Running](https://github.com/drgomesp/midgarts/blob/master/README.md#building-and-running)
-- [Tools](https://github.com/drgomesp/midgarts/blob/master/README.md#tools)
-    - [GRF Explorer](https://github.com/drgomesp/midgarts/blob/master/README.md#grf-explorer)
-- [Examples](https://github.com/drgomesp/midgarts/blob/master/README.md#examples)
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [Requirements](#requirements)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Folder Structure](#folder-structure)
+- [License](#license)
 
-## Introduction
+---
 
-## TODO
+## Project Overview
 
-Please have a look at the open milestones:
+The Midgarts Client uses the **Entity-Component-System (ECS)** architecture to manage game objects and their interactions. It focuses on simulating a modeled game environment, rendering scene objects (like characters), and controlling game entities.
 
-Milestone | Description |
---------- | ----------- |
-[Character Graphics](https://github.com/drgomesp/midgarts/milestone/1) | Everything related to rendering character sprites, including character attachments, sprite animations and such.
-[World Graphics](https://github.com/drgomesp/midgarts/milestone/2) | Everything related to world graphics, including 3D objects, terrain, water and lights.
+The main goals include:
+- Configuring characters with properties like job sprites, direction, position, and states.
+- Using **OpenGL** for rendering.
+- SDL2 for window and event management.
+- Integration with GRF file format for asset loading.
 
-## Dependencies
+---
 
-1. CentOS/Fedora-like Linux Distros:
-   `SDL2{,_image,_mixer,_ttf,_gfx}-devel alsa-lib-devel libX11-devel libXcursor-devel libXrandr-devel libXinerama-devel mesa-libGL-devel libXi-devel libXxf86vm-devel`
+## Features
 
-2. Arch Linux:
-   `pacman -S sdl2{,_image,_mixer,_ttf,_gfx}`
+1. **Character Creation and Rendering**:
+   - Multiple characters with configurable sprites, positions, and states.
+   - Supports movement and states like "Standing" and "Walking".
 
-3. MacOS:
-  ```bash
-  brew install sdl2{,_image,_mixer,_ttf,_gfx} pkg-config
-  ```
+2. **OpenGL Integration**:
+   - Real-time rendering of characters using a perspective camera.
+   - Efficient use of OpenGL viewport settings and caching.
 
-## Building and Running
+3. **Keyboard and Mouse Controls**:
+   - Move characters using `W`, `A`, `S`, `D` keys.
+   - Adjust camera position using `Z`, `X`, `C`, `V` keys.
+   - Mouse-click-based direction control.
 
-1. Generate and env file by copying the distributed (.env.dist) file:
-```bash
-cp .env.dist .env 
+4. **Game Assets from GRF Files**:
+   - Reads sprite data and configuration files from `.grf` file systems.
+
+5. **Modular Architecture with ECS**:
+   - Encapsulation of rendering and action logic into systems.
+   - Seamless addition/removal of entities or other systems.
+
+6. **Logging and Debugging**:
+   - Uses [zerolog](https://github.com/rs/zerolog) for structured logging.
+   - Debug output including input states and errors.
+
+---
+
+## Requirements
+
+To build and run the Midgarts Client, the following dependencies must be installed:
+
+- **Go SDK 1.21 or later**
+- **Libraries**:
+  - [Engo ECS](https://github.com/EngoEngine/ecs): Entity-Component-System architecture.
+  - [SDL2](https://github.com/veandco/go-sdl2): SDL2 bindings for Go (For windowing and events).
+  - [OpenGL](https://github.com/go-gl/gl): OpenGL bindings for Go.
+  - [MathGL](https://github.com/go-gl/mathgl): Vector and matrix operations.
+  - [Godotenv](https://github.com/joho/godotenv): Automatic `.env` file loading.
+  - [GRF](https://github.com/project-midgard/midgarts/internal/fileformat/grf): Custom library for `.grf` files.
+  - [Zerolog](https://github.com/rs/zerolog): Structured and fast logging.
+
+---
+
+## Setup
+
+### Step 1: Clone the Repository
+
+```sh
+git clone <repository-url>
+cd midgarts-client
 ```
 
-2. Make sure to alter the `GRF_FILE_PATH` variable on the `.env` file:
-```dotenv
-GRF_FILE_PATH=/path/to/data.grf
+### Step 2: Install Dependencies
+
+Use Go to download all the required modules:
+
+```sh
+go mod tidy
 ```
 
-3. Build the main binary by running:
-```bash
-go build -o midgarts ./cmd/sdlclient/main.go 
+### Step 3: Set Environment Variables
+
+The application requires the `.env` file or environmental variable `GRF_FILE_PATH` to locate required assets:
+
+```env
+GRF_FILE_PATH=/path/to/your/grf/file
 ```
 
-4. Run the binary:
-```bash
-./midgarts
+### Step 4: Run the Application
+
+After setting up everything, simply run:
+
+```sh
+go run main.go
 ```
 
-## Tools
+---
 
-### GRF Explorer
+## Usage
 
-Latest screenshots:
+### Controls
 
-![image](https://user-images.githubusercontent.com/696982/111029961-72fb9200-83de-11eb-8707-ded945850305.png)
-![image](https://user-images.githubusercontent.com/696982/111030058-0339d700-83df-11eb-8546-0cc931ce36ed.png)
+#### **Character Movement**
+| Action                      | Input                                       |
+|-----------------------------|---------------------------------------------|
+| Move Up                     | `W`                                         |
+| Move Down                   | `S`                                         |
+| Move Left                   | `A`                                         |
+| Move Right                  | `D`                                         |
+| Diagonal Movement           | `W+D`, `W+A`, `S+D`, `S+A`                 |
 
+#### **Character Direction via Mouse**
+| Action                               | Input                          |
+|--------------------------------------|--------------------------------|
+| Set Direction (Mouse Click)          | Top-left, Bottom-left, etc. in respective viewport |
 
-## Examples
+#### **Camera Controls**
+| Action                   | Input    |
+|--------------------------|----------|
+| Move Camera Backward     | `Z`      |
+| Move Camera Forward      | `X`      |
+| Move Camera Left         | `C`      |
+| Move Camera Right        | `V`      |
 
-### Loading a GRF file
+---
 
-```go
-grfFilef, err := grf.Load("data.grf")
-```
+## Folder Structure
 
+The following are some key directories in the project:
 
-### Getting an entry
+- **`internal/camera`**: Perspective camera logic.
+- **`internal/character`**: Character properties (direction, state, jobs, etc.).
+- **`internal/entity`**: Definitions for character entities.
+- **`internal/system`**: Systems for action handling and rendering logic.
+- **`internal/window`**: SDL2-based window utilities.
+- **`pkg/version`**: Application version management.
 
-```go
-grfEntry, err := f.GetEntry("data\sprite\ork_warrior.spr")
-```
+---
 
-### Loading SPR files
+## License
 
-```go
-sprFile, err := spr.Load(e.Data)
-```
+This project is licensed under the MIT License. For more details, refer to the `LICENSE` file.
 
-### Generating a PNG from a sprite
+---
 
-```go
-outputFile, err := os.Create("out/test.png")
-if err != nil {
-log.Fatal(err)
-}
-
-defer outputFile.Close()
-
-if err = png.Encode(outputFile, img); err != nil {
-log.Fatal(err)
-}
-```
+Enjoy building with the Midgarts Client! For contributions or bug reporting, please reach out via the project's issue tracker.
